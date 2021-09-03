@@ -14,7 +14,7 @@ time.sleep(5)
 file_path = (
     "C:/Users/felipe.ospina/OneDrive - MINEROS/Desktop/repo/projects/MagicMedios"
 )
-file = open(f"{file_path}/info.txt", "r")
+file = open(f"{file_path}/data.txt", "r")
 consecutivo = file.readline().strip()
 representative = file.readline()
 contact = file.readline()
