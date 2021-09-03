@@ -59,10 +59,10 @@ def catalogos_promo(ref_list, document):
             response = requests.get(img_src)
 
             if response.status_code == 200:
-                file = open("sample_image.jpg", "wb")
+                file = open("./images/sample_image.jpg", "wb")
                 file.write(response.content)
                 file.close()
-                document.add_picture("sample_image.jpg", width=Inches(5.25))
+                document.add_picture("./images/sample_image.jpg", width=Inches(5.25))
                 document.add_page_break()
             else:
                 print(f'Error al descargar imagen de la ref {reference}, status code({response.status_code})')

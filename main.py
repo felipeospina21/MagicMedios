@@ -6,7 +6,7 @@ from utils import create_supplier_ref_list, scrapp_supplier_data
 file_path = (
     "C:/Users/felipe.ospina/OneDrive - MINEROS/Desktop/repo/projects/MagicMedios"
 )
-file = open(f"{file_path}/data.txt", "r")
+file = open(f"{file_path}/data/data.txt", "r")
 consecutivo = file.readline().strip()
 representative = file.readline()
 contact = file.readline()
@@ -14,7 +14,7 @@ email = file.readline()
 file.close()
 nuevo_consecutivo = int(consecutivo) + 1
 
-file = open(f"{file_path}/info.txt", "w")
+file = open(f"{file_path}/data/data.txt", "w")
 file.write(f"{nuevo_consecutivo}\n")
 file.write(representative)
 file.write(contact)
@@ -34,7 +34,7 @@ suppliers = {
     'prov4_refs' : []
 }
 
-document = Document('plantilla_cot.docx')
+document = Document('./plantillas/plantilla_cot.docx')
 cliente = document.add_paragraph()
 cliente.add_run(f'Señor(a) {client}.').bold = True
 empresa = document.add_paragraph()
@@ -51,4 +51,4 @@ for ref in reference:
     suppliers = create_supplier_ref_list(ref,suppliers)
 
 scrapp_supplier_data(suppliers, document)
-document.save(f'cotización_{company}.docx')
+document.save(f'./cotizaciones/cotización_{company}.docx')
