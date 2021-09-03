@@ -2,10 +2,10 @@ info.txt
 data.txt
 
 # notebooks
-.ipynb
+*.ipynb
 
 #Docx
-.docx
+*.docx
 
 #Imgs
-.jpg
+*.jpg
