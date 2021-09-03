@@ -50,5 +50,5 @@ correo.add_run(email).bold = False
 for ref in reference:
     suppliers = create_supplier_ref_list(ref,suppliers)
 
-scrapp_supplier_data(suppliers)
+scrapp_supplier_data(suppliers, document)
 document.save(f'cotización_{company}.docx')
