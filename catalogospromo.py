@@ -52,6 +52,20 @@ def catalogos_promo(ref_list, document):
         except:
             print(f'No se pudo obtener la cantidad minima de la ref {reference}')
 
+        # Inventario
+        try:
+            rows = driver.find_elements_by_xpath(f"//tr[@class='titlesRow']/following-sibling::tr")
+            rows_len = len(rows)
+            table = document.add_table(rows=rows_len, cols=2)
+            col1 = table.columns[0]
+            col2 = table.columns[1]
+            for row in rows:
+                rows_list = row.text.split()
+                col1.cells[rows.index(row)].text = rows_list[0]
+                col2.cells[rows.index(row)].text = rows_list[3]
+        except:
+            print('No se pudo obtener el inventario')
+
         # Imagen
         try:
             img = driver.find_element_by_id("img_01")
@@ -67,7 +81,7 @@ def catalogos_promo(ref_list, document):
             else:
                 print(f'Error al descargar imagen de la ref {reference}, status code({response.status_code})')
         except:
-            print(f'Error al descargar imagen de la ref {reference}')
+            print(f'Error al descargar imagen de la ref {reference}')       
 
    
     driver.quit()

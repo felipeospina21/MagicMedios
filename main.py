@@ -41,11 +41,15 @@ empresa = document.add_paragraph()
 empresa.add_run(company).bold = True
 
 asesor = document.add_paragraph()
-asesor.add_run(representative).bold = False
-contacto = document.add_paragraph()
-contacto.add_run(contact).bold = False
-correo = document.add_paragraph()
-correo.add_run(email).bold = False
+nombre = asesor.add_run(representative)
+# nombre.bold = False
+# nombre.add_break()
+contacto= asesor.add_run(contact)
+# contacto.bold = False
+# contacto.add_break()
+correo = asesor.add_run(email)
+# correo.bold = False
+correo.add_break()
 
 for ref in reference:
     suppliers = create_supplier_ref_list(ref,suppliers)
