@@ -15,6 +15,7 @@ def get_data(ref_list, document):
 
         # Busca referencia
         search_input = driver.find_element_by_id('productos')
+        search_input.clear()
         search_input.send_keys(reference)
         search_btn = driver.find_element_by_xpath("//input[@id='productos']/following-sibling::a")
         search_btn.click()

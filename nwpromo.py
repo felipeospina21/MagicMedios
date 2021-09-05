@@ -22,6 +22,7 @@ def get_data(ref_list, document):
 
         # Busca referencia
         search_input = driver.find_element_by_id('search_query_top')
+        search_input.clear()
         search_input.send_keys(reference)
         search_input.send_keys(Keys.RETURN)
         time.sleep(3)
@@ -64,7 +65,6 @@ def get_data(ref_list, document):
                 inv_color = driver.find_element_by_xpath(f"{tabla_colores}/tr[{i}]/td[5]").text
                 inv_line = inventario.add_run(f"{color} - {inv_color}")
                 inv_line.add_break()
-                print(color, inv_color)
         except:
             print('No se pudo obtener el inventario')
 

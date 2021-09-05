@@ -17,6 +17,7 @@ def get_data(ref_list, document):
 
         # Busca referencia
         search_input = driver.find_element_by_id('mat-input-0')
+        search_input.clear()
         search_input.send_keys(reference)
         search_input.send_keys(Keys.RETURN)
         time.sleep(3)
