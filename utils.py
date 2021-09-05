@@ -14,12 +14,12 @@ def create_supplier_ref_list(ref,suppliers_dict):
     return suppliers_dict
 
 def scrapp_supplier_data(suppliers_dict, document):
-    if len(suppliers_dict['cp_refs']) != 0:
-        catalogos_promo(suppliers_dict['cp_refs'], document)
+    if len(suppliers_dict['cat_promo']) != 0:
+        catalogos_promo(suppliers_dict['cat_promo'], document)
 
-    if len(suppliers_dict['va_refs']) != 0:
-        print('scrapp va data')
-    if len(suppliers_dict['prov3_refs']) != 0:
-        print('scrapp prov3 data')
-    if len(suppliers_dict['prov4_refs']) != 0:
-        print('scrapp prov4 data')
+    if len(suppliers_dict['mp_promo']) != 0:
+        print('scrapp mp_promo data')
+    if len(suppliers_dict['promo_op']) != 0:
+        print('scrapp promo_op data')
+    if len(suppliers_dict['nw_promo']) != 0:
+        print('scrapp nw_promo data')

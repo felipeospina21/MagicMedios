@@ -24,7 +24,8 @@ file.close()
 print("-------------****-------------- ")
 client = input("Ingrese nombre cliente: ").title()
 company = input("Ingrese nombre empresa: ").title()
-reference = input("Ingrese referencias a consultar (separadas por coma): ").lower().replace(" ", "").split(",")
+reference = input("Ingrese referencias a consultar (separadas por coma): ").lower().split(",")
+strip_reference = [ref.strip() for ref in reference]
 ref_q = len(reference)
 
 suppliers = {
@@ -48,7 +49,7 @@ contacto= asesor.add_run(contact)
 correo = asesor.add_run(email)
 correo.add_break()
 
-for ref in reference:
+for ref in strip_reference:
     suppliers = create_supplier_ref_list(ref,suppliers)
 
 scrapp_supplier_data(suppliers, document)
