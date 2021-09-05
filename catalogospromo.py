@@ -4,7 +4,7 @@ from docx.shared import Inches
 import time
 import requests
 
-def catalogos_promo(ref_list, document):
+def get_data(ref_list, document):
         
     path = "C:/chromedriver.exe"
     driver = webdriver.Chrome(path)

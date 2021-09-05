@@ -1,5 +1,6 @@
 import re
-from catalogospromo import catalogos_promo
+import catalogospromo
+import mppromos 
 
 def create_supplier_ref_list(ref,suppliers_dict):
     if re.search('-', ref):
@@ -15,10 +16,9 @@ def create_supplier_ref_list(ref,suppliers_dict):
 
 def scrapp_supplier_data(suppliers_dict, document):
     if len(suppliers_dict['cat_promo']) != 0:
-        catalogos_promo(suppliers_dict['cat_promo'], document)
-
+        catalogospromo.get_data(suppliers_dict['cat_promo'], document)
     if len(suppliers_dict['mp_promo']) != 0:
-        print('scrapp mp_promo data')
+        mppromos.get_data(suppliers_dict['mp_promo'], document)
     if len(suppliers_dict['promo_op']) != 0:
         print('scrapp promo_op data')
     if len(suppliers_dict['nw_promo']) != 0:
