@@ -24,7 +24,7 @@ file.close()
 print("-------------****-------------- ")
 client = input("Ingrese nombre cliente: ").title()
 company = input("Ingrese nombre empresa: ").title()
-reference = input("Ingrese referencias a consultar (separadas por coma): ").lower().split(",")
+reference = input("Ingrese referencias a consultar (separadas por coma): ").upper().split(",")
 strip_reference = [ref.strip() for ref in reference]
 ref_q = len(reference)
 

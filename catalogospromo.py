@@ -9,7 +9,7 @@ def get_data(ref_list, document):
     path = "C:/chromedriver.exe"
     driver = webdriver.Chrome(path)
     driver.get('https://www.catalogospromocionales.com/')
-    time.sleep(5)
+    time.sleep(1)
 
     for reference in ref_list:
 
@@ -23,19 +23,18 @@ def get_data(ref_list, document):
         result = driver.find_element_by_xpath("//div[@id='backTable']/div[1]/div[1]/a[1]")
         result.click()
 
-        # titulo, referencia y descripción
+        # titulo y descripción
         try:
             header = "//div[@class='hola']"
             title = driver.find_element_by_xpath(f"{header}/h2[1]")
-            ref = driver.find_element_by_xpath(f"{header}/p[1]")
-            desc = driver.find_element_by_xpath(f"{header}/p[2]")
-            title_text = title.text
-            ref_text = ref.text
-            desc_text = desc.text
-
             titulo = document.add_paragraph()
-            titulo.add_run(f'{ref_list.index(reference)+1}.{title_text} {ref_text}').bold = True
-            document.add_paragraph(desc_text)
+            titulo.add_run(f'{ref_list.index(reference)+1}.{title.text} {reference}').bold = True
+        except:
+            print(f'No se pudo obtener el titulo de la ref {reference}')
+
+        try:
+            desc = driver.find_element_by_xpath(f"{header}/p[2]")
+            document.add_paragraph(desc.text)
         except:
             print(f'No se pudo obtener la descripción de la ref {reference}')
 
