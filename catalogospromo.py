@@ -9,7 +9,7 @@ def get_data(ref_list, document):
     path = "C:/chromedriver.exe"
     driver = webdriver.Chrome(path)
     driver.get('https://www.catalogospromocionales.com/')
-    time.sleep(1)
+    time.sleep(3)
 
     for reference in ref_list:
 
@@ -70,6 +70,7 @@ def get_data(ref_list, document):
             img = driver.find_element_by_id("img_01")
             img_src = img.get_attribute('src')
             response = requests.get(img_src)
+            # print(response.headers)
 
             if response.status_code == 200:
                 file = open("./images/sample_image.jpg", "wb")

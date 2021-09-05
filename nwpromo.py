@@ -8,39 +8,45 @@ def get_data(ref_list, document):
         
     path = "C:/chromedriver.exe"
     driver = webdriver.Chrome(path)
-    driver.get('chrome://settings/')
-    driver.execute_script('chrome.settingsPrivate.setDefaultZoom(0.25);')
-    driver.get('https://www.mppromocionales.com/')
+    # driver.get('chrome://settings/')
+    # driver.execute_script('chrome.settingsPrivate.setDefaultZoom(0.25);')
+    driver.get('https://promocionalesnw.com/')
     time.sleep(5)
+
+    try:
+        driver.execute_script("document.getElementsByClassName('fancybox-overlay fancybox-overlay-fixed labpopup')[0].style.display = 'none';")
+    except:
+        print("No se encontro popup")
 
     for reference in ref_list:
 
         # Busca referencia
-        search_input = driver.find_element_by_id('mat-input-0')
+        search_input = driver.find_element_by_id('search_query_top')
         search_input.send_keys(reference)
         search_input.send_keys(Keys.RETURN)
         time.sleep(3)
 
-        # titulo, referencia y descripción
+        # Entra en primer resultado
+        result = driver.find_element_by_xpath("//a[@class='product_image']")
+        result.click()
+
+        # titulo y descripción
         try:
-            title = driver.find_element_by_xpath("//h1[@class='g-font-size-20 g-font-weight-600']")
-            title_text = title.text
+            header = driver.find_element_by_xpath("//div[@class='pb-center-column  col-xs-12 col-sm-6 col-md-6']")
+            header_text = header.text.split("\n")
+            title = header_text[0]
+            sub_title = header_text[4]
             titulo = document.add_paragraph()
-            titulo.add_run(f'{ref_list.index(reference)+1}.{title_text}').bold = True
+            titulo.add_run(f'{ref_list.index(reference)+1}.{title} {reference}').bold = True
+            document.add_paragraph(sub_title)
         except:
             print(f'No se pudo obtener el título de la ref {reference}')
-
-        try:
-            sub_title = driver.find_element_by_xpath("//div[@class='g-font-size-18 g-mb-15']")
-            document.add_paragraph(sub_title.text)
-        except:
-            print(f'No se pudo obtener el subtítulo de la ref {reference}')
         
         try:
-            desc = driver.find_elements_by_xpath("//ul[@class='g-mb-16 g-ml-20 g-pl-0 g-font-size-14']/child::li")
+            desc = header_text[5:8]
             descripcion = document.add_paragraph()
             for element in desc:
-                desc_line = descripcion.add_run(element.text)
+                desc_line = descripcion.add_run(element)
                 desc_line.add_break()
 
         except:
@@ -48,22 +54,24 @@ def get_data(ref_list, document):
 
         # Inventario
         try:
-            colores = driver.find_elements_by_xpath("//mat-table[@class='w-100 inventory-tabla mat-table']/child::mat-row")
+            colores = driver.find_elements_by_xpath("//table[@class='table-bordered']/tbody[1]/child::tr")
             q_colores = len(colores)
-            tabla_colores = "//mat-table[@class='w-100 inventory-tabla mat-table']"
+            tabla_colores = "//table[@class='table-bordered']/tbody[1]"
             inventario = document.add_paragraph()
 
             for i in range (1, q_colores + 1):
-                color = driver.find_element_by_xpath(f"{tabla_colores}/mat-row[{i}]/mat-cell[3]/span[2]").text
-                inv_color = driver.find_element_by_xpath(f"{tabla_colores}/mat-row[{i}]/mat-cell[7]/span[2]").text
+                color = driver.find_element_by_xpath(f"{tabla_colores}/tr[{i}]/td[1]").text
+                inv_color = driver.find_element_by_xpath(f"{tabla_colores}/tr[{i}]/td[5]").text
                 inv_line = inventario.add_run(f"{color} - {inv_color}")
                 inv_line.add_break()
+                print(color, inv_color)
         except:
             print('No se pudo obtener el inventario')
 
         # Imagen
         try:
-            img = driver.find_element_by_xpath("//img[@class='ng-star-inserted']")
+            # time.sleep(5)
+            img = driver.find_element_by_xpath("//img[@id='bigpic']")
             img_src = img.get_attribute('src')
             response = requests.get(img_src)
 
