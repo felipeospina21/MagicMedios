@@ -28,10 +28,12 @@ reference = input("Ingrese referencias a consultar (separadas por coma): ").lowe
 ref_q = len(reference)
 
 suppliers = {
-    'cp_refs' : [],
-    'va_refs' : [],
-    'prov3_refs' : [],
-    'prov4_refs' : []
+    'cat_promo' : [],
+    'mp_promo' : [],
+    'promo_op' : [],
+    'nw_promo' : [],
+    'cdo_promo' : [],
+    'best_stock' : [],
 }
 
 document = Document('./plantillas/plantilla_cot.docx')
@@ -42,13 +44,8 @@ empresa.add_run(company).bold = True
 
 asesor = document.add_paragraph()
 nombre = asesor.add_run(representative)
-# nombre.bold = False
-# nombre.add_break()
 contacto= asesor.add_run(contact)
-# contacto.bold = False
-# contacto.add_break()
 correo = asesor.add_run(email)
-# correo.bold = False
 correo.add_break()
 
 for ref in reference:
@@ -56,3 +53,5 @@ for ref in reference:
 
 scrapp_supplier_data(suppliers, document)
 document.save(f'./cotizaciones/cotización_{company}.docx')
+
+print('-------- Proceso Finalizado --------')
