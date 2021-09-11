@@ -9,7 +9,14 @@ class Get_Data:
 #     xpath_colores, xpath_tabla_colores, img_xpath,
 #     supplier, ref_list, document):
 
-    def __init__(self, url, supplier):
+    def __init__(self, url, supplier, ref, search_box_id, first_result_xpath, header_xpath):
+        self.supplier = supplier
+        self.url = url
+        self.ref = ref
+        self.search_box_id = search_box_id
+        self.first_result_xpath = first_result_xpath
+        self.header_xpath = header_xpath
+
         self.path = "C:/chromedriver.exe"
         self.driver = webdriver.Chrome(self.path)
         self.driver.get('chrome://settings/')
@@ -24,31 +31,30 @@ class Get_Data:
             except:
                 print("No se encontro popup")
 
-    # for reference in ref_list:
+    def search_ref(self):
+        search_input = self.driver.find_element_by_id(self.search_box_id)
+        search_input.clear()
+        search_input.send_keys(self.ref)
+        search_input.send_keys(Keys.RETURN)
+        time.sleep(3)
+        
+    def click_first_result(self):
+        if self.first_result_xpath != None:
+            result = self.driver.find_element_by_xpath(self.first_result_xpath)
+            result.click()
 
-    #     # Busca referencia
-    #     search_input = driver.find_element_by_id(search_box_id)
-    #     search_input.clear()
-    #     search_input.send_keys(reference)
-    #     search_input.send_keys(Keys.RETURN)
-    #     time.sleep(3)
-
-    #     # Entra en primer resultado
-    #     if first_result_xpath != None:
-    #         result = driver.find_element_by_xpath(first_result_xpath)
-    #         result.click()
-
-    #     # titulo, referencia y descripción
-    #     try:
-    #         header = driver.find_element_by_xpath(header_xpath)
-    #         header_text = header.text.split("\n")
-    #         title = header_text[title_index]
-    #         sub_title = header_text[sub_title_index]
-    #         titulo = document.add_paragraph()
-    #         titulo.add_run(f'{ref_list.index(reference)+1}.{title} {reference}').bold = True
-    #         document.add_paragraph(sub_title)
-    #     except:
-    #         print(f'No se pudo obtener el título de la ref {reference}')
+    def get_title(self):
+        # titulo, referencia y descripción
+        try:
+            header = self.driver.find_element_by_xpath(header_xpath)
+            header_text = header.text.split("\n")
+            title = header_text[title_index]
+            sub_title = header_text[sub_title_index]
+            titulo = document.add_paragraph()
+            titulo.add_run(f'{ref_list.index(reference)+1}.{title} {reference}').bold = True
+            document.add_paragraph(sub_title)
+        except:
+            print(f'No se pudo obtener el título de la ref {reference}')
         
     #     # Revisar como estandarizar, todos los procedimientos tienen esta parte diferente
     #     try:
