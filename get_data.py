@@ -1,14 +1,14 @@
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from docx.shared import Inches
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from docx.shared import Inches, Cm
+from docx.enum.table import WD_ROW_HEIGHT_RULE
 import time
 import requests
 
 class Get_Data:
-# (self,url, search_box_id, first_result_xpath, header_xpath, title_index, sub_title_index,
-#     xpath_colores, xpath_tabla_colores, img_xpath,
-#     supplier, ref_list, document):
-
     def __init__(self, url, supplier, document):
         self.supplier = supplier
         self.url = url
@@ -20,7 +20,7 @@ class Get_Data:
             self.driver.get('chrome://settings/')
             self.driver.execute_script('chrome.settingsPrivate.setDefaultZoom(0.25);')
         self.driver.get(self.url)
-        time.sleep(10)
+        time.sleep(5)
 
     def zoom_out_window(self):
         self.driver.get('chrome://settings/')
@@ -35,23 +35,28 @@ class Get_Data:
 
     def search_ref(self, ref, search_box_id):
         try:
-            search_input = self.driver.find_element_by_id(search_box_id)
+            search_input = WebDriverWait(self.driver, 10).until(
+                    EC.presence_of_element_located((By.ID, search_box_id))
+                )
+            # search_input = self.driver.find_element_by_id(search_box_id)
             search_input.clear()
             search_input.send_keys(ref)
             search_input.send_keys(Keys.RETURN)
-            time.sleep(3)
+            # time.sleep(3)
         except:
             print("No se pudo encontrar la barra de busqueda")
 
     def click_first_result(self, first_result_xpath, ref):
         try:
-            result = self.driver.find_element_by_xpath(first_result_xpath)
+            result = WebDriverWait(self.driver, 10).until(
+                    EC.presence_of_element_located((By.XPATH, first_result_xpath))
+                )
+            # result = self.driver.find_element_by_xpath(first_result_xpath)
             result.click()
         except:
             print(f"No se pudo encontrar la ref {ref}")
 
     def get_title(self, header_xpath, title_index, sub_title_index, count, ref):
-        # titulo, referencia y descripción
         try:
             header = self.driver.find_element_by_xpath(header_xpath)
             header_text = header.text.split("\n")
@@ -66,7 +71,10 @@ class Get_Data:
 
     def get_title_mppromo(self, count, ref):
         try:
-            title = self.driver.find_element_by_xpath("//h1[@class='g-font-size-20 g-font-weight-600']")
+            title = WebDriverWait(self.driver, 10).until(
+                    EC.presence_of_element_located((By.XPATH, "//h1[@class='g-font-size-20 g-font-weight-600']"))
+                )
+            # title = self.driver.find_element_by_xpath("//h1[@class='g-font-size-20 g-font-weight-600']")
             title_text = title.text
             titulo = self.document.add_paragraph()
             titulo.add_run(f'{count}.{title_text}').bold = True
@@ -74,13 +82,15 @@ class Get_Data:
             print(f'No se pudo obtener el título de la ref {ref}')
 
         try:
-            sub_title = self.driver.find_element_by_xpath("//div[@class='g-font-size-18 g-mb-15']")
+            sub_title = WebDriverWait(self.driver, 10).until(
+                    EC.presence_of_element_located((By.XPATH, "//div[@class='g-font-size-18 g-mb-15']"))
+                )
+            # sub_title = self.driver.find_element_by_xpath("//div[@class='g-font-size-18 g-mb-15']")
             self.document.add_paragraph(sub_title.text)
         except:
             print(f'No se pudo obtener el subtítulo de la ref {ref}')
         
     def get_description(self, desc_xpath, ref):
-        # Revisar como estandarizar, todos los procedimientos tienen esta parte diferente
         try:
             desc = self.driver.find_elements_by_xpath(desc_xpath)
             descripcion = self.document.add_paragraph()
@@ -114,6 +124,7 @@ class Get_Data:
 
     def get_inventory(self, xpath_colores, xpath_tabla_colores):
         try:
+            self.driver.implicitly_wait(1)
             colores = self.driver.find_elements_by_xpath(xpath_colores)
             q_colores = len(colores)
             tabla_colores = xpath_tabla_colores
@@ -134,7 +145,13 @@ class Get_Data:
                 color = self.driver.find_element_by_xpath(f"{tabla_colores}/{color_xpath}").text
                 inv_color = self.driver.find_element_by_xpath(f"{tabla_colores}/{inv_color_xpath}").text
                 col1.cells[i-1].text = color
+                col1.cells[i-1].width = Cm(4)
                 col2.cells[i-1].text = inv_color
+                col2.cells[i-1].width = Cm(1.4)
+                table.rows[i-1].height = Cm(0.5)
+                table.rows[i-1].height_rule = WD_ROW_HEIGHT_RULE.EXACTLY
+
+            # table.autofit = True
         except:
             print('No se pudo obtener el inventario')
     
@@ -162,4 +179,3 @@ class Get_Data:
         self.driver.close()     
 
    
-    # driver.quit()
