@@ -2,6 +2,8 @@ from docx import Document
 from utils import create_supplier_ref_list
 from catalogospromo import get_cat_promo_data
 from mppromos import get_mp_promo_data
+from nwpromo import get_nw_promo_data
+
 
 file_path = (
     "C:/Users/felipe.ospina/OneDrive - MINEROS/Desktop/repo/projects/MagicMedios"
@@ -60,7 +62,7 @@ if len(suppliers['mp_promo']) != 0:
 if len(suppliers['promo_op']) != 0:
     pass
 if len(suppliers['nw_promo']) != 0:
-    pass
+    get_nw_promo_data(suppliers, document)
 
 
 

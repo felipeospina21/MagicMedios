@@ -128,7 +128,8 @@ class Get_Data:
                     color_xpath = f"mat-row[{i}]/mat-cell[3]/span[2]"
                     inv_color_xpath = f"mat-row[{i}]/mat-cell[7]/span[2]"
                 elif self.supplier == 'nw_promo':
-                    pass
+                    color_xpath = f"tr[{i}]/td[1]"
+                    inv_color_xpath = f"tr[{i}]/td[5]"
 
                 color = self.driver.find_element_by_xpath(f"{tabla_colores}/{color_xpath}").text
                 inv_color = self.driver.find_element_by_xpath(f"{tabla_colores}/{inv_color_xpath}").text
