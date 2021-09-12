@@ -1,4 +1,6 @@
 import re
+from pptx import Presentation
+from pptx.util import Pt, Cm
 
 def create_supplier_ref_list(ref,suppliers_dict):
     if re.search('-', ref):
@@ -11,3 +13,9 @@ def create_supplier_ref_list(ref,suppliers_dict):
         suppliers_dict['nw_promo'].append(ref)
     
     return suppliers_dict
+
+def text_frame_paragraph(text_frame, text, font_size, bold=False ):
+    tf = text_frame.add_paragraph()
+    tf.text = text
+    tf.font.size = Pt(font_size)
+    tf.font.bold = bold

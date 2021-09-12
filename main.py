@@ -1,9 +1,12 @@
 from docx import Document
-from utils import create_supplier_ref_list
+from utils import create_supplier_ref_list, text_frame_paragraph
 from catalogospromo import get_cat_promo_data
 from mppromos import get_mp_promo_data
 from nwpromo import get_nw_promo_data
 from promoop import get_promo_op__data
+from pptx import Presentation
+from pptx.util import Pt, Cm
+from datetime import datetime
 
 file_path = (
     "C:/Users/felipe.ospina/OneDrive - MINEROS/Desktop/repo/projects/MagicMedios"
@@ -39,33 +42,44 @@ suppliers = {
     'best_stock' : [],
 }
 
-document = Document('./plantillas/plantilla_cot.docx')
-cliente = document.add_paragraph()
-cliente.add_run(f'Señor(a) {client}.').bold = True
-empresa = document.add_paragraph()
-empresa.add_run(company).bold = True
+hoy = datetime.now()
+prs = Presentation()
+title_slide_layout = prs.slide_layouts[0]
+slide = prs.slides.add_slide(title_slide_layout)
 
-asesor = document.add_paragraph()
-nombre = asesor.add_run(representative)
-contacto= asesor.add_run(contact)
-correo = asesor.add_run(email)
-correo.add_break()
+pic = slide.shapes.add_picture("./images/logo.jpg",left=Cm(1), top=Cm(0.5), width=Cm(8.9), height=Cm(1.7))
+
+txBox = slide.shapes.add_textbox(left=Cm(18), top=Cm(-0.5), width=Cm(6.4),height=Cm(3.8))
+tf = txBox.text_frame
+
+text_frame_paragraph(tf,f'{hoy.day} {hoy.month} de {hoy.year}',14 )
+text_frame_paragraph(tf,f'Cot N°{consecutivo}',14 )
+text_frame_paragraph(tf,"",11 )
+text_frame_paragraph(tf,'Asesor Comercial',11,True )
+text_frame_paragraph(tf,representative,11 )
+text_frame_paragraph(tf,contact,11 )
+text_frame_paragraph(tf,email,11 )
+
+header = slide.shapes.add_textbox(left=Cm(1), top=Cm(1.5), width=Cm(6.4),height=Cm(5))
+tf_header = header.text_frame
+text_frame_paragraph(tf_header,f'Señor(a) {client}.',14,True )
+text_frame_paragraph(tf_header,company,14,True )
 
 for ref in strip_reference:
     suppliers = create_supplier_ref_list(ref,suppliers)
 
 # Scrapp Data
 if len(suppliers['cat_promo']) != 0:
-    get_cat_promo_data(suppliers, document)
+    get_cat_promo_data(suppliers, prs)
 if len(suppliers['mp_promo']) != 0:
-    get_mp_promo_data(suppliers, document)
+    get_mp_promo_data(suppliers, prs)
 if len(suppliers['promo_op']) != 0:
-    get_promo_op__data(suppliers, document)
+    get_promo_op__data(suppliers, prs)
 if len(suppliers['nw_promo']) != 0:
-    get_nw_promo_data(suppliers, document)
+    get_nw_promo_data(suppliers, prs)
+prs
 
 
-
-document.save(f'./cotizaciones/cotización_{company}.docx')
+prs.save(f'./cotizaciones/cotización_{company}.pptx')
 
 print('-------- Proceso Finalizado --------')
