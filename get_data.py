@@ -16,11 +16,15 @@ class Get_Data:
 
         self.path = "C:/chromedriver.exe"
         self.driver = webdriver.Chrome(self.path)
-        # self.driver.get('chrome://settings/')
-        # self.driver.execute_script('chrome.settingsPrivate.setDefaultZoom(0.25);')
+        if self.supplier == 'mp_promo':
+            self.driver.get('chrome://settings/')
+            self.driver.execute_script('chrome.settingsPrivate.setDefaultZoom(0.25);')
         self.driver.get(self.url)
         time.sleep(10)
 
+    def zoom_out_window(self):
+        self.driver.get('chrome://settings/')
+        self.driver.execute_script('chrome.settingsPrivate.setDefaultZoom(0.25);')
 
     def check_pop_up(self):
         if self.supplier == 'nw_promo':
@@ -59,7 +63,22 @@ class Get_Data:
                 self.document.add_paragraph(sub_title)
         except:
             print(f'No se pudo obtener el título de la ref {ref}')
-    
+
+    def get_title_mppromo(self, count, ref):
+        try:
+            title = self.driver.find_element_by_xpath("//h1[@class='g-font-size-20 g-font-weight-600']")
+            title_text = title.text
+            titulo = self.document.add_paragraph()
+            titulo.add_run(f'{count}.{title_text}').bold = True
+        except:
+            print(f'No se pudo obtener el título de la ref {ref}')
+
+        try:
+            sub_title = self.driver.find_element_by_xpath("//div[@class='g-font-size-18 g-mb-15']")
+            self.document.add_paragraph(sub_title.text)
+        except:
+            print(f'No se pudo obtener el subtítulo de la ref {ref}')
+        
     def get_description(self, desc_xpath, ref):
         # Revisar como estandarizar, todos los procedimientos tienen esta parte diferente
         try:
@@ -106,7 +125,8 @@ class Get_Data:
                     color_xpath = f"tbody[1]/tr[{i+2}]/td[1]"
                     inv_color_xpath = f"tbody[1]/tr[{i+2}]/td[4]"
                 elif self.supplier == 'mp_promo':
-                    pass
+                    color_xpath = f"mat-row[{i}]/mat-cell[3]/span[2]"
+                    inv_color_xpath = f"mat-row[{i}]/mat-cell[7]/span[2]"
                 elif self.supplier == 'nw_promo':
                     pass
 
