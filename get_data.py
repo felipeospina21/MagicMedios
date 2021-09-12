@@ -23,7 +23,7 @@ class Get_Data:
 
 
     def check_pop_up(self):
-        if self.supplier == 'nwpromo':
+        if self.supplier == 'nw_promo':
             try:
                 self.driver.execute_script("document.getElementsByClassName('fancybox-overlay fancybox-overlay-fixed labpopup')[0].style.display = 'none';")
             except:
@@ -40,9 +40,6 @@ class Get_Data:
         if first_result_xpath != None:
             result = self.driver.find_element_by_xpath(first_result_xpath)
             result.click()
-    
-    def close_driver(self):
-        self.driver.close()
 
     def get_title(self, header_xpath, title_index, sub_title_index, count, ref):
         # titulo, referencia y descripción
@@ -50,60 +47,72 @@ class Get_Data:
             header = self.driver.find_element_by_xpath(header_xpath)
             header_text = header.text.split("\n")
             title = header_text[title_index]
-            sub_title = header_text[sub_title_index]
             titulo = self.document.add_paragraph()
             titulo.add_run(f'{count}.{title} {ref}').bold = True
-            self.document.add_paragraph(sub_title)
+            if sub_title_index != None:
+                sub_title = header_text[sub_title_index]
+                self.document.add_paragraph(sub_title)
         except:
             print(f'No se pudo obtener el título de la ref {ref}')
-        
-    #     # Revisar como estandarizar, todos los procedimientos tienen esta parte diferente
-    #     try:
-    #         desc = driver.find_elements_by_xpath("//ul[@class='g-mb-16 g-ml-20 g-pl-0 g-font-size-14']/child::li")
-    #         descripcion = document.add_paragraph()
-    #         for element in desc:
-    #             desc_line = descripcion.add_run(element.text)
-    #             desc_line.add_break()
+    
+    def get_description(self, desc_xpath, ref):
+        # Revisar como estandarizar, todos los procedimientos tienen esta parte diferente
+        try:
+            desc = self.driver.find_elements_by_xpath(desc_xpath)
+            descripcion = self.document.add_paragraph()
+            for element in desc:
+                desc_line = descripcion.add_run(element.text)
+                desc_line.add_break()
 
-    #     except:
-    #         print(f'No se pudo obtener la descripción de la ref {reference}')
+        except:
+            print(f'No se pudo obtener la descripción de la ref {ref}')
 
-    #     # Inventario
-    #     # Validar aplicación para catalogos promo
-    #     if supplier != 'promoop':
-    #         try:
-    #             colores = driver.find_elements_by_xpath(xpath_colores)
-    #             q_colores = len(colores)
-    #             tabla_colores = xpath_tabla_colores
-    #             inventario = document.add_paragraph()
+    def get_inventory(self, xpath_colores, xpath_tabla_colores):
+        try:
+            colores = self.driver.find_elements_by_xpath(xpath_colores)
+            q_colores = len(colores)
+            tabla_colores = xpath_tabla_colores
+            table = self.document.add_table(rows=q_colores, cols=2)
+            col1 = table.columns[0]
+            col2 = table.columns[1]
+            for i in range (1, q_colores + 1):
+                if self.supplier == 'cat_promo':
+                    color_xpath = f"tbody[1]/tr[{i+2}]/td[1]"
+                    inv_color_xpath = f"tbody[1]/tr[{i+2}]/td[4]"
+                elif self.supplier == 'mp_promo':
+                    pass
+                elif self.supplier == 'nw_promo':
+                    pass
 
-    #             for i in range (1, q_colores + 1):
-    #                 color = driver.find_element_by_xpath(f"{tabla_colores}/mat-row[{i}]/mat-cell[3]/span[2]").text
-    #                 inv_color = driver.find_element_by_xpath(f"{tabla_colores}/mat-row[{i}]/mat-cell[7]/span[2]").text
-    #                 inv_line = inventario.add_run(f"{color} - {inv_color}")
-    #                 inv_line.add_break()
-    #         except:
-    #             print('No se pudo obtener el inventario')
+                color = self.driver.find_element_by_xpath(f"{tabla_colores}/{color_xpath}").text
+                inv_color = self.driver.find_element_by_xpath(f"{tabla_colores}/{inv_color_xpath}").text
+                col1.cells[i-1].text = color
+                col2.cells[i-1].text = inv_color
+        except:
+            print('No se pudo obtener el inventario')
+    
+    def get_img(self, img_xpath, ref):
+        try:
+            if self.supplier == 'promo_op':
+                time.sleep(5)
 
-    #     # Imagen
-    #     try:
-    #         if supplier == 'promoop':
-    #             time.sleep(5)
+            img = self.driver.find_element_by_xpath(img_xpath)
+            img_src = img.get_attribute('src')
+            response = requests.get(img_src)
 
-    #         img = driver.find_element_by_xpath(img_xpath)
-    #         img_src = img.get_attribute('src')
-    #         response = requests.get(img_src)
+            if response.status_code == 200:
+                file = open("./images/sample_image.jpg", "wb")
+                file.write(response.content)
+                file.close()
+                self.document.add_picture("./images/sample_image.jpg", width=Inches(5.25))
+                self.document.add_page_break()
+            else:
+                print(f'Error al descargar imagen de la ref {ref}, status code({response.status_code})')
+        except:
+            print(f'Error al descargar imagen de la ref {ref}') 
 
-    #         if response.status_code == 200:
-    #             file = open("./images/sample_image.jpg", "wb")
-    #             file.write(response.content)
-    #             file.close()
-    #             document.add_picture("./images/sample_image.jpg", width=Inches(5.25))
-    #             document.add_page_break()
-    #         else:
-    #             print(f'Error al descargar imagen de la ref {reference}, status code({response.status_code})')
-    #     except:
-    #         print(f'Error al descargar imagen de la ref {reference}')       
+    def close_driver(self):
+        self.driver.close()     
 
    
     # driver.quit()
