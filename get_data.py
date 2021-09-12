@@ -30,16 +30,21 @@ class Get_Data:
                 print("No se encontro popup")
 
     def search_ref(self, ref, search_box_id):
-        search_input = self.driver.find_element_by_id(search_box_id)
-        search_input.clear()
-        search_input.send_keys(ref)
-        search_input.send_keys(Keys.RETURN)
-        time.sleep(3)
-        
-    def click_first_result(self, first_result_xpath):
-        if first_result_xpath != None:
+        try:
+            search_input = self.driver.find_element_by_id(search_box_id)
+            search_input.clear()
+            search_input.send_keys(ref)
+            search_input.send_keys(Keys.RETURN)
+            time.sleep(3)
+        except:
+            print("No se pudo encontrar la barra de busqueda")
+
+    def click_first_result(self, first_result_xpath, ref):
+        try:
             result = self.driver.find_element_by_xpath(first_result_xpath)
             result.click()
+        except:
+            print(f"No se pudo encontrar la ref {ref}")
 
     def get_title(self, header_xpath, title_index, sub_title_index, count, ref):
         # titulo, referencia y descripción
@@ -66,6 +71,27 @@ class Get_Data:
 
         except:
             print(f'No se pudo obtener la descripción de la ref {ref}')
+    
+    def get_package_info(self, ref):
+        try:
+            table = "//table[@class='table-list']"
+            unit_col_1 = self.driver.find_element_by_xpath(f"{table}/tbody[1]/tr[1]/td[1]")
+            unit_col_2 = self.driver.find_element_by_xpath(f"{table}/tbody[1]/tr[1]/td[2]")
+            package_col_1 = self.driver.find_element_by_xpath(f"{table}/tbody[1]/tr[2]/td[1]")
+            package_col_2 = self.driver.find_element_by_xpath(f"{table}/tbody[1]/tr[2]/td[2]")
+
+            unit_1_text = unit_col_1.text
+            unit_2_text = unit_col_2.text
+            package_1_text = package_col_1.text
+            package_2_text = package_col_2.text
+
+            paragraph = self.document.add_paragraph(f'{unit_1_text}  ')
+            paragraph.add_run(unit_2_text).bold = True
+
+            paragraph2 = self.document.add_paragraph(f'{package_1_text}  ')
+            paragraph2.add_run(package_2_text).bold = True
+        except:
+            print(f'No se pudo obtener la cantidad minima de la ref {ref}')
 
     def get_inventory(self, xpath_colores, xpath_tabla_colores):
         try:

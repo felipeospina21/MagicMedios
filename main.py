@@ -1,7 +1,6 @@
 from docx import Document
-from docx.shared import Inches
-from utils import create_supplier_ref_list, scrapp_supplier_data
-from get_data import Get_Data
+from utils import create_supplier_ref_list
+from catalogospromo import get_cat_promo_data
 
 file_path = (
     "C:/Users/felipe.ospina/OneDrive - MINEROS/Desktop/repo/projects/MagicMedios"
@@ -52,20 +51,8 @@ correo.add_break()
 for ref in strip_reference:
     suppliers = create_supplier_ref_list(ref,suppliers)
 
-# scrapp_supplier_data(suppliers, document)
-data = Get_Data('https://www.catalogospromocionales.com/', 'cat_promo', document)
-header_xpath = "//div[@class='hola']"
-count = 1
-for ref in suppliers['cat_promo']:
-    data.search_ref(ref,'productos')
-    data.click_first_result("//div[@id='backTable']/div[1]/div[1]/a[1]")
-    data.get_title(header_xpath,0, None, count, ref)
-    data.get_description(f"{header_xpath}/p[2]", ref)
-    data.get_inventory("//tr[@class='titlesRow']/following-sibling::tr", "//table[@class='tableInfoProd']")
-    data.get_img("//img[@id='img_01']", ref)
-    count+=1
+get_cat_promo_data(suppliers, document)
 
-data.close_driver()
 
 document.save(f'./cotizaciones/cotización_{company}.docx')
 
