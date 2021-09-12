@@ -3,7 +3,7 @@ from utils import create_supplier_ref_list
 from catalogospromo import get_cat_promo_data
 from mppromos import get_mp_promo_data
 from nwpromo import get_nw_promo_data
-
+from promoop import get_promo_op__data
 
 file_path = (
     "C:/Users/felipe.ospina/OneDrive - MINEROS/Desktop/repo/projects/MagicMedios"
@@ -54,13 +54,13 @@ correo.add_break()
 for ref in strip_reference:
     suppliers = create_supplier_ref_list(ref,suppliers)
 
-
+# Scrapp Data
 if len(suppliers['cat_promo']) != 0:
     get_cat_promo_data(suppliers, document)
 if len(suppliers['mp_promo']) != 0:
     get_mp_promo_data(suppliers, document)
 if len(suppliers['promo_op']) != 0:
-    pass
+    get_promo_op__data(suppliers, document)
 if len(suppliers['nw_promo']) != 0:
     get_nw_promo_data(suppliers, document)
 
