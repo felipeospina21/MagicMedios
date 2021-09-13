@@ -1,6 +1,7 @@
 import re
 from pptx import Presentation
 from pptx.util import Pt, Cm
+from pptx.enum.text import PP_ALIGN
 
 def create_supplier_ref_list(ref,suppliers_dict):
     if re.search('-', ref):
@@ -19,3 +20,6 @@ def text_frame_paragraph(text_frame, text, font_size, bold=False ):
     tf.text = text
     tf.font.size = Pt(font_size)
     tf.font.bold = bold
+    tf.space_before = Cm(0)
+    if text_frame == "tf_footer":
+        text.alignment = PP_ALIGN.CENTER

@@ -16,6 +16,24 @@ class Get_Data:
         self.url = url
         self.prs= prs
         self.references = references
+        self.lf_1 = Cm(0.8)
+        self.lf_2 = Cm(8.5)
+
+        self.t_1 = Cm(4)
+        self.t_2 = Cm(4.5)
+        self.t_3 = Cm(6)
+        self.t_4 = Cm(8.5)
+        self.t_5 = Cm(10)
+
+        self.w_1 = Cm(12.5)
+        self.w_2 = Cm(8)
+        self.w_3 = Cm(9.9)
+
+        self.h_1 = Cm(1)
+        self.h_2 = Cm(2)
+        self.h_3 = Cm(5)
+        self.h_4 = Cm(8.5)
+        self.h_5 = Cm(7.1)
 
         self.path = "C:/chromedriver.exe"
         self.driver = webdriver.Chrome(self.path)
@@ -41,11 +59,9 @@ class Get_Data:
             search_input = WebDriverWait(self.driver, 10).until(
                     EC.presence_of_element_located((By.ID, search_box_id))
                 )
-            # search_input = self.driver.find_element_by_id(search_box_id)
             search_input.clear()
             search_input.send_keys(ref)
             search_input.send_keys(Keys.RETURN)
-            # time.sleep(3)
         except:
             print("No se pudo encontrar la barra de busqueda")
 
@@ -54,7 +70,6 @@ class Get_Data:
             result = WebDriverWait(self.driver, 10).until(
                     EC.presence_of_element_located((By.XPATH, first_result_xpath))
                 )
-            # result = self.driver.find_element_by_xpath(first_result_xpath)
             result.click()
         except:
             print(f"No se pudo encontrar la ref {ref}")
@@ -65,16 +80,13 @@ class Get_Data:
             header_text = header.text.split("\n")
             title = header_text[title_index]
             slide_idx = self.references.index(ref)
-            titulo = self.prs.slides[slide_idx].shapes.add_textbox(left=Cm(1.5), top=Cm(3), width=Cm(19),height=Cm(1))
+            titulo = self.prs.slides[slide_idx].shapes.add_textbox(left=self.lf_1, top=self.t_1, width=self.w_1, height=self.h_1)
             tf_titulo= titulo.text_frame
             text_frame_paragraph(tf_titulo,f'{count}.{title} {ref}',12,True )
 
-            # titulo = self.document.add_paragraph()
-            # titulo.add_run(f'{count}.{title} {ref}').bold = True
             if sub_title_index != None:
                 sub_title = header_text[sub_title_index]
-                # self.document.add_paragraph(sub_title)
-                sub_titulo = self.prs.slides[slide_idx].shapes.add_textbox(left=Cm(1.5), top=Cm(3.5), width=Cm(19),height=Cm(2))
+                sub_titulo = self.prs.slides[slide_idx].shapes.add_textbox(left=self.lf_1, top=self.t_2, width=self.w_1,height=self.h_2)
                 tf_sub_titulo= sub_titulo.text_frame
                 tf_sub_titulo.word_wrap = True
                 text_frame_paragraph(tf_sub_titulo,sub_title,11,True )
@@ -87,11 +99,8 @@ class Get_Data:
                     EC.presence_of_element_located((By.XPATH, "//h1[@class='g-font-size-20 g-font-weight-600']"))
                 )
             title = self.driver.find_element_by_xpath("//h1[@class='g-font-size-20 g-font-weight-600']")
-            # title_text = title.text
-            # titulo = self.document.add_paragraph()
-            # titulo.add_run(f'{count}.{title_text}').bold = True
             slide_idx = self.references.index(ref)
-            titulo = self.prs.slides[slide_idx].shapes.add_textbox(left=Cm(1.5), top=Cm(3), width=Cm(19),height=Cm(1))
+            titulo = self.prs.slides[slide_idx].shapes.add_textbox(left=self.lf_1, top=self.t_1, width=self.w_1, height=self.h_1)
             tf_titulo= titulo.text_frame
             text_frame_paragraph(tf_titulo,f'{count}.{title.text}',11,True )
 
@@ -103,9 +112,7 @@ class Get_Data:
                     EC.presence_of_element_located((By.XPATH, "//div[@class='g-font-size-18 g-mb-15']"))
                 )
             sub_title = self.driver.find_element_by_xpath("//div[@class='g-font-size-18 g-mb-15']")
-            # self.document.add_paragraph(sub_title.text)
-            # sub_title_text = sub_title.text
-            sub_titulo = self.prs.slides[slide_idx].shapes.add_textbox(left=Cm(1.5), top=Cm(3.5), width=Cm(19),height=Cm(2))
+            sub_titulo = self.prs.slides[slide_idx].shapes.add_textbox(left=self.lf_1, top=self.t_2, width=self.w_1,height=self.h_2)
             tf_sub_titulo= sub_titulo.text_frame
             tf_sub_titulo.word_wrap = True
             text_frame_paragraph(tf_sub_titulo,sub_title.text,11,True )
@@ -115,15 +122,11 @@ class Get_Data:
     def get_description(self, desc_xpath, ref):
         try:
             desc = self.driver.find_elements_by_xpath(desc_xpath)
-            # descripcion = self.document.add_paragraph()
             slide_idx = self.references.index(ref)
-            description = self.prs.slides[slide_idx].shapes.add_textbox(left=Cm(1.5), top=Cm(5), width=Cm(19),height=Cm(5))
+            description = self.prs.slides[slide_idx].shapes.add_textbox(left=self.lf_1, top=self.t_3, width=self.w_1,height=self.h_3)
             tf_desc= description.text_frame
-            # text_frame_paragraph(tf_desc,"",11,True )
             for element in desc:
                 text_frame_paragraph(tf_desc,element.text,11 )
-                # desc_line = descripcion.add_run(element.text)
-                # desc_line.add_break()
 
         except:
             print(f'No se pudo obtener la descripción de la ref {ref}')
@@ -142,17 +145,11 @@ class Get_Data:
             package_2_text = package_col_2.text
 
             slide_idx = self.references.index(ref)
-            p1 = self.prs.slides[slide_idx].shapes.add_textbox(left=Cm(1.5), top=Cm(8), width=Cm(19),height=Cm(5))
+            p1 = self.prs.slides[slide_idx].shapes.add_textbox(left=self.lf_1, top=self.t_4, width=self.w_1,height=self.h_2)
             tf_p1= p1.text_frame
-            # p2 = self.prs.slides[slide_idx].shapes.add_textbox(left=Cm(1.5), top=Cm(8.5), width=Cm(6.4),height=Cm(5))
-            # tf_p2= p2.text_frame
+         
             text_frame_paragraph(tf_p1,f'{unit_1_text} {unit_2_text}',11,True )
             text_frame_paragraph(tf_p1,f'{package_1_text} {package_2_text}',11,True )
-            # paragraph = self.document.add_paragraph(f'{unit_1_text}  ')
-            # paragraph.add_run(unit_2_text).bold = True
-
-            # paragraph2 = self.document.add_paragraph(f'{package_1_text}  ')
-            # paragraph2.add_run(package_2_text).bold = True
         except:
             print(f'No se pudo obtener la cantidad minima de la ref {ref}')
 
@@ -166,16 +163,7 @@ class Get_Data:
             slide_idx = self.references.index(ref)
             cols = 2
             rows = q_colores
-            left = Cm(1.5)
-            top = Cm(9)
-            width = Cm(8)
-            height = Cm(8.5)
-            table = self.prs.slides[slide_idx].shapes.add_table(rows, cols, left, top, width, height).table
-            # table.fill.background()
-
-            # table = self.document.add_table(rows=q_colores, cols=2)
-            # col1 = table.columns[0]
-            # col2 = table.columns[1]
+            table = self.prs.slides[slide_idx].shapes.add_table(rows, cols, self.lf_1, self.t_5, self.w_2, self.h_4).table
             for i in range (1, q_colores + 1):
                 if self.supplier == 'cat_promo':
                     color_xpath = f"tbody[1]/tr[{i+2}]/td[1]"
@@ -192,14 +180,6 @@ class Get_Data:
                 table.cell(i-1, 0).text = color
                 table.cell(i-1, 1).text = inv_color
                 table.rows[i-1].height = Cm(0.5)
-                # col1.cells[i-1].text = color
-                # col1.cells[i-1].width = Cm(4)
-                # col2.cells[i-1].text = inv_color
-                # col2.cells[i-1].width = Cm(1.4)
-                # table.rows[i-1].height = Cm(0.5)
-                # table.rows[i-1].height_rule = WD_ROW_HEIGHT_RULE.EXACTLY
-
-            # table.autofit = True
         except:
             print('No se pudo obtener el inventario')
     
@@ -217,10 +197,7 @@ class Get_Data:
                 file.write(response.content)
                 file.close()
                 slide_idx = self.references.index(ref)
-                pic = self.prs.slides[slide_idx].shapes.add_picture("./images/sample_image.jpg",left=Cm(12), top=Cm(9), width=Cm(13.2), height=Cm(9.5))
-
-                # self.document.add_picture("./images/sample_image.jpg", width=Inches(5.25))
-                # self.document.add_page_break()
+                pic = self.prs.slides[slide_idx].shapes.add_picture("./images/sample_image.jpg",left=self.lf_2, top=self.t_5, width=self.w_3, height=self.h_5)
             else:
                 print(f'Error al descargar imagen de la ref {ref}, status code({response.status_code})')
         except:

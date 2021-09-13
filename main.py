@@ -16,6 +16,8 @@ consecutivo = file.readline().strip()
 representative = file.readline()
 contact = file.readline()
 email = file.readline()
+address = file.readline()
+web = file.readline()
 file.close()
 nuevo_consecutivo = int(consecutivo) + 1
 
@@ -24,6 +26,8 @@ file.write(f"{nuevo_consecutivo}\n")
 file.write(representative)
 file.write(contact)
 file.write(email)
+file.write(address)
+file.write(web)
 file.close()
 
 print("-------------****-------------- ")
@@ -43,25 +47,25 @@ suppliers = {
 }
 
 hoy = datetime.now()
-prs = Presentation()
+prs = Presentation("./plantillas/cotizacion.pptx")
 title_slide_layout = prs.slide_layouts[6]
 for ref in reference:
     prs.slides.add_slide(title_slide_layout)
     pic = prs.slides[reference.index(ref)].shapes.add_picture("./images/logo.jpg",left=Cm(1), top=Cm(0.5), width=Cm(8.9), height=Cm(1.7))
+    footer = prs.slides[reference.index(ref)].shapes.add_textbox(left=Cm(7.5), top=Cm(22.3), width=Cm(14),height=Cm(3))
+    tf_footer = footer.text_frame
+    text_frame_paragraph(tf_footer,f'{address} {contact} {email} {web}',11 )
 
-
-txBox = prs.slides[0].shapes.add_textbox(left=Cm(18), top=Cm(-0.5), width=Cm(6.6),height=Cm(6))
+txBox = prs.slides[0].shapes.add_textbox(left=Cm(12), top=Cm(-0.5), width=Cm(6.6),height=Cm(6))
 tf = txBox.text_frame
 
 text_frame_paragraph(tf,f'{hoy.day} {hoy.month} de {hoy.year}',14 )
 text_frame_paragraph(tf,f'Cot N°{consecutivo}',14 )
 text_frame_paragraph(tf,"",11 )
 text_frame_paragraph(tf,'Asesor Comercial',11 )
-text_frame_paragraph(tf,representative,11 )
-text_frame_paragraph(tf,contact,11 )
-text_frame_paragraph(tf,email,11 )
+text_frame_paragraph(tf,f'{representative} {contact} {email}',11 )
 
-header = prs.slides[0].shapes.add_textbox(left=Cm(1), top=Cm(1.5), width=Cm(6.4),height=Cm(5))
+header = prs.slides[0].shapes.add_textbox(left=Cm(1), top=Cm(2.5), width=Cm(6.4),height=Cm(2))
 tf_header = header.text_frame
 text_frame_paragraph(tf_header,f'Señor(a) {client}.',14,True )
 text_frame_paragraph(tf_header,company,14,True )
