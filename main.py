@@ -44,23 +44,24 @@ suppliers = {
 
 hoy = datetime.now()
 prs = Presentation()
-title_slide_layout = prs.slide_layouts[0]
-slide = prs.slides.add_slide(title_slide_layout)
+title_slide_layout = prs.slide_layouts[6]
+for ref in reference:
+    prs.slides.add_slide(title_slide_layout)
+    pic = prs.slides[reference.index(ref)].shapes.add_picture("./images/logo.jpg",left=Cm(1), top=Cm(0.5), width=Cm(8.9), height=Cm(1.7))
 
-pic = slide.shapes.add_picture("./images/logo.jpg",left=Cm(1), top=Cm(0.5), width=Cm(8.9), height=Cm(1.7))
 
-txBox = slide.shapes.add_textbox(left=Cm(18), top=Cm(-0.5), width=Cm(6.4),height=Cm(3.8))
+txBox = prs.slides[0].shapes.add_textbox(left=Cm(18), top=Cm(-0.5), width=Cm(6.6),height=Cm(6))
 tf = txBox.text_frame
 
 text_frame_paragraph(tf,f'{hoy.day} {hoy.month} de {hoy.year}',14 )
 text_frame_paragraph(tf,f'Cot N°{consecutivo}',14 )
 text_frame_paragraph(tf,"",11 )
-text_frame_paragraph(tf,'Asesor Comercial',11,True )
+text_frame_paragraph(tf,'Asesor Comercial',11 )
 text_frame_paragraph(tf,representative,11 )
 text_frame_paragraph(tf,contact,11 )
 text_frame_paragraph(tf,email,11 )
 
-header = slide.shapes.add_textbox(left=Cm(1), top=Cm(1.5), width=Cm(6.4),height=Cm(5))
+header = prs.slides[0].shapes.add_textbox(left=Cm(1), top=Cm(1.5), width=Cm(6.4),height=Cm(5))
 tf_header = header.text_frame
 text_frame_paragraph(tf_header,f'Señor(a) {client}.',14,True )
 text_frame_paragraph(tf_header,company,14,True )
@@ -70,14 +71,13 @@ for ref in strip_reference:
 
 # Scrapp Data
 if len(suppliers['cat_promo']) != 0:
-    get_cat_promo_data(suppliers, prs)
+    get_cat_promo_data(suppliers, prs, strip_reference)
 if len(suppliers['mp_promo']) != 0:
-    get_mp_promo_data(suppliers, prs)
-if len(suppliers['promo_op']) != 0:
-    get_promo_op__data(suppliers, prs)
-if len(suppliers['nw_promo']) != 0:
-    get_nw_promo_data(suppliers, prs)
-prs
+    get_mp_promo_data(suppliers, prs, strip_reference)
+# if len(suppliers['promo_op']) != 0:
+#     get_promo_op__data(suppliers, prs, strip_reference)
+# if len(suppliers['nw_promo']) != 0:
+#     get_nw_promo_data(suppliers, prs, strip_reference)
 
 
 prs.save(f'./cotizaciones/cotización_{company}.pptx')

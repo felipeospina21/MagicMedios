@@ -1,7 +1,7 @@
 from get_data import Get_Data
 
-def get_nw_promo_data(suppliers_dict, document):
-    data = Get_Data('https://promocionalesnw.com/', 'nw_promo', document)
+def get_nw_promo_data(suppliers_dict, prs, references):
+    data = Get_Data('https://promocionalesnw.com/', 'nw_promo', prs, references)
     header_xpath = "//div[@class='pb-center-column  col-xs-12 col-sm-6 col-md-6']"
     count = 1
     for ref in suppliers_dict['mp_promo']:

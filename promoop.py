@@ -1,7 +1,7 @@
 from get_data import Get_Data
 
-def get_promo_op__data(suppliers_dict, document):
-    data = Get_Data('https://www.promoopcioncolombia.co/', 'promo_op', document)
+def get_promo_op__data(suppliers_dict, prs, references):
+    data = Get_Data('https://www.promoopcioncolombia.co/', 'promo_op', prs, references)
     header_xpath = "//td[@class='table-responsive']"
     count = 1
     for ref in suppliers_dict['promo_op']:
