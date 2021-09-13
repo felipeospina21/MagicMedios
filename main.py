@@ -1,12 +1,14 @@
-from docx import Document
 from utils import create_supplier_ref_list, text_frame_paragraph
 from catalogospromo import get_cat_promo_data
 from mppromos import get_mp_promo_data
 from nwpromo import get_nw_promo_data
 from promoop import get_promo_op__data
 from pptx import Presentation
-from pptx.util import Pt, Cm
+from pptx.util import Cm
 from datetime import datetime
+import locale
+
+locale.setlocale(locale.LC_TIME, '')
 
 file_path = (
     "C:/Users/felipe.ospina/OneDrive - MINEROS/Desktop/repo/projects/MagicMedios"
@@ -49,17 +51,23 @@ suppliers = {
 hoy = datetime.now()
 prs = Presentation("./plantillas/cotizacion.pptx")
 title_slide_layout = prs.slide_layouts[6]
-for ref in reference:
+for idx, ref in enumerate(reference):
     prs.slides.add_slide(title_slide_layout)
-    pic = prs.slides[reference.index(ref)].shapes.add_picture("./images/logo.jpg",left=Cm(1), top=Cm(0.5), width=Cm(8.9), height=Cm(1.7))
-    footer = prs.slides[reference.index(ref)].shapes.add_textbox(left=Cm(7.5), top=Cm(22.3), width=Cm(14),height=Cm(3))
+    pic = prs.slides[idx].shapes.add_picture("./images/logo.jpg",left=Cm(1), top=Cm(0.5), width=Cm(8.9), height=Cm(1.7))
+    footer = prs.slides[idx].shapes.add_textbox(left=Cm(7.5), top=Cm(22.3), width=Cm(14),height=Cm(3))
     tf_footer = footer.text_frame
     text_frame_paragraph(tf_footer,f'{address} {contact} {email} {web}',11 )
+# for ref in reference:
+#     prs.slides.add_slide(title_slide_layout)
+#     pic = prs.slides[reference.index(ref)].shapes.add_picture("./images/logo.jpg",left=Cm(1), top=Cm(0.5), width=Cm(8.9), height=Cm(1.7))
+#     footer = prs.slides[reference.index(ref)].shapes.add_textbox(left=Cm(7.5), top=Cm(22.3), width=Cm(14),height=Cm(3))
+#     tf_footer = footer.text_frame
+#     text_frame_paragraph(tf_footer,f'{address} {contact} {email} {web}',11 )
 
 txBox = prs.slides[0].shapes.add_textbox(left=Cm(12), top=Cm(-0.5), width=Cm(6.6),height=Cm(6))
 tf = txBox.text_frame
 
-text_frame_paragraph(tf,f'{hoy.day} {hoy.month} de {hoy.year}',14 )
+text_frame_paragraph(tf,f"{hoy.day} {hoy.strftime('%B')} de {hoy.year}",14 )
 text_frame_paragraph(tf,f'Cot N°{consecutivo}',14 )
 text_frame_paragraph(tf,"",11 )
 text_frame_paragraph(tf,'Asesor Comercial',11 )
@@ -78,10 +86,10 @@ if len(suppliers['cat_promo']) != 0:
     get_cat_promo_data(suppliers, prs, strip_reference)
 if len(suppliers['mp_promo']) != 0:
     get_mp_promo_data(suppliers, prs, strip_reference)
-# if len(suppliers['promo_op']) != 0:
-#     get_promo_op__data(suppliers, prs, strip_reference)
-# if len(suppliers['nw_promo']) != 0:
-#     get_nw_promo_data(suppliers, prs, strip_reference)
+if len(suppliers['promo_op']) != 0:
+    get_promo_op__data(suppliers, prs, strip_reference)
+if len(suppliers['nw_promo']) != 0:
+    get_nw_promo_data(suppliers, prs, strip_reference)
 
 
 prs.save(f'./cotizaciones/cotización_{company}.pptx')
