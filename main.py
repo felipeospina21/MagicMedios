@@ -7,7 +7,9 @@ from pptx import Presentation
 from pptx.util import Cm
 from datetime import datetime
 import locale
+import time
 
+start_time = time.time()
 locale.setlocale(locale.LC_TIME, '')
 
 file_path = (
@@ -94,4 +96,5 @@ if len(suppliers['nw_promo']) != 0:
 
 prs.save(f'./cotizaciones/cotización_{company}.pptx')
 
-print('-------- Proceso Finalizado --------')
+total_time = "{:.2f}".format((time.time() - start_time)/60)
+print(f'-------- Proceso Finalizado en {total_time} minutos --------')

@@ -22,11 +22,11 @@ class Get_Data:
         self.t_1 = Cm(4)
         self.t_2 = Cm(4.5)
         self.t_3 = Cm(6)
-        self.t_4 = Cm(8)
-        self.t_5 = Cm(10)
+        self.t_4 = Cm(9)
+        self.t_5 = Cm(12)
 
         self.w_1 = Cm(12.5)
-        self.w_2 = Cm(7)
+        self.w_2 = Cm(6)
         self.w_3 = Cm(9.9)
 
         self.h_1 = Cm(1)
@@ -37,11 +37,17 @@ class Get_Data:
 
         self.path = "C:/chromedriver.exe"
         self.driver = webdriver.Chrome(self.path)
+        self.driver.set_page_load_timeout(30)
         if self.supplier == 'mp_promo':
             self.driver.get('chrome://settings/')
             self.driver.execute_script('chrome.settingsPrivate.setDefaultZoom(0.25);')
-        self.driver.get(self.url)
-        time.sleep(3)
+        try:
+            self.driver.get(self.url)
+        except Exception as e:
+            print(f"Error de tipo {e.__class__}")
+
+
+        time.sleep(5)
 
     def zoom_out_window(self):
         self.driver.get('chrome://settings/')
@@ -51,31 +57,35 @@ class Get_Data:
         if self.supplier == 'nw_promo':
             try:
                 self.driver.execute_script("document.getElementsByClassName('fancybox-overlay fancybox-overlay-fixed labpopup')[0].style.display = 'none';")
-            except:
+            except Exception as e:
+                print(f"Error de tipo {e.__class__}")
                 print("No se encontro popup")
 
     def search_ref(self, ref, search_box_id):
         try:
-            # search_input = WebDriverWait(self.driver, 10).until(
+            # element_present =  WebDriverWait(self.driver, 30).until(
             #         EC.presence_of_element_located((By.ID, search_box_id))
             #     )
+
             search_input = self.driver.find_element_by_id(search_box_id)
             time.sleep(1)
             search_input.clear()
             search_input.send_keys(ref)
             search_input.send_keys(Keys.RETURN)
-        except:
+        except Exception as e:
+            print(f"Error de tipo {e.__class__}")
             print("No se pudo encontrar la barra de busqueda")
 
     def click_first_result(self, first_result_xpath, ref):
         try:
-            # result = WebDriverWait(self.driver, 10).until(
-            #         EC.presence_of_element_located((By.XPATH, first_result_xpath))
-            #     )
-            result = self.driver.find_element_by_xpath(first_result_xpath)
+            result = WebDriverWait(self.driver, 5).until(
+                    EC.element_to_be_clickable((By.XPATH, first_result_xpath))
+                )
+            # result = self.driver.find_element_by_xpath(first_result_xpath)
             time.sleep(1)
             result.click()
-        except:
+        except Exception as e:
+            print(f"Error de tipo {e.__class__}")
             print(f"No se pudo encontrar la ref {ref}")
 
     def get_title(self, header_xpath, title_index, sub_title_index, count, ref):
@@ -95,7 +105,8 @@ class Get_Data:
                 tf_sub_titulo= sub_titulo.text_frame
                 tf_sub_titulo.word_wrap = True
                 text_frame_paragraph(tf_sub_titulo,sub_title,11,True )
-        except:
+        except Exception as e:
+            print(f"Error de tipo {e.__class__}")   
             print(f'No se pudo obtener el título de la ref {ref}')
 
     def get_title_with_xpath(self,title_xpath, sub_title_xpath, count, ref):
@@ -109,7 +120,8 @@ class Get_Data:
             tf_titulo= titulo.text_frame
             text_frame_paragraph(tf_titulo,f'{count}.{title.text}',11,True )
 
-        except:
+        except Exception as e:
+            print(f"Error de tipo {e.__class__}")
             print(f'No se pudo obtener el título de la ref {ref}')
 
         try:
@@ -133,7 +145,8 @@ class Get_Data:
             tf_sub_titulo.word_wrap = True
             text_frame_paragraph(tf_sub_titulo,sub_title_text,11,True )
             
-        except:
+        except Exception as e:
+            print(f"Error de tipo {e.__class__}")
             print(f'No se pudo obtener el subtítulo de la ref {ref}')
         
     def get_description(self, desc_xpath, ref):
@@ -146,7 +159,8 @@ class Get_Data:
             for element in desc:
                 text_frame_paragraph(tf_desc,element.text,11 )
 
-        except:
+        except Exception as e:
+            print(f"Error de tipo {e.__class__}")
             print(f'No se pudo obtener la descripción de la ref {ref}')
     
     def get_package_info(self, ref):
@@ -168,7 +182,8 @@ class Get_Data:
          
             text_frame_paragraph(tf_p1,f'{unit_1_text} {unit_2_text}',11,True )
             text_frame_paragraph(tf_p1,f'{package_1_text} {package_2_text}',11,True )
-        except:
+        except Exception as e:
+            print(f"Error de tipo {e.__class__}")
             print(f'No se pudo obtener la cantidad minima de la ref {ref}')
 
     def get_inventory(self, xpath_colores, xpath_tabla_colores, ref):
@@ -181,7 +196,10 @@ class Get_Data:
             slide_idx = self.references.index(ref)
             cols = 2
             rows = q_colores
-            table = self.prs.slides[slide_idx].shapes.add_table(rows, cols, self.lf_1, self.t_5, self.w_2, self.h_4).table
+            table = self.prs.slides[slide_idx].shapes.add_table(rows + 1, cols, self.lf_1, self.t_5, self.w_2, self.h_4).table
+            table.cell(0,0).text = "Color"
+            table.cell(0,1).text = "Inventario"
+            table.rows[0].height = Cm(0.5)
             table.first_row = False
             table.horz_banding = False
             for i in range (1, q_colores + 1):
@@ -197,20 +215,21 @@ class Get_Data:
 
                 color = self.driver.find_element_by_xpath(f"{tabla_colores}/{color_xpath}").text
                 inv_color = self.driver.find_element_by_xpath(f"{tabla_colores}/{inv_color_xpath}").text
-                table.cell(i-1, 0).text = color
-                table.cell(i-1, 1).text = inv_color
-                table.rows[i-1].height = Cm(0.5)
+                table.cell(i, 0).text = color
+                table.cell(i, 1).text = inv_color
+                table.rows[i].height = Cm(0.5)
                 # Cell Color
-                cell1 = table.cell(i-1,0)
-                cell2 = table.cell(i-1,1)
+                cell1 = table.cell(i,0)
+                cell2 = table.cell(i,1)
                 cell1.fill.solid()
                 cell1.fill.fore_color.rgb = RGBColor(255,255,255)
                 cell2.fill.solid()
                 cell2.fill.fore_color.rgb = RGBColor(255,255,255)
             
-            table.columns[0].width = Cm(5)
-            table.columns[1].width = Cm(2)
-        except:
+            table.columns[0].width = Cm(3.8)
+            table.columns[1].width = Cm(2.2)
+        except Exception as e:
+            print(f"Error de tipo {e.__class__}")
             print('No se pudo obtener el inventario')
     
     def get_img(self, img_xpath, ref):
@@ -230,7 +249,8 @@ class Get_Data:
                 pic = self.prs.slides[slide_idx].shapes.add_picture("./images/sample_image.jpg",left=self.lf_2, top=self.t_5, width=self.w_3, height=self.h_5)
             else:
                 print(f'Error al descargar imagen de la ref {ref}, status code({response.status_code})')
-        except:
+        except Exception as e:
+            print(f"Error de tipo {e.__class__}")
             print(f'Error al descargar imagen de la ref {ref}') 
 
     def close_driver(self):
