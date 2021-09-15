@@ -9,6 +9,7 @@ def get_cat_promo_data(suppliers_dict, prs, references):
         count = references.index(ref) + 1
         data.search_ref(ref,'productos')
         data.click_first_result("//div[@id='backTable']/div[1]/div[1]/a[1]", ref)
+        data.create_quantity_table(ref)
         data.get_title(header_xpath,0, None, count, ref)
         data.get_description(f"{header_xpath}/p[2]", ref)
         data.get_package_info(ref)

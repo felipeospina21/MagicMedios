@@ -37,6 +37,7 @@ file.close()
 print("-------------****-------------- ")
 client = input("Ingrese nombre cliente: ").title()
 company = input("Ingrese nombre empresa: ").title()
+# quantity = input("Ingrese cantidades a cotizar (separadas por coma): ").title()
 reference = input("Ingrese referencias a consultar (separadas por coma): ").upper().split(",")
 strip_reference = [ref.strip() for ref in reference]
 ref_q = len(reference)
@@ -59,12 +60,6 @@ for idx, ref in enumerate(reference):
     footer = prs.slides[idx].shapes.add_textbox(left=Cm(7.5), top=Cm(22.3), width=Cm(14),height=Cm(3))
     tf_footer = footer.text_frame
     text_frame_paragraph(tf_footer,f'{address} {contact} {email} {web}',11 )
-# for ref in reference:
-#     prs.slides.add_slide(title_slide_layout)
-#     pic = prs.slides[reference.index(ref)].shapes.add_picture("./images/logo.jpg",left=Cm(1), top=Cm(0.5), width=Cm(8.9), height=Cm(1.7))
-#     footer = prs.slides[reference.index(ref)].shapes.add_textbox(left=Cm(7.5), top=Cm(22.3), width=Cm(14),height=Cm(3))
-#     tf_footer = footer.text_frame
-#     text_frame_paragraph(tf_footer,f'{address} {contact} {email} {web}',11 )
 
 txBox = prs.slides[0].shapes.add_textbox(left=Cm(12), top=Cm(-0.5), width=Cm(6.6),height=Cm(6))
 tf = txBox.text_frame

@@ -10,6 +10,7 @@ def get_nw_promo_data(suppliers_dict, prs, references):
         data.search_ref(ref,'search_query_top')
         time.sleep(2)
         data.click_first_result("//a[@class='product_image']", ref)
+        data.create_quantity_table(ref)
         data.get_title(header_xpath, 0, 4, count, ref)
         data.get_description("//div[@id='short_description_content']/child::div", ref)
         data.get_inventory("//table[@class='table-bordered']/tbody[1]/child::tr", "//table[@class='table-bordered']/tbody[1]", ref)

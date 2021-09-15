@@ -3,7 +3,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from pptx.util import Cm
+from pptx.util import Cm, Pt
 from pptx.dml.color import RGBColor
 from utils import text_frame_paragraph
 import requests
@@ -18,14 +18,17 @@ class Get_Data:
         self.references = references
         self.lf_1 = Cm(0.8)
         self.lf_2 = Cm(8.5)
+        self.lf_3 = Cm(3)
 
         self.t_1 = Cm(4)
         self.t_2 = Cm(4.5)
         self.t_3 = Cm(6)
         self.t_4 = Cm(9)
         self.t_5 = Cm(12)
+        self.t_6 = Cm(15)
 
-        self.w_1 = Cm(12.5)
+        # self.w_1 = Cm(12.5)
+        self.w_1 = Cm(17.4)
         self.w_2 = Cm(6)
         self.w_3 = Cm(9.9)
 
@@ -87,6 +90,30 @@ class Get_Data:
         except Exception as e:
             print(f"Error de tipo {e.__class__}")
             print(f"No se pudo encontrar la ref {ref}")
+    
+    def create_quantity_table(self, ref):
+        try:
+            slide_idx = self.references.index(ref)
+            table = self.prs.slides[slide_idx].shapes.add_table(3 , 2, self.lf_3, self.t_5, self.w_1, self.h_2).table
+            table.cell(0,0).text = "Cantidad (und)"
+            table.cell(0,1).text = "Valor unitario"
+            table.rows[0].height = Cm(0.5)
+            table.first_row = True
+            table.horz_banding = False
+            for i in range (1, 3):
+                table.rows[i].height = Cm(0.5)
+                # Cell Color
+                cell1 = table.cell(i,0)
+                cell2 = table.cell(i,1)
+                cell1.fill.solid()
+                cell1.fill.fore_color.rgb = RGBColor(255,255,255)
+                cell2.fill.solid()
+                cell2.fill.fore_color.rgb = RGBColor(255,255,255)
+                
+            table.columns[0].width = Cm(3)
+            table.columns[1].width = Cm(9.5)
+        except Exception as e:
+            print(f"Error al crear tabla de cantidades ({e.__class__})")
 
     def get_title(self, header_xpath, title_index, sub_title_index, count, ref):
         try:
@@ -196,9 +223,13 @@ class Get_Data:
             slide_idx = self.references.index(ref)
             cols = 2
             rows = q_colores
-            table = self.prs.slides[slide_idx].shapes.add_table(rows + 1, cols, self.lf_1, self.t_5, self.w_2, self.h_4).table
-            table.cell(0,0).text = "Color"
-            table.cell(0,1).text = "Inventario"
+            table = self.prs.slides[slide_idx].shapes.add_table(rows + 1, cols, self.lf_1, self.t_6, self.w_2, self.h_4).table
+            h1 = table.cell(0,0)
+            h2 = table.cell(0,1)
+            h1.text = "Color"
+            h2.text = "Inventario"
+            h1.text_frame.paragraphs[0].font.size = Pt(9)
+            h2.text_frame.paragraphs[0].font.size = Pt(9)
             table.rows[0].height = Cm(0.5)
             table.first_row = False
             table.horz_banding = False
@@ -215,8 +246,12 @@ class Get_Data:
 
                 color = self.driver.find_element_by_xpath(f"{tabla_colores}/{color_xpath}").text
                 inv_color = self.driver.find_element_by_xpath(f"{tabla_colores}/{inv_color_xpath}").text
-                table.cell(i, 0).text = color
-                table.cell(i, 1).text = inv_color
+                c1 = table.cell(i, 0)
+                c1.text = color
+                c1.text_frame.paragraphs[0].font.size = Pt(9)
+                c2 = table.cell(i, 1)
+                c2.text = inv_color
+                c2.text_frame.paragraphs[0].font.size = Pt(9)
                 table.rows[i].height = Cm(0.5)
                 # Cell Color
                 cell1 = table.cell(i,0)
@@ -246,7 +281,7 @@ class Get_Data:
                 file.write(response.content)
                 file.close()
                 slide_idx = self.references.index(ref)
-                pic = self.prs.slides[slide_idx].shapes.add_picture("./images/sample_image.jpg",left=self.lf_2, top=self.t_5, width=self.w_3, height=self.h_5)
+                pic = self.prs.slides[slide_idx].shapes.add_picture("./images/sample_image.jpg",left=self.lf_2, top=self.t_6, width=self.w_3, height=self.h_5)
             else:
                 print(f'Error al descargar imagen de la ref {ref}, status code({response.status_code})')
         except Exception as e:

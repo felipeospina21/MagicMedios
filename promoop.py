@@ -7,6 +7,7 @@ def get_promo_op__data(suppliers_dict, prs, references):
         count = references.index(ref) + 1
         data.search_ref(ref,'q')
         data.click_first_result("//a[@class='img-responsive']", ref)
+        data.create_quantity_table(ref)
         # data.get_title(header_xpath,2, 3, count, ref)
         data.get_title_with_xpath(f"{header_xpath}/h6[1]", header_xpath, count, ref)
         data.get_description("//table[@class='table-hover table-responsive']/tbody[1]/child::tr", ref)
