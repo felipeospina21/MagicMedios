@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-auth_token = os.environ.get("api-token")
+auth_token = os.environ.get("API_TOKEN")
 
 def get_cdo_promo_data(suppliers_dict, prs, references):
     data = Get_Data('cdo_promo', prs, references, measures)
@@ -22,11 +22,6 @@ def get_cdo_promo_data(suppliers_dict, prs, references):
         data.create_quantity_table(ref, idx)
         data.create_subtitle(desc, idx, ref)
         data.create_img(img_src, idx, ref)
-        
-        # for i, variant in enumerate(colors):
-        # color = variant["color"]
-        # stock = str(variant["stock_available"])
-        
         data.create_stock_table_api(q_colores, colors, idx, ref)
 
 

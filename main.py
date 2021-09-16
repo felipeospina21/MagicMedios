@@ -7,14 +7,16 @@ from cdopromo import get_cdo_promo_data
 from pptx import Presentation
 from pptx.util import Cm
 from datetime import datetime
+from dotenv import load_dotenv
 import locale
 import time
+import os
+
 
 # Variables
 start_time = time.time()
-file_path = (
-    "C:/Users/felipe.ospina/OneDrive - MINEROS/Desktop/repo/projects/MagicMedios"
-)
+load_dotenv()
+file_path = os.environ.get("FILE_PATH")
 hoy = datetime.now()
 prs = Presentation("./plantillas/cotizacion.pptx")
 title_slide_layout = prs.slide_layouts[6]
@@ -25,6 +27,7 @@ locale.setlocale(locale.LC_TIME, '')
 file = open(f"{file_path}/data/consecutivo.txt", "r")
 consecutivo = file.readline().strip()
 file.close()
+
 nuevo_consecutivo = int(consecutivo) + 1
 file = open(f"{file_path}/data/consecutivo.txt", "w")
 file.write(f"{nuevo_consecutivo}\n")
