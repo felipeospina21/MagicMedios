@@ -2,7 +2,8 @@ from get_data import Get_Data
 from utils import measures
 
 def get_promo_op__data(suppliers_dict, prs, references):
-    data = Get_Data('https://www.promoopcioncolombia.co/', 'promo_op', prs, references, measures)
+    data = Get_Data('promo_op', prs, references, measures)
+    data.execute_driver('https://www.promoopcioncolombia.co/')
     header_xpath = "//td[@class='table-responsive']"
     for ref in suppliers_dict['promo_op']:
         idx = data.get_original_ref_list_idx(ref)
@@ -18,7 +19,7 @@ def get_promo_op__data(suppliers_dict, prs, references):
         desc_list = data.get_description("//table[@class='table-hover table-responsive']/tbody[1]/child::tr", ref)
         data.create_description(desc_list, idx, ref)
     
-        img_response = data.get_img("//div[@id='imgItem']/img", ref)
-        data.create_img(img_response, idx, ref)
+        img_src = data.get_img("//div[@id='imgItem']/img", ref)
+        data.create_img(img_src, idx, ref)
         
     data.close_driver()

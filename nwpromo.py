@@ -3,7 +3,8 @@ from utils import measures
 import time
 
 def get_nw_promo_data(suppliers_dict, prs, references):
-    data = Get_Data('https://promocionalesnw.com/', 'nw_promo', prs, references, measures)
+    data = Get_Data('nw_promo', prs, references, measures)
+    data.execute_driver('https://promocionalesnw.com/')
     header_xpath = "//div[@class='pb-center-column  col-xs-12 col-sm-6 col-md-6']"
     for ref in suppliers_dict['nw_promo']:
         idx = data.get_original_ref_list_idx(ref)
@@ -22,7 +23,7 @@ def get_nw_promo_data(suppliers_dict, prs, references):
         colors_list = data.get_inventory("//table[@class='table-bordered']/tbody[1]/child::tr", ref)
         data.create_inventory_table(colors_list[2], colors_list[0], colors_list[1], "//table[@class='table-bordered']/tbody[1]", idx, ref)
 
-        img_response = data.get_img("//img[@id='bigpic']", ref)
-        data.create_img(img_response, idx, ref)
+        img_src = data.get_img("//img[@id='bigpic']", ref)
+        data.create_img(img_src, idx, ref)
 
     data.close_driver()

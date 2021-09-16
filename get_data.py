@@ -11,11 +11,13 @@ import time
 import re
 
 class Get_Data:
-    def __init__(self, url, supplier, prs, references, measures):
+    def __init__(self, supplier, prs, references, measures):
         self.supplier = supplier
-        self.url = url
         self.prs= prs
         self.references = references
+        self.path = "C:/chromedriver.exe"
+        self.driver = webdriver.Chrome(self.path)
+
         self.lf_1 = Cm(measures["lf_1"])
         self.lf_2 = Cm(measures["lf_2"])
         self.lf_3 = Cm(measures["lf_3"])
@@ -37,14 +39,13 @@ class Get_Data:
         self.h_4 = Cm(measures["h_4"])
         self.h_5 = Cm(measures["h_5"])
 
-        self.path = "C:/chromedriver.exe"
-        self.driver = webdriver.Chrome(self.path)
+    def execute_driver(self, url):
         self.driver.set_page_load_timeout(20)
         if self.supplier == 'mp_promo':
             self.driver.get('chrome://settings/')
             self.driver.execute_script('chrome.settingsPrivate.setDefaultZoom(0.25);')
         try:
-            self.driver.get(self.url)
+            self.driver.get(url)
         except Exception as e:
             print(f"Error de tipo {e.__class__}")
 
@@ -206,9 +207,8 @@ class Get_Data:
 
             img = self.driver.find_element_by_xpath(img_xpath)
             img_src = img.get_attribute('src')
-            response = requests.get(img_src)
-
-            return response
+            
+            return img_src
 
         except Exception as e:
             print(f"Error de tipo {e.__class__}")
@@ -329,7 +329,49 @@ class Get_Data:
             print(f"Error de tipo {e.__class__}")
             print(f'No se pudo crear la tabla de inventario de la ref {ref}')
 
-    def create_img(self, response, idx, ref):
+    def create_stock_table_api(self, q_colores, colors_list, idx, ref):
+        try:
+            cols = 2
+            rows = q_colores
+            table = self.prs.slides[idx].shapes.add_table(rows + 1, cols, self.lf_1, self.t_6, self.w_2, self.h_4).table
+            
+            # Table Header
+            h1 = table.cell(0,0)
+            h2 = table.cell(0,1)
+            h1.text = "Color"
+            h2.text = "Inventario"
+            h1.text_frame.paragraphs[0].font.size = Pt(9)
+            h2.text_frame.paragraphs[0].font.size = Pt(9)
+            table.rows[0].height = Cm(0.5)
+            table.first_row = False
+            table.horz_banding = False
+
+            for i in range (1, q_colores + 1):
+                color = colors_list[i-1]["color"]
+                stock = str(colors_list[i-1]["stock_available"])
+                c1 = table.cell(i, 0)
+                c1.text = color
+                c1.text_frame.paragraphs[0].font.size = Pt(9)
+                c2 = table.cell(i, 1)
+                c2.text = stock
+                c2.text_frame.paragraphs[0].font.size = Pt(9)
+                table.rows[i].height = Cm(0.5)
+                # Cell Color
+                cell1 = table.cell(i,0)
+                cell2 = table.cell(i,1)
+                cell1.fill.solid()
+                cell1.fill.fore_color.rgb = RGBColor(255,255,255)
+                cell2.fill.solid()
+                cell2.fill.fore_color.rgb = RGBColor(255,255,255)
+            
+            table.columns[0].width = Cm(3.8)
+            table.columns[1].width = Cm(2.2)
+        except Exception as e:
+            print(f"Error de tipo {e.__class__}")
+            print(f'No se pudo crear la tabla de inventario de la ref {ref}')
+
+    def create_img(self, img_src, idx, ref):
+        response = requests.get(img_src)
         try:
             if response.status_code == 200:
                 file = open("./images/sample_image.jpg", "wb")

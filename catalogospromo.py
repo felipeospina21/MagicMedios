@@ -3,7 +3,8 @@ from get_data import Get_Data
 from utils import measures
 
 def get_cat_promo_data(suppliers_dict, prs, references):
-    data = Get_Data('https://www.catalogospromocionales.com/', 'cat_promo', prs, references, measures)
+    data = Get_Data('cat_promo', prs, references, measures)
+    data.execute_driver('https://www.catalogospromocionales.com/')
     header_xpath = "//div[@class='hola']"
     for ref in suppliers_dict['cat_promo']:
         idx = data.get_original_ref_list_idx(ref)
@@ -22,7 +23,7 @@ def get_cat_promo_data(suppliers_dict, prs, references):
         colors_list = data.get_inventory("//tr[@class='titlesRow']/following-sibling::tr", ref)
         data.create_inventory_table(colors_list[2], colors_list[0], colors_list[1], "//table[@class='tableInfoProd']", idx, ref)
         
-        img_response = data.get_img("//img[@id='img_01']", ref)
-        data.create_img(img_response, idx, ref)
+        img_src = data.get_img("//img[@id='img_01']", ref)
+        data.create_img(img_src, idx, ref)
 
     data.close_driver()

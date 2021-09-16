@@ -3,6 +3,7 @@ from catalogospromo import get_cat_promo_data
 from mppromos import get_mp_promo_data
 from nwpromo import get_nw_promo_data
 from promoop import get_promo_op__data
+from cdopromo import get_cdo_promo_data
 from pptx import Presentation
 from pptx.util import Cm
 from datetime import datetime
@@ -92,7 +93,8 @@ if len(suppliers['promo_op']) != 0:
     get_promo_op__data(suppliers, prs, strip_reference)
 if len(suppliers['nw_promo']) != 0:
     get_nw_promo_data(suppliers, prs, strip_reference)
-
+if len(suppliers['cdo_promo']) != 0:
+    get_cdo_promo_data(suppliers, prs, strip_reference)
 
 prs.save(f'./cotizaciones/cotización_{company}.pptx')
 
