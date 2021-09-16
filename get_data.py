@@ -11,32 +11,31 @@ import time
 import re
 
 class Get_Data:
-    def __init__(self, url, supplier, prs, references):
+    def __init__(self, url, supplier, prs, references, measures):
         self.supplier = supplier
         self.url = url
         self.prs= prs
         self.references = references
-        self.lf_1 = Cm(0.8)
-        self.lf_2 = Cm(8.5)
-        self.lf_3 = Cm(3)
+        self.lf_1 = Cm(measures["lf_1"])
+        self.lf_2 = Cm(measures["lf_2"])
+        self.lf_3 = Cm(measures["lf_3"])
 
-        self.t_1 = Cm(4)
-        self.t_2 = Cm(4.5)
-        self.t_3 = Cm(6)
-        self.t_4 = Cm(9)
-        self.t_5 = Cm(12)
-        self.t_6 = Cm(15)
+        self.t_1 = Cm(measures["t_1"])
+        self.t_2 = Cm(measures["t_2"])
+        self.t_3 = Cm(measures["t_3"])
+        self.t_4 = Cm(measures["t_4"])
+        self.t_5 = Cm(measures["t_5"])
+        self.t_6 = Cm(measures["t_6"])
 
-        # self.w_1 = Cm(12.5)
-        self.w_1 = Cm(17.4)
-        self.w_2 = Cm(6)
-        self.w_3 = Cm(9.9)
+        self.w_1 = Cm(measures["w_1"])
+        self.w_2 = Cm(measures["w_2"])
+        self.w_3 = Cm(measures["w_3"])
 
-        self.h_1 = Cm(1)
-        self.h_2 = Cm(2)
-        self.h_3 = Cm(5)
-        self.h_4 = Cm(8.5)
-        self.h_5 = Cm(7.1)
+        self.h_1 = Cm(measures["h_1"])
+        self.h_2 = Cm(measures["h_2"])
+        self.h_3 = Cm(measures["h_3"])
+        self.h_4 = Cm(measures["h_4"])
+        self.h_5 = Cm(measures["h_5"])
 
         self.path = "C:/chromedriver.exe"
         self.driver = webdriver.Chrome(self.path)
@@ -51,6 +50,19 @@ class Get_Data:
 
 
         time.sleep(5)
+
+    def get_original_ref_list_idx(self, ref) :
+        if self.supplier == 'cat_promo':
+            return self.references.index("CP" + ref)
+        elif self.supplier == 'mp_promo':
+            return self.references.index("MP" + ref)
+        elif self.supplier == 'promo_op':
+            return self.references.index("PO" + ref)
+        elif self.supplier == 'nw_promo':
+            return self.references.index(ref)
+        elif self.supplier == 'cdo_promo':
+            return self.references.index("CD" + ref)
+            
 
     def zoom_out_window(self):
         self.driver.get('chrome://settings/')
@@ -91,10 +103,9 @@ class Get_Data:
             print(f"Error de tipo {e.__class__}")
             print(f"No se pudo encontrar la ref {ref}")
     
-    def create_quantity_table(self, ref):
+    def create_quantity_table(self, ref, idx):
         try:
-            slide_idx = self.references.index(ref)
-            table = self.prs.slides[slide_idx].shapes.add_table(3 , 2, self.lf_3, self.t_5, self.w_1, self.h_2).table
+            table = self.prs.slides[idx].shapes.add_table(3 , 2, self.lf_3, self.t_5, self.w_1, self.h_2).table
             table.cell(0,0).text = "Cantidad (und)"
             table.cell(0,1).text = "Valor unitario"
             table.rows[0].height = Cm(0.5)
@@ -115,20 +126,18 @@ class Get_Data:
         except Exception as e:
             print(f"Error al crear tabla de cantidades ({e.__class__})")
 
-    def get_title(self, header_xpath, title_index, sub_title_index, count, ref):
+    def get_title(self, header_xpath, title_index, sub_title_index, count, ref, idx):
         try:
             header = self.driver.find_element_by_xpath(header_xpath)
             header_text = header.text.split("\n")
-            # print(header_text)
             title = header_text[title_index]
-            slide_idx = self.references.index(ref)
-            titulo = self.prs.slides[slide_idx].shapes.add_textbox(left=self.lf_1, top=self.t_1, width=self.w_1, height=self.h_1)
+            titulo = self.prs.slides[idx].shapes.add_textbox(left=self.lf_1, top=self.t_1, width=self.w_1, height=self.h_1)
             tf_titulo= titulo.text_frame
             text_frame_paragraph(tf_titulo,f'{count}.{title} {ref}',12,True )
 
             if sub_title_index != None:
                 sub_title = header_text[sub_title_index]
-                sub_titulo = self.prs.slides[slide_idx].shapes.add_textbox(left=self.lf_1, top=self.t_2, width=self.w_1,height=self.h_2)
+                sub_titulo = self.prs.slides[idx].shapes.add_textbox(left=self.lf_1, top=self.t_2, width=self.w_1,height=self.h_2)
                 tf_sub_titulo= sub_titulo.text_frame
                 tf_sub_titulo.word_wrap = True
                 text_frame_paragraph(tf_sub_titulo,sub_title,11,True )
@@ -136,14 +145,13 @@ class Get_Data:
             print(f"Error de tipo {e.__class__}")   
             print(f'No se pudo obtener el título de la ref {ref}')
 
-    def get_title_with_xpath(self,title_xpath, sub_title_xpath, count, ref):
+    def get_title_with_xpath(self,title_xpath, sub_title_xpath, count, ref, idx):
         try:
             title = WebDriverWait(self.driver, 10).until(
                     EC.presence_of_element_located((By.XPATH, title_xpath ))
                 )
             title = self.driver.find_element_by_xpath(title_xpath)
-            slide_idx = self.references.index(ref)
-            titulo = self.prs.slides[slide_idx].shapes.add_textbox(left=self.lf_1, top=self.t_1, width=self.w_1, height=self.h_1)
+            titulo = self.prs.slides[idx].shapes.add_textbox(left=self.lf_1, top=self.t_1, width=self.w_1, height=self.h_1)
             tf_titulo= titulo.text_frame
             text_frame_paragraph(tf_titulo,f'{count}.{title.text}',11,True )
 
@@ -167,7 +175,7 @@ class Get_Data:
             else:
                 sub_title_text = sub_title.text
 
-            sub_titulo = self.prs.slides[slide_idx].shapes.add_textbox(left=self.lf_1, top=self.t_2, width=self.w_1,height=self.h_2)
+            sub_titulo = self.prs.slides[idx].shapes.add_textbox(left=self.lf_1, top=self.t_2, width=self.w_1,height=self.h_2)
             tf_sub_titulo= sub_titulo.text_frame
             tf_sub_titulo.word_wrap = True
             text_frame_paragraph(tf_sub_titulo,sub_title_text,11,True )
@@ -176,11 +184,10 @@ class Get_Data:
             print(f"Error de tipo {e.__class__}")
             print(f'No se pudo obtener el subtítulo de la ref {ref}')
         
-    def get_description(self, desc_xpath, ref):
+    def get_description(self, desc_xpath, ref, idx):
         try:
             desc = self.driver.find_elements_by_xpath(desc_xpath)
-            slide_idx = self.references.index(ref)
-            description = self.prs.slides[slide_idx].shapes.add_textbox(left=self.lf_1, top=self.t_3, width=self.w_1,height=self.h_3)
+            description = self.prs.slides[idx].shapes.add_textbox(left=self.lf_1, top=self.t_3, width=self.w_1,height=self.h_3)
             tf_desc= description.text_frame
             tf_desc.word_wrap = True
             for element in desc:
@@ -190,7 +197,7 @@ class Get_Data:
             print(f"Error de tipo {e.__class__}")
             print(f'No se pudo obtener la descripción de la ref {ref}')
     
-    def get_package_info(self, ref):
+    def get_package_info(self, ref, idx):
         try:
             table = "//table[@class='table-list']"
             unit_col_1 = self.driver.find_element_by_xpath(f"{table}/tbody[1]/tr[1]/td[1]")
@@ -203,8 +210,7 @@ class Get_Data:
             package_1_text = package_col_1.text
             package_2_text = package_col_2.text
 
-            slide_idx = self.references.index(ref)
-            p1 = self.prs.slides[slide_idx].shapes.add_textbox(left=self.lf_1, top=self.t_4, width=self.w_1,height=self.h_2)
+            p1 = self.prs.slides[idx].shapes.add_textbox(left=self.lf_1, top=self.t_4, width=self.w_1,height=self.h_2)
             tf_p1= p1.text_frame
          
             text_frame_paragraph(tf_p1,f'{unit_1_text} {unit_2_text}',11,True )
@@ -213,17 +219,16 @@ class Get_Data:
             print(f"Error de tipo {e.__class__}")
             print(f'No se pudo obtener la cantidad minima de la ref {ref}')
 
-    def get_inventory(self, xpath_colores, xpath_tabla_colores, ref):
+    def get_inventory(self, xpath_colores, xpath_tabla_colores, ref, idx):
         try:
             time.sleep(1)
             colores = self.driver.find_elements_by_xpath(xpath_colores)
             q_colores = len(colores)
             tabla_colores = xpath_tabla_colores
 
-            slide_idx = self.references.index(ref)
             cols = 2
             rows = q_colores
-            table = self.prs.slides[slide_idx].shapes.add_table(rows + 1, cols, self.lf_1, self.t_6, self.w_2, self.h_4).table
+            table = self.prs.slides[idx].shapes.add_table(rows + 1, cols, self.lf_1, self.t_6, self.w_2, self.h_4).table
             h1 = table.cell(0,0)
             h2 = table.cell(0,1)
             h1.text = "Color"
@@ -267,7 +272,7 @@ class Get_Data:
             print(f"Error de tipo {e.__class__}")
             print('No se pudo obtener el inventario')
     
-    def get_img(self, img_xpath, ref):
+    def get_img(self, img_xpath, ref, idx):
         try:
             if self.supplier == 'promo_op':
                 time.sleep(5)
@@ -280,8 +285,7 @@ class Get_Data:
                 file = open("./images/sample_image.jpg", "wb")
                 file.write(response.content)
                 file.close()
-                slide_idx = self.references.index(ref)
-                pic = self.prs.slides[slide_idx].shapes.add_picture("./images/sample_image.jpg",left=self.lf_2, top=self.t_6, width=self.w_3, height=self.h_5)
+                pic = self.prs.slides[idx].shapes.add_picture("./images/sample_image.jpg",left=self.lf_2, top=self.t_6, width=self.w_3, height=self.h_5)
             else:
                 print(f'Error al descargar imagen de la ref {ref}, status code({response.status_code})')
         except Exception as e:

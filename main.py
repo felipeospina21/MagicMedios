@@ -9,12 +9,18 @@ from datetime import datetime
 import locale
 import time
 
+# Variables
 start_time = time.time()
-locale.setlocale(locale.LC_TIME, '')
-
 file_path = (
     "C:/Users/felipe.ospina/OneDrive - MINEROS/Desktop/repo/projects/MagicMedios"
 )
+hoy = datetime.now()
+prs = Presentation("./plantillas/cotizacion.pptx")
+title_slide_layout = prs.slide_layouts[6]
+
+locale.setlocale(locale.LC_TIME, '')
+
+# Load header info
 file = open(f"{file_path}/data/data.txt", "r")
 consecutivo = file.readline().strip()
 representative = file.readline()
@@ -37,7 +43,6 @@ file.close()
 print("-------------****-------------- ")
 client = input("Ingrese nombre cliente: ").title()
 company = input("Ingrese nombre empresa: ").title()
-# quantity = input("Ingrese cantidades a cotizar (separadas por coma): ").title()
 reference = input("Ingrese referencias a consultar (separadas por coma): ").upper().split(",")
 strip_reference = [ref.strip() for ref in reference]
 ref_q = len(reference)
@@ -51,9 +56,7 @@ suppliers = {
     'best_stock' : [],
 }
 
-hoy = datetime.now()
-prs = Presentation("./plantillas/cotizacion.pptx")
-title_slide_layout = prs.slide_layouts[6]
+# Add slides with logo and footer
 for idx, ref in enumerate(reference):
     prs.slides.add_slide(title_slide_layout)
     pic = prs.slides[idx].shapes.add_picture("./images/logo.jpg",left=Cm(1), top=Cm(0.5), width=Cm(8.9), height=Cm(1.7))
@@ -61,20 +64,22 @@ for idx, ref in enumerate(reference):
     tf_footer = footer.text_frame
     text_frame_paragraph(tf_footer,f'{address} {contact} {email} {web}',11 )
 
+# Add Header
 txBox = prs.slides[0].shapes.add_textbox(left=Cm(12), top=Cm(-0.5), width=Cm(6.6),height=Cm(6))
 tf = txBox.text_frame
-
 text_frame_paragraph(tf,f"{hoy.day} {hoy.strftime('%B')} de {hoy.year}",14 )
 text_frame_paragraph(tf,f'Cot N°{consecutivo}',14 )
 text_frame_paragraph(tf,"",11 )
 text_frame_paragraph(tf,'Asesor Comercial',11 )
 text_frame_paragraph(tf,f'{representative} {contact} {email}',11 )
 
+# Add Client name
 header = prs.slides[0].shapes.add_textbox(left=Cm(1), top=Cm(2.5), width=Cm(6.4),height=Cm(2))
 tf_header = header.text_frame
 text_frame_paragraph(tf_header,f'Señor(a) {client}.',14,True )
 text_frame_paragraph(tf_header,company,14,True )
 
+# Create each suppliers ref list
 for ref in strip_reference:
     suppliers = create_supplier_ref_list(ref,suppliers)
 

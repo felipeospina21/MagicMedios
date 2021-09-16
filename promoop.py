@@ -1,16 +1,18 @@
 from get_data import Get_Data
+from utils import measures
 
 def get_promo_op__data(suppliers_dict, prs, references):
-    data = Get_Data('https://www.promoopcioncolombia.co/', 'promo_op', prs, references)
+    data = Get_Data('https://www.promoopcioncolombia.co/', 'promo_op', prs, references, measures)
     header_xpath = "//td[@class='table-responsive']"
     for ref in suppliers_dict['promo_op']:
-        count = references.index(ref) + 1
+        idx = data.get_original_ref_list_idx(ref)
+        count = idx + 1
         data.search_ref(ref,'q')
         data.click_first_result("//a[@class='img-responsive']", ref)
-        data.create_quantity_table(ref)
+        data.create_quantity_table(ref, idx)
         # data.get_title(header_xpath,2, 3, count, ref)
-        data.get_title_with_xpath(f"{header_xpath}/h6[1]", header_xpath, count, ref)
-        data.get_description("//table[@class='table-hover table-responsive']/tbody[1]/child::tr", ref)
-        data.get_img("//div[@id='imgItem']/img", ref)
+        data.get_title_with_xpath(f"{header_xpath}/h6[1]", header_xpath, count, ref, idx)
+        data.get_description("//table[@class='table-hover table-responsive']/tbody[1]/child::tr", ref, idx)
+        data.get_img("//div[@id='imgItem']/img", ref, idx)
         
     data.close_driver()

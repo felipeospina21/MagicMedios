@@ -1,5 +1,6 @@
 import re
-# from pptx import Presentation
+import requests
+import json
 from pptx.util import Pt, Cm
 from pptx.enum.text import PP_ALIGN
 
@@ -41,3 +42,37 @@ def text_frame_paragraph(text_frame, text, font_size, bold=False ):
     tf.space_before = Cm(0)
     if text_frame == "tf_footer":
         text.alignment = PP_ALIGN.CENTER
+
+def get_api_data(url):
+    response = requests.get(url)
+    content = response.content
+    return json.loads(content)
+
+measures = {
+        "lf_1": 0.8,
+        "lf_2": 8.5,
+        "lf_3": 3,
+        "t_1" : 4,
+        "t_2" : 4.5,
+        "t_3" : 6,
+        "t_4" : 9,
+        "t_5" : 12,
+        "t_6" : 15,
+        "w_1" : 17.4,
+        "w_2" : 6,
+        "w_3" : 9.9,
+        "h_1" : 1,
+        "h_2" : 2,
+        "h_3" : 5,
+        "h_4" : 8.5,
+        "h_5" : 7.1,
+
+        "lf_4": 12,
+        "t_0": -0.5,
+        "w_4": 6.6,
+        "h_6": 6,
+
+        "lf_5": 1,
+        "t_7": 2.5,
+        "w_5": 6.4,
+}
