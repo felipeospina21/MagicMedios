@@ -3,14 +3,15 @@ Automatización cotizador
 
 # Instalación:
 1. Instalar python desde el link https://www.python.org/downloads/
-2. Instalar paquetes de python en requirements.txt
-3. Instalar Chrome Driver (https://sites.google.com/a/chromium.org/chromedriver/downloads o https://sites.google.com/chromium.org/driver/)
-3.1 Revisar version de chrome, para saber cuál instalar.
-3.2 Pegarlo en la raiz "C:"
-4. Agregar archivo .env con variable de ruta y api_token
-5. Agregar /data/data.txt con datos del asesor
-6. Modificar consecutivo.txt y cotizaciones en la ruta final (carpeta compartida)
-7. Crear archivo .bat para ejecutar el programa.
+2. Instalar git desde el link https://git-scm.com/download/win
+3. Instalar paquetes de python en requirements.txt
+4. Instalar Chrome Driver (https://sites.google.com/a/chromium.org/chromedriver/downloads o https://sites.google.com/chromium.org/driver/)
+5.1 Revisar version de chrome, para saber cuál instalar.
+6.2 Pegarlo en la raiz "C:"
+7. Agregar archivo .env con variable de ruta y api_token
+8. Agregar /data/data.txt con datos del asesor
+9. Modificar consecutivo.txt y cotizaciones en la ruta final (carpeta compartida)
+10. Crear archivo .bat para ejecutar el programa.
 
 # Uso:
 1. Escribir el nombre del cliente (Ej: juan pérez) => no importa si se usa o no mayusculas, el sistema siempre lo formatea para que queden las iniciales en mayusculas (Juan Pérez).
