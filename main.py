@@ -22,18 +22,23 @@ title_slide_layout = prs.slide_layouts[6]
 locale.setlocale(locale.LC_TIME, '')
 
 # Load header info
-file = open(f"{file_path}/data/data.txt", "r")
+file = open(f"{file_path}/data/consecutivo.txt", "r")
 consecutivo = file.readline().strip()
+file.close()
+nuevo_consecutivo = int(consecutivo) + 1
+file = open(f"{file_path}/data/consecutivo.txt", "w")
+file.write(f"{nuevo_consecutivo}\n")
+file.close()
+
+file = open(f"{file_path}/data/data.txt", "r")
 representative = file.readline()
 contact = file.readline()
 email = file.readline()
 address = file.readline()
 web = file.readline()
 file.close()
-nuevo_consecutivo = int(consecutivo) + 1
 
 file = open(f"{file_path}/data/data.txt", "w")
-file.write(f"{nuevo_consecutivo}\n")
 file.write(representative)
 file.write(contact)
 file.write(email)
