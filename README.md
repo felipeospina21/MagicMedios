@@ -18,8 +18,8 @@ Automatización cotizador
 3. Escribir el listado de codigos a consultar separados por comas. Para que le programa pueda identificar a que proveedor pertenece cada código se debe escribir con el prefijo correspondiente a cada proveedor. No importa si se usa mayusculas o minusculas.
 
 ## Prefijos Proveedores:
-cp => catalogos Promocionales (cpADV-STY)
-mp => Mp Promocionales (mpGO0020)
-po => Promo Opción (poAGTC 022 AR)
-cd => CDO Promocionales (cdU315)
-sin prefijo => NW Promocionales (no es necesario ya que todos sus códigos comienzan con NW)
+cp => catalogos Promocionales (cpADV-STY) 
+mp => Mp Promocionales (mpGO0020) 
+po => Promo Opción (poAGTC 022 AR) 
+cd => CDO Promocionales (cdU315) 
+sin prefijo => NW Promocionales (no es necesario ya que todos sus códigos comienzan con NW) 
