@@ -39,7 +39,7 @@ class Get_Data:
 
         self.path = "C:/chromedriver.exe"
         self.driver = webdriver.Chrome(self.path)
-        self.driver.set_page_load_timeout(30)
+        self.driver.set_page_load_timeout(20)
         if self.supplier == 'mp_promo':
             self.driver.get('chrome://settings/')
             self.driver.execute_script('chrome.settingsPrivate.setDefaultZoom(0.25);')
@@ -48,25 +48,7 @@ class Get_Data:
         except Exception as e:
             print(f"Error de tipo {e.__class__}")
 
-
         time.sleep(5)
-
-    def get_original_ref_list_idx(self, ref) :
-        if self.supplier == 'cat_promo':
-            return self.references.index("CP" + ref)
-        elif self.supplier == 'mp_promo':
-            return self.references.index("MP" + ref)
-        elif self.supplier == 'promo_op':
-            return self.references.index("PO" + ref)
-        elif self.supplier == 'nw_promo':
-            return self.references.index(ref)
-        elif self.supplier == 'cdo_promo':
-            return self.references.index("CD" + ref)
-            
-
-    def zoom_out_window(self):
-        self.driver.get('chrome://settings/')
-        self.driver.execute_script('chrome.settingsPrivate.setDefaultZoom(0.25);')
 
     def check_pop_up(self):
         if self.supplier == 'nw_promo':
@@ -74,7 +56,7 @@ class Get_Data:
                 self.driver.execute_script("document.getElementsByClassName('fancybox-overlay fancybox-overlay-fixed labpopup')[0].style.display = 'none';")
             except Exception as e:
                 print(f"Error de tipo {e.__class__}")
-                print("No se encontro popup")
+                print("No se encontro overlay")
 
     def search_ref(self, ref, search_box_id):
         try:
@@ -102,7 +84,136 @@ class Get_Data:
         except Exception as e:
             print(f"Error de tipo {e.__class__}")
             print(f"No se pudo encontrar la ref {ref}")
+
+    def get_original_ref_list_idx(self, ref) :
+        if self.supplier == 'cat_promo':
+            return self.references.index("CP" + ref)
+        elif self.supplier == 'mp_promo':
+            return self.references.index("MP" + ref)
+        elif self.supplier == 'promo_op':
+            return self.references.index("PO" + ref)
+        elif self.supplier == 'nw_promo':
+            return self.references.index(ref)
+        elif self.supplier == 'cdo_promo':
+            return self.references.index("CD" + ref)
+
+    def get_title_and_subtitle(self, header_xpath, title_index, subtitle_index, ref):
+        try:
+            header = self.driver.find_element_by_xpath(header_xpath)
+            header_text = header.text.split("\n")
+            title = header_text[title_index]
+            subtitle = header_text[subtitle_index]
+            return (title, subtitle)
+
+        except Exception as e:
+            print(f"Error de tipo {e.__class__}")   
+            print(f'No se pudo obtener el título de la ref {ref}')
+
+    def get_title_with_xpath(self, title_xpath, ref):
+        try:
+            title = WebDriverWait(self.driver, 10).until(
+                    EC.presence_of_element_located((By.XPATH, title_xpath ))
+                )
+            title = self.driver.find_element_by_xpath(title_xpath)
+            return title.text
+
+        except Exception as e:
+            print(f"Error de tipo {e.__class__}")
+            print(f'No se pudo obtener el título de la ref {ref}')
     
+    def get_subtitle_with_xpath(self, sub_title_xpath, ref):
+        def get_subtitle_promo_op(subtitle_result):
+            split_text = subtitle_result.text.split("\n")
+            for txt in split_text:
+                if re.search("^Desc", txt):
+                    result_idx = split_text.index(txt)
+
+            result = split_text[result_idx].split("Descripción: ")
+            return result[1]
+
+        try:
+            subtitle = WebDriverWait(self.driver, 10).until(
+                    EC.presence_of_element_located((By.XPATH, sub_title_xpath))
+                )
+            subtitle = self.driver.find_element_by_xpath(sub_title_xpath)
+            if self.supplier == "promo_op":
+                subtitle_text = get_subtitle_promo_op(subtitle)
+                return subtitle_text
+
+            return subtitle.text
+            
+        except Exception as e:
+            print(f"Error de tipo {e.__class__}")
+            print(f'No se pudo obtener el subtítulo de la ref {ref}')
+
+    def get_description(self, desc_xpath, ref):
+        try:
+            desc = self.driver.find_elements_by_xpath(desc_xpath)
+            return desc
+
+        except Exception as e:
+            print(f"Error de tipo {e.__class__}")
+            print(f'No se pudo obtener la descripción de la ref {ref}')
+
+    def get_package_info(self, ref):
+        try:
+            table = "//table[@class='table-list']"
+            unit_col_1 = self.driver.find_element_by_xpath(f"{table}/tbody[1]/tr[1]/td[1]")
+            unit_col_2 = self.driver.find_element_by_xpath(f"{table}/tbody[1]/tr[1]/td[2]")
+            package_col_1 = self.driver.find_element_by_xpath(f"{table}/tbody[1]/tr[2]/td[1]")
+            package_col_2 = self.driver.find_element_by_xpath(f"{table}/tbody[1]/tr[2]/td[2]")
+            table_texts_list = [unit_col_1.text, unit_col_2.text, package_col_1.text, package_col_2.text]
+
+            return table_texts_list
+
+        except Exception as e:
+            print(f"Error de tipo {e.__class__}")
+            print(f'No se pudo obtener la info de empaque de la ref {ref}')
+
+    def get_inventory(self, xpath_colores, ref):
+        try:
+            time.sleep(1)
+            colores = self.driver.find_elements_by_xpath(xpath_colores)
+            q_colores = len(colores)
+
+            for i in range (1, q_colores + 1):
+                if self.supplier == 'cat_promo':
+                    color_xpath = f"tbody[1]/tr[{i+2}]/td[1]"
+                    inv_color_xpath = f"tbody[1]/tr[{i+2}]/td[4]"
+                    return color_xpath, inv_color_xpath, q_colores
+
+                elif self.supplier == 'mp_promo':
+                    color_xpath = f"mat-row[{i}]/mat-cell[3]/span[2]"
+                    inv_color_xpath = f"mat-row[{i}]/mat-cell[7]/span[2]"
+                    return color_xpath, inv_color_xpath, q_colores
+
+                elif self.supplier == 'nw_promo':
+                    color_xpath = f"tr[{i}]/td[1]"
+                    inv_color_xpath = f"tr[{i}]/td[5]"
+                    return color_xpath, inv_color_xpath, q_colores
+
+                else:
+                    print("proveedor sin inventario")
+
+        except Exception as e:
+            print(f"Error de tipo {e.__class__}")
+            print(f'No se pudo obtener los colores de la ref {ref}')
+            
+    def get_img(self, img_xpath, ref):
+        try:
+            if self.supplier == 'promo_op':
+                time.sleep(5)
+
+            img = self.driver.find_element_by_xpath(img_xpath)
+            img_src = img.get_attribute('src')
+            response = requests.get(img_src)
+
+            return response
+
+        except Exception as e:
+            print(f"Error de tipo {e.__class__}")
+            print(f'No se pudo encontrar la imagen de la ref {ref}') 
+
     def create_quantity_table(self, ref, idx):
         try:
             table = self.prs.slides[idx].shapes.add_table(3 , 2, self.lf_3, self.t_5, self.w_1, self.h_2).table
@@ -124,111 +235,62 @@ class Get_Data:
             table.columns[0].width = Cm(3)
             table.columns[1].width = Cm(9.5)
         except Exception as e:
-            print(f"Error al crear tabla de cantidades ({e.__class__})")
+            print(f"Error al crear tabla de cantidades de la ref {ref} ({e.__class__})")
 
-    def get_title(self, header_xpath, title_index, sub_title_index, count, ref, idx):
+    def create_title(self, title_text, idx, count, ref):
         try:
-            header = self.driver.find_element_by_xpath(header_xpath)
-            header_text = header.text.split("\n")
-            title = header_text[title_index]
-            titulo = self.prs.slides[idx].shapes.add_textbox(left=self.lf_1, top=self.t_1, width=self.w_1, height=self.h_1)
+            title = title_text
+            titulo = self.prs.slides[idx].shapes.add_textbox(left=self.lf_1, top=self.t_1, width=self.w_1, height=self.h_1) 
             tf_titulo= titulo.text_frame
             text_frame_paragraph(tf_titulo,f'{count}.{title} {ref}',12,True )
 
-            if sub_title_index != None:
-                sub_title = header_text[sub_title_index]
-                sub_titulo = self.prs.slides[idx].shapes.add_textbox(left=self.lf_1, top=self.t_2, width=self.w_1,height=self.h_2)
-                tf_sub_titulo= sub_titulo.text_frame
-                tf_sub_titulo.word_wrap = True
-                text_frame_paragraph(tf_sub_titulo,sub_title,11,True )
         except Exception as e:
             print(f"Error de tipo {e.__class__}")   
-            print(f'No se pudo obtener el título de la ref {ref}')
+            print(f'No se pudo crear el título de la ref {ref}')
 
-    def get_title_with_xpath(self,title_xpath, sub_title_xpath, count, ref, idx):
+    def create_subtitle(self, subtitle_text, idx, ref):
         try:
-            title = WebDriverWait(self.driver, 10).until(
-                    EC.presence_of_element_located((By.XPATH, title_xpath ))
-                )
-            title = self.driver.find_element_by_xpath(title_xpath)
-            titulo = self.prs.slides[idx].shapes.add_textbox(left=self.lf_1, top=self.t_1, width=self.w_1, height=self.h_1)
-            tf_titulo= titulo.text_frame
-            text_frame_paragraph(tf_titulo,f'{count}.{title.text}',11,True )
-
-        except Exception as e:
-            print(f"Error de tipo {e.__class__}")
-            print(f'No se pudo obtener el título de la ref {ref}')
-
-        try:
-            sub_title = WebDriverWait(self.driver, 10).until(
-                    EC.presence_of_element_located((By.XPATH, sub_title_xpath))
-                )
-            sub_title = self.driver.find_element_by_xpath(sub_title_xpath)
-            if self.supplier == "promo_op":
-                ns = sub_title.text.split("\n")
-                for e in ns:
-                    if re.search("^Desc", e):
-                        result_idx = ns.index(e)
-                x = ns[result_idx]
-                st= x.split("Descripción: ")
-                sub_title_text = st[1]
-            else:
-                sub_title_text = sub_title.text
-
+            subtitle = subtitle_text
             sub_titulo = self.prs.slides[idx].shapes.add_textbox(left=self.lf_1, top=self.t_2, width=self.w_1,height=self.h_2)
             tf_sub_titulo= sub_titulo.text_frame
             tf_sub_titulo.word_wrap = True
-            text_frame_paragraph(tf_sub_titulo,sub_title_text,11,True )
-            
+            text_frame_paragraph(tf_sub_titulo,subtitle,11,True )
+
         except Exception as e:
-            print(f"Error de tipo {e.__class__}")
-            print(f'No se pudo obtener el subtítulo de la ref {ref}')
-        
-    def get_description(self, desc_xpath, ref, idx):
+            print(f"Error de tipo {e.__class__}")   
+            print(f'No se pudo crear el subtítulo de la ref {ref}')
+
+    def create_description(self, desc_list, idx, ref):
         try:
-            desc = self.driver.find_elements_by_xpath(desc_xpath)
             description = self.prs.slides[idx].shapes.add_textbox(left=self.lf_1, top=self.t_3, width=self.w_1,height=self.h_3)
             tf_desc= description.text_frame
             tf_desc.word_wrap = True
-            for element in desc:
-                text_frame_paragraph(tf_desc,element.text,11 )
+            for element in desc_list:
+                text_frame_paragraph(tf_desc, element.text, 11 )
 
         except Exception as e:
             print(f"Error de tipo {e.__class__}")
-            print(f'No se pudo obtener la descripción de la ref {ref}')
-    
-    def get_package_info(self, ref, idx):
+            print(f'No se pudo crear la descripción de la ref {ref}')
+
+    def create_package_info(self, unit_1_text, unit_2_text, package_1_text, package_2_text, idx, ref):
         try:
-            table = "//table[@class='table-list']"
-            unit_col_1 = self.driver.find_element_by_xpath(f"{table}/tbody[1]/tr[1]/td[1]")
-            unit_col_2 = self.driver.find_element_by_xpath(f"{table}/tbody[1]/tr[1]/td[2]")
-            package_col_1 = self.driver.find_element_by_xpath(f"{table}/tbody[1]/tr[2]/td[1]")
-            package_col_2 = self.driver.find_element_by_xpath(f"{table}/tbody[1]/tr[2]/td[2]")
-
-            unit_1_text = unit_col_1.text
-            unit_2_text = unit_col_2.text
-            package_1_text = package_col_1.text
-            package_2_text = package_col_2.text
-
             p1 = self.prs.slides[idx].shapes.add_textbox(left=self.lf_1, top=self.t_4, width=self.w_1,height=self.h_2)
             tf_p1= p1.text_frame
          
             text_frame_paragraph(tf_p1,f'{unit_1_text} {unit_2_text}',11,True )
             text_frame_paragraph(tf_p1,f'{package_1_text} {package_2_text}',11,True )
+
         except Exception as e:
             print(f"Error de tipo {e.__class__}")
-            print(f'No se pudo obtener la cantidad minima de la ref {ref}')
+            print(f'No se pudo crear la info de empaque de la ref {ref}')
 
-    def get_inventory(self, xpath_colores, xpath_tabla_colores, ref, idx):
+    def create_inventory_table(self, q_colores, color_xpath, inv_color_xpath, xpath_tabla_colores, idx, ref):
         try:
-            time.sleep(1)
-            colores = self.driver.find_elements_by_xpath(xpath_colores)
-            q_colores = len(colores)
-            tabla_colores = xpath_tabla_colores
-
             cols = 2
             rows = q_colores
             table = self.prs.slides[idx].shapes.add_table(rows + 1, cols, self.lf_1, self.t_6, self.w_2, self.h_4).table
+            
+            # Table Header
             h1 = table.cell(0,0)
             h2 = table.cell(0,1)
             h1.text = "Color"
@@ -238,19 +300,14 @@ class Get_Data:
             table.rows[0].height = Cm(0.5)
             table.first_row = False
             table.horz_banding = False
-            for i in range (1, q_colores + 1):
-                if self.supplier == 'cat_promo':
-                    color_xpath = f"tbody[1]/tr[{i+2}]/td[1]"
-                    inv_color_xpath = f"tbody[1]/tr[{i+2}]/td[4]"
-                elif self.supplier == 'mp_promo':
-                    color_xpath = f"mat-row[{i}]/mat-cell[3]/span[2]"
-                    inv_color_xpath = f"mat-row[{i}]/mat-cell[7]/span[2]"
-                elif self.supplier == 'nw_promo':
-                    color_xpath = f"tr[{i}]/td[1]"
-                    inv_color_xpath = f"tr[{i}]/td[5]"
 
-                color = self.driver.find_element_by_xpath(f"{tabla_colores}/{color_xpath}").text
-                inv_color = self.driver.find_element_by_xpath(f"{tabla_colores}/{inv_color_xpath}").text
+            for i in range (1, q_colores + 1):
+                try:
+                    color = self.driver.find_element_by_xpath(f"{xpath_tabla_colores}/{color_xpath}").text
+                    inv_color = self.driver.find_element_by_xpath(f"{xpath_tabla_colores}/{inv_color_xpath}").text
+                except Exception as e:
+                    print(f'No se pudo obtener el inventario de la ref {ref} // Error de tipo {e.__class__}')
+
                 c1 = table.cell(i, 0)
                 c1.text = color
                 c1.text_frame.paragraphs[0].font.size = Pt(9)
@@ -270,27 +327,21 @@ class Get_Data:
             table.columns[1].width = Cm(2.2)
         except Exception as e:
             print(f"Error de tipo {e.__class__}")
-            print('No se pudo obtener el inventario')
-    
-    def get_img(self, img_xpath, ref, idx):
+            print(f'No se pudo crear la tabla de inventario de la ref {ref}')
+
+    def create_img(self, response, idx, ref):
         try:
-            if self.supplier == 'promo_op':
-                time.sleep(5)
-
-            img = self.driver.find_element_by_xpath(img_xpath)
-            img_src = img.get_attribute('src')
-            response = requests.get(img_src)
-
             if response.status_code == 200:
                 file = open("./images/sample_image.jpg", "wb")
                 file.write(response.content)
                 file.close()
-                pic = self.prs.slides[idx].shapes.add_picture("./images/sample_image.jpg",left=self.lf_2, top=self.t_6, width=self.w_3, height=self.h_5)
+                self.prs.slides[idx].shapes.add_picture("./images/sample_image.jpg",left=self.lf_2, top=self.t_6, width=self.w_3, height=self.h_5)
             else:
                 print(f'Error al descargar imagen de la ref {ref}, status code({response.status_code})')
+
         except Exception as e:
             print(f"Error de tipo {e.__class__}")
-            print(f'Error al descargar imagen de la ref {ref}') 
+            print(f'Error al crear la imagen de la ref {ref}')
 
     def close_driver(self):
         self.driver.close()     

@@ -11,8 +11,14 @@ def get_promo_op__data(suppliers_dict, prs, references):
         data.click_first_result("//a[@class='img-responsive']", ref)
         data.create_quantity_table(ref, idx)
         # data.get_title(header_xpath,2, 3, count, ref)
-        data.get_title_with_xpath(f"{header_xpath}/h6[1]", header_xpath, count, ref, idx)
-        data.get_description("//table[@class='table-hover table-responsive']/tbody[1]/child::tr", ref, idx)
-        data.get_img("//div[@id='imgItem']/img", ref, idx)
+        title_text = data.get_title_with_xpath(f"{header_xpath}/h6[1]", ref)
+        subtitle_text = data.get_subtitle_with_xpath(header_xpath, ref)
+        data.create_title(title_text, idx, count, ref)
+        data.create_subtitle(subtitle_text, idx, ref)
+        desc_list = data.get_description("//table[@class='table-hover table-responsive']/tbody[1]/child::tr", ref)
+        data.create_description(desc_list, idx, ref)
+    
+        img_response = data.get_img("//div[@id='imgItem']/img", ref)
+        data.create_img(img_response, idx, ref)
         
     data.close_driver()

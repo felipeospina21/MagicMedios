@@ -11,10 +11,18 @@ def get_cat_promo_data(suppliers_dict, prs, references):
         data.search_ref(ref,'productos')
         data.click_first_result("//div[@id='backTable']/div[1]/div[1]/a[1]", ref)
         data.create_quantity_table(ref, idx)
-        data.get_title(header_xpath,0, None, count, ref, idx)
-        data.get_description(f"{header_xpath}/p[2]", ref, idx)
-        data.get_package_info(ref, idx)
-        data.get_inventory("//tr[@class='titlesRow']/following-sibling::tr", "//table[@class='tableInfoProd']", ref, idx)
-        data.get_img("//img[@id='img_01']", ref, idx)
+        
+        header_text = data.get_title_and_subtitle(header_xpath, 0, 0, ref)
+        data.create_title(header_text[0], idx, count, ref)
+        desc_list = data.get_description(f"{header_xpath}/p[2]", ref)
+        data.create_description(desc_list, idx, ref)
+        pack_info_list = data.get_package_info(ref)
+        data.create_package_info(pack_info_list[0], pack_info_list[1], pack_info_list[2], pack_info_list[3], idx, ref)
+        
+        colors_list = data.get_inventory("//tr[@class='titlesRow']/following-sibling::tr", ref)
+        data.create_inventory_table(colors_list[2], colors_list[0], colors_list[1], "//table[@class='tableInfoProd']", idx, ref)
+        
+        img_response = data.get_img("//img[@id='img_01']", ref)
+        data.create_img(img_response, idx, ref)
 
     data.close_driver()
