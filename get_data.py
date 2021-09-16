@@ -15,8 +15,6 @@ class Get_Data:
         self.supplier = supplier
         self.prs= prs
         self.references = references
-        self.path = "C:/chromedriver.exe"
-        self.driver = webdriver.Chrome(self.path)
 
         self.lf_1 = Cm(measures["lf_1"])
         self.lf_2 = Cm(measures["lf_2"])
@@ -40,6 +38,8 @@ class Get_Data:
         self.h_5 = Cm(measures["h_5"])
 
     def execute_driver(self, url):
+        self.path = "C:/chromedriver.exe"
+        self.driver = webdriver.Chrome(self.path)
         self.driver.set_page_load_timeout(20)
         if self.supplier == 'mp_promo':
             self.driver.get('chrome://settings/')
