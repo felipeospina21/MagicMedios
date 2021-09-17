@@ -92,6 +92,7 @@ text_frame_paragraph(tf_header,company,14,True )
 for ref in strip_reference:
     suppliers = create_supplier_ref_list(ref,suppliers)
 
+# print(suppliers)
 # Scrapp Data
 if len(suppliers['cat_promo']) != 0:
     get_cat_promo_data(suppliers, prs, strip_reference)

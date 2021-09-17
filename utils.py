@@ -18,16 +18,16 @@ from pptx.enum.text import PP_ALIGN
 
 def create_supplier_ref_list(ref,suppliers_dict):
     if re.search('^CP|^cp]', ref):
-        split_ref = ref.split("CP")
+        split_ref = ref.split("CP", 1)
         suppliers_dict['cat_promo'].append(split_ref[1])
     elif re.search('^MP|^mp]', ref):
-        split_ref = ref.split("MP")
+        split_ref = ref.split("MP", 1)
         suppliers_dict['mp_promo'].append(split_ref[1])
     elif re.search('^PO|^po]', ref):
-        split_ref = ref.split("PO")
+        split_ref = ref.split("PO", 1)
         suppliers_dict['promo_op'].append(split_ref[1])
     elif re.search('^CD|^cd', ref):
-        split_ref = ref.split("CD")
+        split_ref = ref.split("CD", 1)
         suppliers_dict['cdo_promo'].append(split_ref[1])
     elif re.search('^NW|^nw', ref):
         suppliers_dict['nw_promo'].append(ref)
