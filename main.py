@@ -105,7 +105,9 @@ if len(suppliers['nw_promo']) != 0:
 if len(suppliers['cdo_promo']) != 0:
     get_cdo_promo_data(suppliers, prs, strip_reference)
 
-prs.save(f'./cotizaciones/cotización_{company}.pptx')
+# prs.save(f'./cotizaciones/cotización_{company}.pptx')
+prs.save(f'//192.168.1.40/todos/Cotizaciones Magic Medios S.A.S/cotización_{company}.pptx')
+
 
 total_time = "{:.2f}".format((time.time() - start_time)/60)
 print(f'-------- Proceso Finalizado en {total_time} minutos --------')
