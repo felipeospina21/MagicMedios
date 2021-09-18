@@ -176,25 +176,8 @@ class Get_Data:
             time.sleep(1)
             colores = self.driver.find_elements_by_xpath(xpath_colores)
             q_colores = len(colores)
-
-            for i in range (1, q_colores + 1):
-                if self.supplier == 'cat_promo':
-                    color_xpath = f"tbody[1]/tr[{i+2}]/td[1]"
-                    inv_color_xpath = f"tbody[1]/tr[{i+2}]/td[4]"
-                    return color_xpath, inv_color_xpath, q_colores
-
-                elif self.supplier == 'mp_promo':
-                    color_xpath = f"mat-row[{i}]/mat-cell[3]/span[2]"
-                    inv_color_xpath = f"mat-row[{i}]/mat-cell[7]/span[2]"
-                    return color_xpath, inv_color_xpath, q_colores
-
-                elif self.supplier == 'nw_promo':
-                    color_xpath = f"tr[{i}]/td[1]"
-                    inv_color_xpath = f"tr[{i}]/td[5]"
-                    return color_xpath, inv_color_xpath, q_colores
-
-                else:
-                    print("proveedor sin inventario")
+            
+            return q_colores
 
         except Exception as e:
             print(f"Error de tipo {e.__class__}")
@@ -284,7 +267,7 @@ class Get_Data:
             print(f"Error de tipo {e.__class__}")
             print(f'No se pudo crear la info de empaque de la ref {ref}')
 
-    def create_inventory_table(self, q_colores, color_xpath, inv_color_xpath, xpath_tabla_colores, idx, ref):
+    def create_inventory_table(self, q_colores, xpath_tabla_colores, idx, ref):
         try:
             cols = 2
             rows = q_colores
@@ -303,11 +286,24 @@ class Get_Data:
 
             for i in range (1, q_colores + 1):
                 try:
-                    color = self.driver.find_element_by_xpath(f"{xpath_tabla_colores}/{color_xpath}").text
-                    inv_color = self.driver.find_element_by_xpath(f"{xpath_tabla_colores}/{inv_color_xpath}").text
-                except Exception as e:
-                    print(f'No se pudo obtener el inventario de la ref {ref} // Error de tipo {e.__class__}')
+                    if self.supplier == 'cat_promo':
+                        color_xpath = f"tbody[1]/tr[{i+2}]/td[1]"
+                        inv_color_xpath= f"tbody[1]/tr[{i+2}]/td[4]"
 
+                    elif self.supplier == 'mp_promo':
+                        color_xpath = f"mat-row[{i}]/mat-cell[3]/span[2]"
+                        inv_color_xpath = f"mat-row[{i}]/mat-cell[7]/span[2]"
+
+                    elif self.supplier == 'nw_promo':
+                        color_xpath = f"tr[{i}]/td[1]"
+                        inv_color_xpath = f"tr[{i}]/td[5]"
+
+                except Exception as e:
+                    print(f'No se pudo obtener el inventario de la ref {ref}// Error de tipo {e.__class__}')
+                
+                color = self.driver.find_element_by_xpath(f"{xpath_tabla_colores}/{color_xpath}").text
+                inv_color = self.driver.find_element_by_xpath(f"{xpath_tabla_colores}/{inv_color_xpath}").text
+                print(color)
                 c1 = table.cell(i, 0)
                 c1.text = color
                 c1.text_frame.paragraphs[0].font.size = Pt(9)

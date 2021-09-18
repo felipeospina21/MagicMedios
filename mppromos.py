@@ -18,8 +18,8 @@ def get_mp_promo_data(suppliers_dict, prs, references):
         
         desc_list = data.get_description("//ul[@class='g-mb-16 g-ml-20 g-pl-0 g-font-size-14']/child::li", ref)
         data.create_description(desc_list, idx, ref)
-        colors_list = data.get_inventory("//mat-table[@class='w-100 inventory-tabla mat-table']/child::mat-row", ref)
-        data.create_inventory_table(colors_list[2], colors_list[0], colors_list[1], "//mat-table[@class='w-100 inventory-tabla mat-table']", idx, ref)
+        colors_len = data.get_inventory("//mat-table[@class='w-100 inventory-tabla mat-table']/child::mat-row", ref)
+        data.create_inventory_table(colors_len, "//mat-table[@class='w-100 inventory-tabla mat-table']", idx, ref)
 
         img_src = data.get_img("//img[@class='ng-star-inserted']", ref)
         data.create_img(img_src, idx, ref)

@@ -20,8 +20,8 @@ def get_cat_promo_data(suppliers_dict, prs, references):
         pack_info_list = data.get_package_info(ref)
         data.create_package_info(pack_info_list[0], pack_info_list[1], pack_info_list[2], pack_info_list[3], idx, ref)
         
-        colors_list = data.get_inventory("//tr[@class='titlesRow']/following-sibling::tr", ref)
-        data.create_inventory_table(colors_list[2], colors_list[0], colors_list[1], "//table[@class='tableInfoProd']", idx, ref)
+        colors_len = data.get_inventory("//tr[@class='titlesRow']/following-sibling::tr", ref)
+        data.create_inventory_table(colors_len, "//table[@class='tableInfoProd']", idx, ref)
         
         img_src = data.get_img("//img[@id='img_01']", ref)
         data.create_img(img_src, idx, ref)

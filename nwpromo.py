@@ -20,8 +20,8 @@ def get_nw_promo_data(suppliers_dict, prs, references):
         data.create_subtitle(header_text[1], idx, count, ref)
         desc_list = data.get_description("//div[@id='short_description_content']/child::div", ref)
         data.create_description(desc_list, idx, ref)
-        colors_list = data.get_inventory("//table[@class='table-bordered']/tbody[1]/child::tr", ref)
-        data.create_inventory_table(colors_list[2], colors_list[0], colors_list[1], "//table[@class='table-bordered']/tbody[1]", idx, ref)
+        colors_len = data.get_inventory("//table[@class='table-bordered']/tbody[1]/child::tr", ref)
+        data.create_inventory_table(colors_len, "//table[@class='table-bordered']/tbody[1]", idx, ref)
 
         img_src = data.get_img("//img[@id='bigpic']", ref)
         data.create_img(img_src, idx, ref)

@@ -17,6 +17,7 @@ import os
 start_time = time.time()
 load_dotenv()
 file_path = os.environ.get("FILE_PATH")
+cotizaciones_path = os.environ.get("COTIZACIONES_PATH")
 hoy = datetime.now()
 prs = Presentation("./plantillas/cotizacion.pptx")
 title_slide_layout = prs.slide_layouts[6]
@@ -25,11 +26,13 @@ locale.setlocale(locale.LC_TIME, '')
 
 # Load header info
 file = open(f"{file_path}/data/consecutivo.txt", "r")
+# file = open(f"{cotizaciones_path}/consecutivo.txt", "r")
 consecutivo = file.readline().strip()
 file.close()
 
 nuevo_consecutivo = int(consecutivo) + 1
 file = open(f"{file_path}/data/consecutivo.txt", "w")
+# file = open(f"{cotizaciones_path}/consecutivo.txt", "W")
 file.write(f"{nuevo_consecutivo}\n")
 file.close()
 
@@ -51,7 +54,7 @@ file.close()
 
 print("-------------****-------------- ")
 client = input("Ingrese nombre cliente: ").title()
-company = input("Ingrese nombre empresa: ").title()
+company = input("Ingrese nombre empresa: ").upper()
 reference = input("Ingrese referencias a consultar (separadas por coma): ").upper().split(",")
 strip_reference = [ref.strip() for ref in reference]
 ref_q = len(reference)
@@ -105,8 +108,8 @@ if len(suppliers['nw_promo']) != 0:
 if len(suppliers['cdo_promo']) != 0:
     get_cdo_promo_data(suppliers, prs, strip_reference)
 
-# prs.save(f'./cotizaciones/cotización_{company}.pptx')
-prs.save(f'//192.168.1.40/todos/Cotizaciones Magic Medios S.A.S/cotización_{company}.pptx')
+prs.save(f'./cotizaciones/cotización_{company}.pptx')
+# prs.save(f'//192.168.1.40/todos/Cotizaciones Magic Medios S.A.S/cotización n°{consecutivo}-{company}-Magic Medios SAS.pptx')
 
 
 total_time = "{:.2f}".format((time.time() - start_time)/60)
