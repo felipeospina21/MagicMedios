@@ -5,6 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from pptx.util import Cm, Pt
 from pptx.dml.color import RGBColor
+from pptx.enum.text import PP_ALIGN
 from utils import text_frame_paragraph
 import requests
 import time
@@ -176,7 +177,7 @@ class Get_Data:
             time.sleep(1)
             colores = self.driver.find_elements_by_xpath(xpath_colores)
             q_colores = len(colores)
-            
+
             return q_colores
 
         except Exception as e:
@@ -200,8 +201,16 @@ class Get_Data:
     def create_quantity_table(self, ref, idx):
         try:
             table = self.prs.slides[idx].shapes.add_table(3 , 2, self.lf_3, self.t_5, self.w_1, self.h_2).table
-            table.cell(0,0).text = "Cantidad (und)"
-            table.cell(0,1).text = "Valor unitario"
+            c1 = table.cell(0,0)
+            c2 = table.cell(0,1)
+            c1.text = "Cantidad (und)"
+            c2.text = "Valor unitario"
+            table.cell(0, 0).text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+            table.cell(0, 1).text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+            c1.fill.solid()
+            c1.fill.fore_color.rgb = RGBColor(154,173,34)
+            c2.fill.solid()
+            c2.fill.fore_color.rgb = RGBColor(154,173,34)
             table.rows[0].height = Cm(0.5)
             table.first_row = True
             table.horz_banding = False
@@ -303,7 +312,6 @@ class Get_Data:
                 
                 color = self.driver.find_element_by_xpath(f"{xpath_tabla_colores}/{color_xpath}").text
                 inv_color = self.driver.find_element_by_xpath(f"{xpath_tabla_colores}/{inv_color_xpath}").text
-                print(color)
                 c1 = table.cell(i, 0)
                 c1.text = color
                 c1.text_frame.paragraphs[0].font.size = Pt(9)
