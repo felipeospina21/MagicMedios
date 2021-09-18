@@ -37,28 +37,32 @@ file = open(f"{file_path}/data/consecutivo.txt", "w")
 file.write(f"{nuevo_consecutivo}\n")
 file.close()
 
-file = open(f"{file_path}/data/data.txt", "r")
-representative = file.readline()
-contact = file.readline()
-email = file.readline()
-address = file.readline()
-web = file.readline()
-file.close()
-
-file = open(f"{file_path}/data/data.txt", "w")
-file.write(representative)
-file.write(contact)
-file.write(email)
-file.write(address)
-file.write(web)
-file.close()
-
 print("-------------****-------------- ")
 client = input("Ingrese nombre cliente: ").title()
 company = input("Ingrese nombre empresa: ").upper()
+rep_name = input("Ingrese nombre asesor comercial (sergio, carlos, com): ").lower()
 reference = input("Ingrese referencias a consultar (separadas por coma): ").upper().split(",")
 strip_reference = [ref.strip() for ref in reference]
 ref_q = len(reference)
+
+# Get info asesor comercial
+if rep_name == "sergio":
+    file = open(f"{file_path}/data/sergio.txt", "r")
+elif rep_name == "carlos":
+    file = open(f"{file_path}/data/carlos.txt", "r")
+else:
+    file = open(f"{file_path}/data/comercial.txt", "r")
+
+representative = file.readline()
+contact = file.readline()
+email = file.readline()
+file.close()
+
+# Get footer info
+file = open(f"{file_path}/data/data.txt", "r")
+address = file.readline()
+web = file.readline()
+file.close()
 
 suppliers = {
     'cat_promo' : [],
@@ -78,14 +82,6 @@ for i in range(0, num_of_slides + 1):
     footer = prs.slides[i].shapes.add_textbox(left=Cm(0.5), top=Cm(22.8), width=Cm(18),height=Cm(1))
     tf_footer = footer.text_frame
     text_frame_paragraph(tf_footer,f'{address} {contact} {email} {web}',8, False, True )
-
-# for idx, ref in enumerate(reference):
-#     prs.slides.add_slide(title_slide_layout)
-#     pic = prs.slides[idx].shapes.add_picture("./images/logo.jpg",left=Cm(1), top=Cm(0.5), width=Cm(8.9), height=Cm(1.7))
-#     # footer = prs.slides[idx].shapes.add_textbox(left=Cm(7.5), top=Cm(22.3), width=Cm(14),height=Cm(3))
-#     footer = prs.slides[idx].shapes.add_textbox(left=Cm(0.5), top=Cm(22.8), width=Cm(18),height=Cm(1))
-#     tf_footer = footer.text_frame
-#     text_frame_paragraph(tf_footer,f'{address} {contact} {email} {web}',8, False, True )
 
 
 # Add Header
