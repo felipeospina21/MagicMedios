@@ -34,14 +34,15 @@ def create_supplier_ref_list(ref,suppliers_dict):
     
     return suppliers_dict
 
-def text_frame_paragraph(text_frame, text, font_size, bold=False ):
+def text_frame_paragraph(text_frame, text, font_size, bold=False, centered=False ):
     tf = text_frame.add_paragraph()
     tf.text = text
     tf.font.size = Pt(font_size)
     tf.font.bold = bold
     tf.space_before = Cm(0)
-    if text_frame == "tf_footer":
-        text.alignment = PP_ALIGN.CENTER
+    if centered:
+        tf.alignment = PP_ALIGN.CENTER
+        # text.alignment = PP_ALIGN.CENTER
 
 def get_api_data(url):
     response = requests.get(url)
@@ -52,12 +53,19 @@ measures = {
         "lf_1": 0.8,
         "lf_2": 8.5,
         "lf_3": 3,
-        "t_1" : 4,
-        "t_2" : 4.5,
-        "t_3" : 6,
-        "t_4" : 9,
-        "t_5" : 12,
-        "t_6" : 15,
+        # "t_1" : 4,
+        # "t_2" : 4.5,
+        # "t_3" : 6,
+        # "t_4" : 9,
+        # "t_5" : 12,
+        # "t_6" : 15,
+        "t_1" : 3.5,
+        "t_2" : 4,
+        "t_3" : 5.5,
+        "t_4" : 8.5,
+        "t_5" : 11.5,
+        "t_6" : 14.5,
+
         "w_1" : 17.4,
         "w_2" : 6,
         "w_3" : 8,

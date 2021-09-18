@@ -6,6 +6,7 @@ from promoop import get_promo_op__data
 from cdopromo import get_cdo_promo_data
 from pptx import Presentation
 from pptx.util import Cm
+from pptx.enum.text import PP_ALIGN
 from datetime import datetime
 from dotenv import load_dotenv
 import locale
@@ -69,12 +70,23 @@ suppliers = {
 }
 
 # Add slides with logo and footer
-for idx, ref in enumerate(reference):
+num_of_slides = len(reference)
+for i in range(0, num_of_slides + 1):
     prs.slides.add_slide(title_slide_layout)
-    pic = prs.slides[idx].shapes.add_picture("./images/logo.jpg",left=Cm(1), top=Cm(0.5), width=Cm(8.9), height=Cm(1.7))
-    footer = prs.slides[idx].shapes.add_textbox(left=Cm(7.5), top=Cm(22.3), width=Cm(14),height=Cm(3))
+    pic = prs.slides[i].shapes.add_picture("./images/logo.jpg",left=Cm(1), top=Cm(0.5), width=Cm(8.9), height=Cm(1.7))
+    # footer = prs.slides[idx].shapes.add_textbox(left=Cm(7.5), top=Cm(22.3), width=Cm(14),height=Cm(3))
+    footer = prs.slides[i].shapes.add_textbox(left=Cm(0.5), top=Cm(22.8), width=Cm(18),height=Cm(1))
     tf_footer = footer.text_frame
-    text_frame_paragraph(tf_footer,f'{address} {contact} {email} {web}',11 )
+    text_frame_paragraph(tf_footer,f'{address} {contact} {email} {web}',8, False, True )
+
+# for idx, ref in enumerate(reference):
+#     prs.slides.add_slide(title_slide_layout)
+#     pic = prs.slides[idx].shapes.add_picture("./images/logo.jpg",left=Cm(1), top=Cm(0.5), width=Cm(8.9), height=Cm(1.7))
+#     # footer = prs.slides[idx].shapes.add_textbox(left=Cm(7.5), top=Cm(22.3), width=Cm(14),height=Cm(3))
+#     footer = prs.slides[idx].shapes.add_textbox(left=Cm(0.5), top=Cm(22.8), width=Cm(18),height=Cm(1))
+#     tf_footer = footer.text_frame
+#     text_frame_paragraph(tf_footer,f'{address} {contact} {email} {web}',8, False, True )
+
 
 # Add Header
 txBox = prs.slides[0].shapes.add_textbox(left=Cm(12), top=Cm(-0.5), width=Cm(6.6),height=Cm(6))
@@ -86,7 +98,7 @@ text_frame_paragraph(tf,'Asesor Comercial',11 )
 text_frame_paragraph(tf,f'{representative} {contact} {email}',11 )
 
 # Add Client name
-header = prs.slides[0].shapes.add_textbox(left=Cm(1), top=Cm(2.5), width=Cm(6.4),height=Cm(2))
+header = prs.slides[0].shapes.add_textbox(left=Cm(1), top=Cm(1.8), width=Cm(6.4),height=Cm(2))
 tf_header = header.text_frame
 text_frame_paragraph(tf_header,f'Señor(a) {client}.',14,True )
 text_frame_paragraph(tf_header,company,14,True )
@@ -107,6 +119,10 @@ if len(suppliers['nw_promo']) != 0:
     get_nw_promo_data(suppliers, prs, strip_reference)
 if len(suppliers['cdo_promo']) != 0:
     get_cdo_promo_data(suppliers, prs, strip_reference)
+
+# Condiciones comerciales
+pic = prs.slides[num_of_slides].shapes.add_picture("./images/condiciones.jpg",left=Cm(1), top=Cm(4.5), width=Cm(17.27), height=Cm(16.66))
+
 
 prs.save(f'./cotizaciones/cotización_{company}.pptx')
 # prs.save(f'//192.168.1.40/todos/Cotizaciones Magic Medios S.A.S/cotización n°{consecutivo}-{company}-Magic Medios SAS.pptx')
