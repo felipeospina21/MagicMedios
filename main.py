@@ -31,11 +31,6 @@ file = open(f"{file_path}/data/consecutivo.txt", "r")
 consecutivo = file.readline().strip()
 file.close()
 
-nuevo_consecutivo = int(consecutivo) + 1
-file = open(f"{file_path}/data/consecutivo.txt", "w")
-# file = open(f"{cotizaciones_path}/consecutivo.txt", "W")
-file.write(f"{nuevo_consecutivo}\n")
-file.close()
 
 print("-------------****-------------- ")
 client = input("Ingrese nombre cliente: ").title()
@@ -123,6 +118,12 @@ pic = prs.slides[num_of_slides].shapes.add_picture("./images/condiciones.jpg",le
 prs.save(f'./cotizaciones/cotización_{company}.pptx')
 # prs.save(f'//192.168.1.40/todos/Cotizaciones Magic Medios S.A.S/cotización n°{consecutivo}-{company}-Magic Medios SAS.pptx')
 
+# Guarda consecutivo
+nuevo_consecutivo = int(consecutivo) + 1
+file = open(f"{file_path}/data/consecutivo.txt", "w")
+# file = open(f"{cotizaciones_path}/consecutivo.txt", "W")
+file.write(f"{nuevo_consecutivo}\n")
+file.close()
 
 total_time = "{:.2f}".format((time.time() - start_time)/60)
 print(f'-------- Proceso Finalizado en {total_time} minutos --------')
