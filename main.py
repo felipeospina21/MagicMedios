@@ -76,7 +76,7 @@ for i in range(0, num_of_slides + 1):
     # footer = prs.slides[idx].shapes.add_textbox(left=Cm(7.5), top=Cm(22.3), width=Cm(14),height=Cm(3))
     footer = prs.slides[i].shapes.add_textbox(left=Cm(0.5), top=Cm(22.8), width=Cm(18),height=Cm(1))
     tf_footer = footer.text_frame
-    text_frame_paragraph(tf_footer,f'{address} {contact} {email} {web}',8, False, True )
+    text_frame_paragraph(tf_footer,f'{address} {contact} {email} {web}',7, False, True )
 
 
 # Add Header
