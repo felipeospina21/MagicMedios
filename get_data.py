@@ -287,8 +287,8 @@ class Get_Data:
             h2 = table.cell(0,1)
             h1.text = "Color"
             h2.text = "Inventario"
-            h1.text_frame.paragraphs[0].font.size = Pt(9)
-            h2.text_frame.paragraphs[0].font.size = Pt(9)
+            h1.text_frame.paragraphs[0].font.size = Pt(7)
+            h2.text_frame.paragraphs[0].font.size = Pt(7)
             table.rows[0].height = Cm(0.5)
             table.first_row = False
             table.horz_banding = False
