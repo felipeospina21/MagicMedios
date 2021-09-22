@@ -20,7 +20,8 @@ load_dotenv()
 file_path = os.environ.get("FILE_PATH")
 cotizaciones_path = os.environ.get("COTIZACIONES_PATH")
 hoy = datetime.now()
-prs = Presentation("./plantillas/cotizacion.pptx")
+# prs = Presentation("./plantillas/cotizacion.pptx")
+prs = Presentation("./plantillas/cotizacion.pptm")
 title_slide_layout = prs.slide_layouts[6]
 
 locale.setlocale(locale.LC_TIME, '')
@@ -115,7 +116,8 @@ if len(suppliers['cdo_promo']) != 0:
 pic = prs.slides[num_of_slides].shapes.add_picture("./images/condiciones.jpg",left=Cm(1), top=Cm(4.5), width=Cm(17.27), height=Cm(16.66))
 
 
-prs.save(f'./cotizaciones/cotización_{company}.pptx')
+prs.save(f'./cotizaciones/cotización_{company}.pptm')
+# prs.save(f'./cotizaciones/cotización_{company}.pptx')
 # prs.save(f'//192.168.1.40/todos/Cotizaciones Magic Medios S.A.S/cotización n°{consecutivo}-{company}-Magic Medios SAS.pptx')
 
 # Guarda consecutivo

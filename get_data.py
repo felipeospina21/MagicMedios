@@ -10,6 +10,7 @@ from utils import text_frame_paragraph
 import requests
 import time
 import re
+from pptx.oxml.xmlchemy import OxmlElement
 
 class Get_Data:
     def __init__(self, supplier, prs, references, measures):
@@ -209,6 +210,7 @@ class Get_Data:
             c2.text = "VALOR UNITARIO CON MARCACIÓN POR\n(1 MARCACIÓN, 1 TINTA)"
             table.cell(0, 0).text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
             table.cell(0, 1).text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+            table.cell(0, 1).text_frame.paragraphs[1].alignment = PP_ALIGN.CENTER
             c1.fill.solid()
             c1.fill.fore_color.rgb = RGBColor(154,173,34)
             c2.fill.solid()
@@ -401,5 +403,3 @@ class Get_Data:
 
     def close_driver(self):
         self.driver.close()     
-
-   
