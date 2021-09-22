@@ -22,7 +22,7 @@ def get_mp_promo_data(suppliers_dict, prs, references):
         data.create_inventory_table(colors_len, "//mat-table[@class='w-100 inventory-tabla mat-table']", idx, ref)
 
         img_src = data.get_img("//img[@class='ng-star-inserted']", ref)
-        data.create_img(img_src, idx, ref)
+        data.create_img(img_src, idx, 10.39, 7.4, ref)
 
 
     data.close_driver()

@@ -24,6 +24,6 @@ def get_cat_promo_data(suppliers_dict, prs, references):
         data.create_inventory_table(colors_len, "//table[@class='tableInfoProd']", idx, ref)
         
         img_src = data.get_img("//img[@id='img_01']", ref)
-        data.create_img(img_src, idx, ref)
+        data.create_img(img_src, idx, 8, 8, ref)
 
     data.close_driver()

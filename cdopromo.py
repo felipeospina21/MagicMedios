@@ -21,8 +21,7 @@ def get_cdo_promo_data(suppliers_dict, prs, references):
         data.create_title(title, idx, count, ref)
         data.create_quantity_table(ref, idx)
         data.create_subtitle(desc, idx, ref)
-        data.create_img(img_src, idx, ref)
+        data.create_img(img_src, idx, 0, 0, ref)
         data.create_stock_table_api(q_colores, colors, idx, ref)
-
 
 

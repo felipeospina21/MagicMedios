@@ -38,6 +38,8 @@ class Get_Data:
         self.h_4 = Cm(measures["h_4"])
         self.h_5 = Cm(measures["h_5"])
 
+        self.cell_font = Pt(measures["cell_font"])
+
     def execute_driver(self, url):
         self.path = "C:/chromedriver.exe"
         self.driver = webdriver.Chrome(self.path)
@@ -203,8 +205,8 @@ class Get_Data:
             table = self.prs.slides[idx].shapes.add_table(3 , 2, self.lf_3, self.t_5, self.w_1, self.h_2).table
             c1 = table.cell(0,0)
             c2 = table.cell(0,1)
-            c1.text = "Cantidad (und)"
-            c2.text = "Valor unitario"
+            c1.text = "CANTIDAD (UND)"
+            c2.text = "VALOR UNITARIO CON MARCACIÓN POR\n(1 MARCACIÓN, 1 TINTA)"
             table.cell(0, 0).text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
             table.cell(0, 1).text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
             c1.fill.solid()
@@ -218,7 +220,9 @@ class Get_Data:
                 table.rows[i].height = Cm(0.5)
                 # Cell Color
                 cell1 = table.cell(i,0)
+                cell1.text = "(Und)"
                 cell2 = table.cell(i,1)
+                cell2.text = "$ +IVA"
                 cell1.fill.solid()
                 cell1.fill.fore_color.rgb = RGBColor(255,255,255)
                 cell2.fill.solid()
@@ -287,8 +291,8 @@ class Get_Data:
             h2 = table.cell(0,1)
             h1.text = "Color"
             h2.text = "Inventario"
-            h1.text_frame.paragraphs[0].font.size = Pt(7)
-            h2.text_frame.paragraphs[0].font.size = Pt(7)
+            h1.text_frame.paragraphs[0].font.size = self.cell_font
+            h2.text_frame.paragraphs[0].font.size = self.cell_font
             table.rows[0].height = Cm(0.5)
             table.first_row = False
             table.horz_banding = False
@@ -314,10 +318,10 @@ class Get_Data:
                 inv_color = self.driver.find_element_by_xpath(f"{xpath_tabla_colores}/{inv_color_xpath}").text
                 c1 = table.cell(i, 0)
                 c1.text = color
-                c1.text_frame.paragraphs[0].font.size = Pt(9)
+                c1.text_frame.paragraphs[0].font.size = self.cell_font
                 c2 = table.cell(i, 1)
                 c2.text = inv_color
-                c2.text_frame.paragraphs[0].font.size = Pt(9)
+                c2.text_frame.paragraphs[0].font.size = self.cell_font
                 table.rows[i].height = Cm(0.5)
                 # Cell Color
                 cell1 = table.cell(i,0)
@@ -344,8 +348,8 @@ class Get_Data:
             h2 = table.cell(0,1)
             h1.text = "Color"
             h2.text = "Inventario"
-            h1.text_frame.paragraphs[0].font.size = Pt(9)
-            h2.text_frame.paragraphs[0].font.size = Pt(9)
+            h1.text_frame.paragraphs[0].font.size = self.cell_font
+            h2.text_frame.paragraphs[0].font.size = self.cell_font
             table.rows[0].height = Cm(0.5)
             table.first_row = False
             table.horz_banding = False
@@ -355,10 +359,10 @@ class Get_Data:
                 stock = str(colors_list[i-1]["stock_available"])
                 c1 = table.cell(i, 0)
                 c1.text = color
-                c1.text_frame.paragraphs[0].font.size = Pt(9)
+                c1.text_frame.paragraphs[0].font.size = self.cell_font
                 c2 = table.cell(i, 1)
                 c2.text = stock
-                c2.text_frame.paragraphs[0].font.size = Pt(9)
+                c2.text_frame.paragraphs[0].font.size = self.cell_font
                 table.rows[i].height = Cm(0.5)
                 # Cell Color
                 cell1 = table.cell(i,0)
@@ -374,14 +378,20 @@ class Get_Data:
             print(f"Error de tipo {e.__class__}")
             print(f'No se pudo crear la tabla de inventario de la ref {ref}')
 
-    def create_img(self, img_src, idx, ref):
+    def create_img(self, img_src, idx, img_width, img_height, ref):
         response = requests.get(img_src)
         try:
             if response.status_code == 200:
                 file = open("./images/sample_image.jpg", "wb")
                 file.write(response.content)
                 file.close()
-                self.prs.slides[idx].shapes.add_picture("./images/sample_image.jpg",left=self.lf_2, top=self.t_6, width=self.w_3, height=self.h_5)
+
+                if self.supplier == "cdo_promo":
+                    self.prs.slides[idx].shapes.add_picture("./images/sample_image.jpg",left=self.lf_2, top=self.t_6)
+                
+                else:
+                    self.prs.slides[idx].shapes.add_picture("./images/sample_image.jpg",left=self.lf_2, top=self.t_6, width= Cm(img_width),height=Cm(img_height))
+                                
             else:
                 print(f'Error al descargar imagen de la ref {ref}, status code({response.status_code})')
 

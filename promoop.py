@@ -20,6 +20,6 @@ def get_promo_op__data(suppliers_dict, prs, references):
         data.create_description(desc_list, idx, ref)
     
         img_src = data.get_img("//div[@id='imgItem']/img", ref)
-        data.create_img(img_src, idx, ref)
+        data.create_img(img_src, idx, 8, 8, ref)
         
     data.close_driver()

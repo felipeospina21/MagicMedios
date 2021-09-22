@@ -24,6 +24,6 @@ def get_nw_promo_data(suppliers_dict, prs, references):
         data.create_inventory_table(colors_len, "//table[@class='table-bordered']/tbody[1]", idx, ref)
 
         img_src = data.get_img("//img[@id='bigpic']", ref)
-        data.create_img(img_src, idx, ref)
+        data.create_img(img_src, idx, 8, 8, ref)
 
     data.close_driver()
