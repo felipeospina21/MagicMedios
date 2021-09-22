@@ -13,7 +13,6 @@ import locale
 import time
 import os
 
-
 # Variables
 start_time = time.time()
 load_dotenv()
@@ -22,15 +21,7 @@ cotizaciones_path = os.environ.get("COTIZACIONES_PATH")
 hoy = datetime.now()
 prs = Presentation("./plantillas/cotizacion.pptm")
 title_slide_layout = prs.slide_layouts[6]
-
 locale.setlocale(locale.LC_TIME, '')
-
-# Load header info
-# file = open(f"{file_path}/data/consecutivo.txt", "r")
-file = open(f"{cotizaciones_path}/data/consecutivo.txt", "r")
-consecutivo = file.readline().strip()
-file.close()
-
 
 print("-------------****-------------- ")
 client = input("Ingrese nombre cliente: ").title()
@@ -40,14 +31,34 @@ reference = input("Ingrese referencias a consultar (separadas por coma): ").uppe
 strip_reference = [ref.strip() for ref in reference]
 ref_q = len(reference)
 
+# Routes
+## PC MM
+# consecutivo_path = f"{cotizaciones_path}/data/consecutivo.txt"
+# comercial_path = f"{cotizaciones_path}/data/comercial.txt"
+# carlos_path = f"{cotizaciones_path}/data/carlos.txt"
+# sergio_path = f"{cotizaciones_path}/data/sergio.txt"
+# save_path = f'//192.168.1.40/todos/Cotizaciones Magic Medios S.A.S/Cotización N°{consecutivo}-{company}-Magic Medios SAS.pptm'
+
+## PC Felipe
+consecutivo_path = f"{file_path}/data/consecutivo.txt"
+comercial_path = f"{file_path}/data/comercial.txt"
+carlos_path = f"{file_path}/data/carlos.txt"
+sergio_path = f"{file_path}/data/sergio.txt"
+save_path = f'./cotizaciones/cotización_{company}.pptm'
+
+
+# Load header info
+file = open(consecutivo_path, "r")
+consecutivo = file.readline().strip()
+file.close()
+
 # Get info asesor comercial
 if rep_name == "sergio":
-    file = open(f"{cotizaciones_path}/data/sergio.txt", "r")
+    file = open(sergio_path, "r")
 elif rep_name == "carlos":
-    file = open(f"{cotizaciones_path}/data/carlos.txt", "r")
+    file = open(carlos_path, "r")
 else:
-    file = open(f"{cotizaciones_path}/data/comercial.txt", "r")
-    # file = open(f"{file_path}/data/comercial.txt", "r")
+    file = open(comercial_path, "r")
 
 representative = file.readline()
 contact = file.readline()
@@ -116,13 +127,11 @@ if len(suppliers['cdo_promo']) != 0:
 pic = prs.slides[num_of_slides].shapes.add_picture("./images/condiciones.jpg",left=Cm(1), top=Cm(4.5), width=Cm(17.27), height=Cm(16.66))
 
 
-# prs.save(f'./cotizaciones/cotización_{company}.pptm')
-prs.save(f'//192.168.1.40/todos/Cotizaciones Magic Medios S.A.S/Cotización N°{consecutivo}-{company}-Magic Medios SAS.pptm')
+prs.save(save_path)
 
 # Guarda consecutivo
 nuevo_consecutivo = int(consecutivo) + 1
-# file = open(f"{file_path}/data/consecutivo.txt", "w")
-file = open(f"{cotizaciones_path}/data/consecutivo.txt", "w")
+file = open(consecutivo_path, "w")
 file.write(f"{nuevo_consecutivo}\n")
 file.close()
 

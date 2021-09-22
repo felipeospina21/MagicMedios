@@ -9,8 +9,8 @@ auth_token = os.environ.get("API_TOKEN")
 def get_cdo_promo_data(suppliers_dict, prs, references):
     data = Get_Data('cdo_promo', prs, references, measures)
     for ref in suppliers_dict['cdo_promo']:
-        data.create_quantity_table(ref, idx)
         idx = data.get_original_ref_list_idx(ref)
+        data.create_quantity_table(ref, idx)
         count = idx + 1
         url = f"http://api.colombia.cdopromocionales.com/v1/products/{ref}?auth_token={auth_token}"
         try:
