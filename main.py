@@ -20,8 +20,8 @@ load_dotenv()
 file_path = os.environ.get("FILE_PATH")
 cotizaciones_path = os.environ.get("COTIZACIONES_PATH")
 hoy = datetime.now()
-# prs = Presentation("./plantillas/cotizacion.pptx")
-prs = Presentation("./plantillas/cotizacion.pptm")
+prs = Presentation("./plantillas/cotizacion.pptx")
+# prs = Presentation("./plantillas/cotizacion.pptm")
 title_slide_layout = prs.slide_layouts[6]
 
 locale.setlocale(locale.LC_TIME, '')
@@ -48,6 +48,7 @@ elif rep_name == "carlos":
     file = open(f"{cotizaciones_path}/data/carlos.txt", "r")
 else:
     file = open(f"{cotizaciones_path}/data/comercial.txt", "r")
+    # file = open(f"{file_path}/data/comercial.txt", "r")
 
 representative = file.readline()
 contact = file.readline()
@@ -121,8 +122,8 @@ prs.save(f'//192.168.1.40/todos/Cotizaciones Magic Medios S.A.S/Cotización N°{
 
 # Guarda consecutivo
 nuevo_consecutivo = int(consecutivo) + 1
-# file = open(f"{file_path}/data/consecutivo.txt", "w")
-file = open(f"{cotizaciones_path}/data/consecutivo.txt", "w")
+file = open(f"{file_path}/data/consecutivo.txt", "w")
+# file = open(f"{cotizaciones_path}/data/consecutivo.txt", "w")
 file.write(f"{nuevo_consecutivo}\n")
 file.close()
 
