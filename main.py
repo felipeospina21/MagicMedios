@@ -31,26 +31,29 @@ reference = input("Ingrese referencias a consultar (separadas por coma): ").uppe
 strip_reference = [ref.strip() for ref in reference]
 ref_q = len(reference)
 
-# Routes
-## PC MM
-# consecutivo_path = f"{cotizaciones_path}/data/consecutivo.txt"
-# comercial_path = f"{cotizaciones_path}/data/comercial.txt"
-# carlos_path = f"{cotizaciones_path}/data/carlos.txt"
-# sergio_path = f"{cotizaciones_path}/data/sergio.txt"
-# save_path = f'//192.168.1.40/todos/Cotizaciones Magic Medios S.A.S/Cotización N°{consecutivo}-{company}-Magic Medios SAS.pptm'
-
-## PC Felipe
-consecutivo_path = f"{file_path}/data/consecutivo.txt"
-comercial_path = f"{file_path}/data/comercial.txt"
-carlos_path = f"{file_path}/data/carlos.txt"
-sergio_path = f"{file_path}/data/sergio.txt"
-save_path = f'./cotizaciones/cotización_{company}.pptm'
-
-
 # Load header info
+consecutivo_path = f"{cotizaciones_path}/data/consecutivo.txt"
+# consecutivo_path = f"{file_path}/data/consecutivo.txt"
+
 file = open(consecutivo_path, "r")
 consecutivo = file.readline().strip()
 file.close()
+
+# Routes
+## PC MM
+comercial_path = f"{cotizaciones_path}/data/comercial.txt"
+carlos_path = f"{cotizaciones_path}/data/carlos.txt"
+sergio_path = f"{cotizaciones_path}/data/sergio.txt"
+save_path = f'//192.168.1.40/todos/Cotizaciones Magic Medios S.A.S/Cotización N°{consecutivo}-{company}-Magic Medios SAS.pptm'
+
+## PC Felipe
+# comercial_path = f"{file_path}/data/comercial.txt"
+# carlos_path = f"{file_path}/data/carlos.txt"
+# sergio_path = f"{file_path}/data/sergio.txt"
+# save_path = f'./cotizaciones/cotización_{company}.pptm'
+
+
+
 
 # Get info asesor comercial
 if rep_name == "sergio":
