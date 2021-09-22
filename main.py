@@ -27,8 +27,8 @@ title_slide_layout = prs.slide_layouts[6]
 locale.setlocale(locale.LC_TIME, '')
 
 # Load header info
-file = open(f"{file_path}/data/consecutivo.txt", "r")
-# file = open(f"{cotizaciones_path}/consecutivo.txt", "r")
+# file = open(f"{file_path}/data/consecutivo.txt", "r")
+file = open(f"{cotizaciones_path}/data/consecutivo.txt", "r")
 consecutivo = file.readline().strip()
 file.close()
 
@@ -43,11 +43,11 @@ ref_q = len(reference)
 
 # Get info asesor comercial
 if rep_name == "sergio":
-    file = open(f"{file_path}/data/sergio.txt", "r")
+    file = open(f"{cotizaciones_path}/data/sergio.txt", "r")
 elif rep_name == "carlos":
-    file = open(f"{file_path}/data/carlos.txt", "r")
+    file = open(f"{cotizaciones_path}/data/carlos.txt", "r")
 else:
-    file = open(f"{file_path}/data/comercial.txt", "r")
+    file = open(f"{cotizaciones_path}/data/comercial.txt", "r")
 
 representative = file.readline()
 contact = file.readline()
@@ -116,14 +116,13 @@ if len(suppliers['cdo_promo']) != 0:
 pic = prs.slides[num_of_slides].shapes.add_picture("./images/condiciones.jpg",left=Cm(1), top=Cm(4.5), width=Cm(17.27), height=Cm(16.66))
 
 
-prs.save(f'./cotizaciones/cotización_{company}.pptm')
-# prs.save(f'./cotizaciones/cotización_{company}.pptx')
-# prs.save(f'//192.168.1.40/todos/Cotizaciones Magic Medios S.A.S/cotización n°{consecutivo}-{company}-Magic Medios SAS.pptx')
+# prs.save(f'./cotizaciones/cotización_{company}.pptm')
+prs.save(f'//192.168.1.40/todos/Cotizaciones Magic Medios S.A.S/Cotización N°{consecutivo}-{company}-Magic Medios SAS.pptm')
 
 # Guarda consecutivo
 nuevo_consecutivo = int(consecutivo) + 1
-file = open(f"{file_path}/data/consecutivo.txt", "w")
-# file = open(f"{cotizaciones_path}/consecutivo.txt", "W")
+# file = open(f"{file_path}/data/consecutivo.txt", "w")
+file = open(f"{cotizaciones_path}/data/consecutivo.txt", "w")
 file.write(f"{nuevo_consecutivo}\n")
 file.close()
 
