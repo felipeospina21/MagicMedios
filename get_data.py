@@ -252,7 +252,7 @@ class Get_Data:
             sub_titulo = self.prs.slides[idx].shapes.add_textbox(left=self.lf_1, top=self.t_2, width=self.w_1,height=self.h_2)
             tf_sub_titulo= sub_titulo.text_frame
             tf_sub_titulo.word_wrap = True
-            text_frame_paragraph(tf_sub_titulo,subtitle,11,True )
+            text_frame_paragraph(tf_sub_titulo,subtitle,11 )
 
         except Exception as e:
             print(f"Error de tipo {e.__class__}")   
