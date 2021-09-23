@@ -62,6 +62,7 @@ elif rep_name == "carlos":
     file = open(carlos_path, "r")
 else:
     file = open(comercial_path, "r")
+    # file = open(comercial_path, "r")
 
 representative = file.readline()
 contact = file.readline()
