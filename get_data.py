@@ -308,6 +308,32 @@ class Get_Data:
             print(f"Error de tipo {e.__class__}")
             print(f'No se pudo crear la descripción de la ref {ref}')
 
+    def create_description_promo_op(self, desc_list, idx, ref):
+            try:
+                if idx > 0:
+                    top = Cm(self.t_3 - 1)
+                else:
+                    top = Cm(self.t_3)
+
+                description_1 = self.prs.slides[idx].shapes.add_textbox(left=self.lf_1, top=top, width=self.w_3,height=self.h_3)
+                description_2 = self.prs.slides[idx].shapes.add_textbox(left=self.lf_2, top=top, width=self.w_3,height=self.h_3)
+                tf_desc_1= description_1.text_frame
+                tf_desc_1.word_wrap = True
+                tf_desc_2= description_2.text_frame
+                tf_desc_2.word_wrap = True
+
+                list_len = len(desc_list)
+                limit = int(list_len / 2 )
+
+                for i in range(0, limit - 1):
+                    text_frame_paragraph(tf_desc_1, desc_list[i].text, 11 )
+                for i in range(limit, list_len - 1):
+                    text_frame_paragraph(tf_desc_2, desc_list[i].text, 11 )
+
+            except Exception as e:
+                print(f"Error de tipo {e.__class__}")
+                print(f'No se pudo crear la descripción de la ref {ref}')
+
     def create_package_info(self, unit_1_text, unit_2_text, package_1_text, package_2_text, idx, ref):
         try:
             if idx > 0:

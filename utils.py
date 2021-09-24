@@ -4,18 +4,6 @@ import json
 from pptx.util import Pt, Cm
 from pptx.enum.text import PP_ALIGN
 
-# def create_supplier_ref_list(ref,suppliers_dict):
-#     if re.search('-', ref):
-#         suppliers_dict['cat_promo'].append(ref)
-#     elif re.search('^[^NWnw]', ref) and re.search('^[a-zA-Z]{2}[0-9]{4}$|^[a-zA-Z]{3}[0-9]{3}$', ref):
-#         suppliers_dict['mp_promo'].append(ref)
-#     elif re.search(' +', ref):
-#         suppliers_dict['promo_op'].append(ref)
-#     elif re.search('^NW|^nw', ref):
-#         suppliers_dict['nw_promo'].append(ref)
-    
-#     return suppliers_dict
-
 def create_supplier_ref_list(ref,suppliers_dict):
     if re.search('^CP|^cp]', ref):
         split_ref = ref.split("CP", 1)
@@ -31,6 +19,8 @@ def create_supplier_ref_list(ref,suppliers_dict):
         suppliers_dict['cdo_promo'].append(split_ref[1])
     elif re.search('^NW|^nw', ref):
         suppliers_dict['nw_promo'].append(ref)
+    else:
+        print("\nNo se pudo identificar la referencia, favor validar el prefijo ingresado")
     
     return suppliers_dict
 
@@ -42,7 +32,6 @@ def text_frame_paragraph(text_frame, text, font_size, bold=False, centered=False
     tf.space_before = Cm(0)
     if centered:
         tf.alignment = PP_ALIGN.CENTER
-        # text.alignment = PP_ALIGN.CENTER
 
 def get_api_data(url):
     response = requests.get(url)

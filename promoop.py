@@ -25,7 +25,7 @@ def get_promo_op__data(suppliers_dict, prs, references):
         data.create_title(title_text, idx, count, ref)
         data.create_subtitle(subtitle_text, idx, ref)
         desc_list = data.get_description("//table[@class='table-hover table-responsive']/tbody[1]/child::tr", ref)
-        data.create_description(desc_list, idx, ref)
+        data.create_description_promo_op(desc_list, idx, ref)
         stock = data.get_promo_op_stock("//div[@id='ex']/h6[2]", ref).split(" ")
         data.create_promo_op_stock(stock[1], idx, ref)
         img_src = data.get_img("//div[@id='imgItem']/img", ref)
