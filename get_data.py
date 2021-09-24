@@ -22,12 +22,12 @@ class Get_Data:
         self.lf_2 = Cm(measures["lf_2"])
         self.lf_3 = Cm(measures["lf_3"])
 
-        self.t_1 = Cm(measures["t_1"])
-        self.t_2 = Cm(measures["t_2"])
-        self.t_3 = Cm(measures["t_3"])
-        self.t_4 = Cm(measures["t_4"])
-        self.t_5 = Cm(measures["t_5"])
-        self.t_6 = Cm(measures["t_6"])
+        self.t_1 = measures["t_1"]
+        self.t_2 = measures["t_2"]
+        self.t_3 = measures["t_3"]
+        self.t_4 = measures["t_4"]
+        self.t_5 = measures["t_5"]
+        self.t_6 = measures["t_6"]
 
         self.w_1 = Cm(measures["w_1"])
         self.w_2 = Cm(measures["w_2"])
@@ -40,6 +40,7 @@ class Get_Data:
         self.h_5 = Cm(measures["h_5"])
 
         self.cell_font = Pt(measures["cell_font"])
+        self.cell_font_2 = Pt(measures["cell_font_2"])
 
     def execute_driver(self, url):
         self.path = "C:/chromedriver.exe"
@@ -77,6 +78,13 @@ class Get_Data:
         except Exception as e:
             print(f"Error de tipo {e.__class__}")
             print("No se pudo encontrar la barra de busqueda")
+
+    def accept_alert_popup(self):
+        try:
+            alert = self.driver.switch_to_alert()
+            alert.accept()
+        except Exception as e:
+            print(f"No se encuentra popup // Error de tipo {e.__class__}")
 
     def click_first_result(self, first_result_xpath, ref):
         try:
@@ -186,7 +194,17 @@ class Get_Data:
         except Exception as e:
             print(f"Error de tipo {e.__class__}")
             print(f'No se pudo obtener los colores de la ref {ref}')
-            
+    
+    def get_promo_op_stock(self, xpath_stock, ref):
+        try:
+            time.sleep(1)
+            stock = self.driver.find_element_by_xpath(xpath_stock)
+            return stock.text
+
+        except Exception as e:
+            print(f"Error de tipo {e.__class__}")
+            print(f'No se pudo obtener el inventario de la ref {ref}')
+
     def get_img(self, img_xpath, ref):
         try:
             if self.supplier == 'promo_op':
@@ -203,7 +221,12 @@ class Get_Data:
 
     def create_quantity_table(self, ref, idx):
         try:
-            table = self.prs.slides[idx].shapes.add_table(3 , 2, self.lf_3, self.t_5, self.w_1, self.h_2).table
+            if idx > 0:
+                top = Cm(self.t_5 - 1)
+            else:
+                top = Cm(self.t_5)
+
+            table = self.prs.slides[idx].shapes.add_table(3 , 2, self.lf_3, top, self.w_1, self.h_2).table
             c1 = table.cell(0,0)
             c2 = table.cell(0,1)
             c1.text = "CANTIDAD (UND)"
@@ -238,7 +261,12 @@ class Get_Data:
     def create_title(self, title_text, idx, count, ref):
         try:
             title = title_text
-            titulo = self.prs.slides[idx].shapes.add_textbox(left=self.lf_1, top=self.t_1, width=self.w_1, height=self.h_1) 
+            if idx > 0:
+                top = Cm(self.t_1 - 1)
+            else:
+                top = Cm(self.t_1)
+            
+            titulo = self.prs.slides[idx].shapes.add_textbox(left=self.lf_1, top=top, width=self.w_1, height=self.h_1)
             tf_titulo= titulo.text_frame
             text_frame_paragraph(tf_titulo,f'{count}.{title} {ref}',12,True )
 
@@ -249,7 +277,12 @@ class Get_Data:
     def create_subtitle(self, subtitle_text, idx, ref):
         try:
             subtitle = subtitle_text
-            sub_titulo = self.prs.slides[idx].shapes.add_textbox(left=self.lf_1, top=self.t_2, width=self.w_1,height=self.h_2)
+            if idx > 0:
+                top = Cm(self.t_2 - 1)
+            else:
+                top = Cm(self.t_2)
+
+            sub_titulo = self.prs.slides[idx].shapes.add_textbox(left=self.lf_1, top=top, width=self.w_1,height=self.h_2)
             tf_sub_titulo= sub_titulo.text_frame
             tf_sub_titulo.word_wrap = True
             text_frame_paragraph(tf_sub_titulo,subtitle,11 )
@@ -260,7 +293,12 @@ class Get_Data:
 
     def create_description(self, desc_list, idx, ref):
         try:
-            description = self.prs.slides[idx].shapes.add_textbox(left=self.lf_1, top=self.t_3, width=self.w_1,height=self.h_3)
+            if idx > 0:
+                top = Cm(self.t_3 - 1)
+            else:
+                top = Cm(self.t_3)
+
+            description = self.prs.slides[idx].shapes.add_textbox(left=self.lf_1, top=top, width=self.w_1,height=self.h_3)
             tf_desc= description.text_frame
             tf_desc.word_wrap = True
             for element in desc_list:
@@ -272,7 +310,12 @@ class Get_Data:
 
     def create_package_info(self, unit_1_text, unit_2_text, package_1_text, package_2_text, idx, ref):
         try:
-            p1 = self.prs.slides[idx].shapes.add_textbox(left=self.lf_1, top=self.t_4, width=self.w_1,height=self.h_2)
+            if idx > 0:
+                top = Cm(self.t_4 - 1)
+            else:
+                top = Cm(self.t_4)
+
+            p1 = self.prs.slides[idx].shapes.add_textbox(left=self.lf_1, top=top, width=self.w_1,height=self.h_2)
             tf_p1= p1.text_frame
          
             text_frame_paragraph(tf_p1,f'{unit_1_text} {unit_2_text}',11,True )
@@ -286,7 +329,12 @@ class Get_Data:
         try:
             cols = 2
             rows = q_colores
-            table = self.prs.slides[idx].shapes.add_table(rows + 1, cols, self.lf_1, self.t_6, self.w_2, self.h_4).table
+            if idx > 0:
+                top = Cm(self.t_6 - 1)
+            else:
+                top = Cm(self.t_6)
+
+            table = self.prs.slides[idx].shapes.add_table(rows + 1, cols, self.lf_1, top, self.w_2, self.h_4).table
             
             # Table Header
             h1 = table.cell(0,0)
@@ -343,7 +391,11 @@ class Get_Data:
         try:
             cols = 2
             rows = q_colores
-            table = self.prs.slides[idx].shapes.add_table(rows + 1, cols, self.lf_1, self.t_6, self.w_2, self.h_4).table
+            if idx > 0:
+                top = Cm(self.t_6 - 1)
+            else:
+                top = Cm(self.t_6)
+            table = self.prs.slides[idx].shapes.add_table(rows + 1, cols, self.lf_1, top, self.w_2, self.h_4).table
             
             # Table Header
             h1 = table.cell(0,0)
@@ -380,19 +432,52 @@ class Get_Data:
             print(f"Error de tipo {e.__class__}")
             print(f'No se pudo crear la tabla de inventario de la ref {ref}')
 
+    def create_promo_op_stock(self, stock, idx, ref):
+        try:
+            cols = 2
+            rows = 1
+            if idx > 0:
+                top = Cm(self.t_6 - 1)
+            else:
+                top = Cm(self.t_6)
+            table = self.prs.slides[idx].shapes.add_table(rows, cols, self.lf_1, top, self.w_2, self.h_4).table
+            
+            # Table Header
+            h1 = table.cell(0,0)
+            h2 = table.cell(0,1)
+            h1.text = "Inventario"
+            h2.text = stock
+            h1.text_frame.paragraphs[0].font.size = self.cell_font
+            h2.text_frame.paragraphs[0].font.size = self.cell_font
+            table.rows[0].height = Cm(0.5)
+            table.first_row = False
+            table.horz_banding = False
+            
+            table.columns[0].width = Cm(3.8)
+            table.columns[1].width = Cm(2.2)
+
+        except Exception as e:
+            print(f"Error de tipo {e.__class__}")
+            print(f'No se pudo crear la tabla de inventario de la ref {ref}')
+
     def create_img(self, img_src, idx, img_width, img_height, ref):
         response = requests.get(img_src)
         try:
+            if idx > 0:
+                top = Cm(self.t_6 - 1)
+            else:
+                top = Cm(self.t_6)
+
             if response.status_code == 200:
                 file = open("./images/sample_image.jpg", "wb")
                 file.write(response.content)
                 file.close()
 
                 if self.supplier == "cdo_promo":
-                    self.prs.slides[idx].shapes.add_picture("./images/sample_image.jpg",left=self.lf_2, top=self.t_6)
+                    self.prs.slides[idx].shapes.add_picture("./images/sample_image.jpg",left=self.lf_2, top=top)
                 
                 else:
-                    self.prs.slides[idx].shapes.add_picture("./images/sample_image.jpg",left=self.lf_2, top=self.t_6, width= Cm(img_width),height=Cm(img_height))
+                    self.prs.slides[idx].shapes.add_picture("./images/sample_image.jpg",left=self.lf_2, top=top, width= Cm(img_width),height=Cm(img_height))
                                 
             else:
                 print(f'Error al descargar imagen de la ref {ref}, status code({response.status_code})')

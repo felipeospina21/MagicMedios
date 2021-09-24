@@ -46,7 +46,7 @@ carlos_path = f"{cotizaciones_path}/data/carlos.txt"
 sergio_path = f"{cotizaciones_path}/data/sergio.txt"
 save_path = f'//192.168.1.40/todos/Cotizaciones Magic Medios S.A.S/Cotización N°{consecutivo}-{company}-Magic Medios SAS.pptm'
 
-## PC Felipe
+# PC Felipe
 # comercial_path = f"{file_path}/data/comercial.txt"
 # carlos_path = f"{file_path}/data/carlos.txt"
 # sergio_path = f"{file_path}/data/sergio.txt"
@@ -94,7 +94,7 @@ for i in range(0, num_of_slides + 1):
     tf_footer = footer.text_frame
     text_frame_paragraph(tf_footer,f'{address} {contact} {email} {web}',7, False, True )
 
-
+## Firste Slide
 # Add Header
 txBox = prs.slides[0].shapes.add_textbox(left=Cm(12), top=Cm(-0.5), width=Cm(6.6),height=Cm(6))
 tf = txBox.text_frame
