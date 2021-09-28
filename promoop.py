@@ -39,10 +39,12 @@ def get_promo_op__data(suppliers_dict, prs, references):
         img_src = data.get_img("//div[@id='imgItem']/img", ref)
         data.create_img(img_src, idx, 8, 8, ref)
         stock_table = data.create_stock_table(colors_q+1, idx, ref)
-
+        stock = data.get_element_with_xpath("//div[@id='ex']/h6[2]").text.split()[1]
+        color = data.get_element_with_xpath(f"{header_xpath}/h6[1]").text
+        data.fill_stock_table(stock_table, color, stock, 1)
         data.previous_page()
 
-        for i in range(1, colors_q + 1):
+        for i in range(2, colors_q + 1):
             result_ref = data.get_title_with_xpath(f"//div[@class='page-header2']/div[2]/div[2]/div[@class='col-md-6'][{i}]/div[1]/div[2]/div[1]/small[1]/strong[1]", ref).split()
             check_ref = f"{result_ref[0]} {result_ref[1]}"    
             if ref == check_ref:
