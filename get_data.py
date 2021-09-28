@@ -3,6 +3,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from pptx.util import Cm, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
@@ -10,7 +11,7 @@ from utils import text_frame_paragraph
 import requests
 import time
 import re
-from pptx.oxml.xmlchemy import OxmlElement
+# from pptx.oxml.xmlchemy import OxmlElement
 
 class Get_Data:
     def __init__(self, supplier, prs, references, measures):
@@ -44,17 +45,37 @@ class Get_Data:
 
     def execute_driver(self, url):
         self.path = "C:/chromedriver.exe"
-        self.driver = webdriver.Chrome(self.path)
-        self.driver.set_page_load_timeout(20)
+        if self.supplier == 'promo_op' or self.supplier == 'cat_promo' :
+            capa = DesiredCapabilities.CHROME
+            capa["pageLoadStrategy"] = "none"
+            self.driver = webdriver.Chrome(self.path, desired_capabilities=capa)
+        else:
+            self.driver = webdriver.Chrome(self.path)
+            self.driver.set_page_load_timeout(20)
+            
         if self.supplier == 'mp_promo':
             self.driver.get('chrome://settings/')
+            time.sleep(1)
             self.driver.execute_script('chrome.settingsPrivate.setDefaultZoom(0.25);')
+
         try:
             self.driver.get(url)
         except Exception as e:
             print(f"Error de tipo {e.__class__}")
 
         time.sleep(5)
+    
+    def previous_page(self):
+        try:
+            self.driver.execute_script("window.history.go(-1)")
+        except Exception as e:
+            print(f"Error de tipo {e.__class__} en script previous_page")
+
+    def stop_loading(self):
+        try:
+            self.driver.execute_script("window.stop();")
+        except Exception as e:
+            print(f"Error de tipo {e.__class__} en script stop_loading")
 
     def check_pop_up(self):
         if self.supplier == 'nw_promo':
@@ -63,6 +84,29 @@ class Get_Data:
             except Exception as e:
                 print(f"Error de tipo {e.__class__}")
                 print("No se encontro overlay")
+    
+    def get_element_with_xpath(self, xpath):
+        try:
+            if self.supplier == "cat_promo":
+                element = self.driver.find_element_by_xpath(xpath)
+            else:
+                element =  WebDriverWait(self.driver, 30).until(
+                        EC.presence_of_element_located((By.XPATH, xpath))
+                    )
+            
+            return element
+
+        except Exception as e:
+            print(f"Error de tipo {e.__class__}")
+
+    def get_elements_len_with_xpath(self, xpath):
+        try:
+            time.sleep(1)
+            elements = self.driver.find_elements_by_xpath(xpath)
+            return len(elements)
+
+        except Exception as e:
+            print(f"Error de tipo {e.__class__}")
 
     def search_ref(self, ref, search_box_id):
         try:
@@ -78,6 +122,33 @@ class Get_Data:
         except Exception as e:
             print(f"Error de tipo {e.__class__}")
             print("No se pudo encontrar la barra de busqueda")
+            
+    def fill_stock_table(self, table, color, stock, row_index):
+        try:
+            c1 = table.cell(row_index, 0)
+            c1.text = color
+            c1.text_frame.paragraphs[0].font.size = self.cell_font
+            c2 = table.cell(row_index, 1)
+            c2.text = stock
+            c2.text_frame.paragraphs[0].font.size = self.cell_font
+            table.rows[row_index].height = Cm(0.5)
+            # Cell Color
+            cell1 = table.cell(row_index,0)
+            cell2 = table.cell(row_index,1)
+            cell1.fill.solid()
+            cell1.fill.fore_color.rgb = RGBColor(255,255,255)
+            cell2.fill.solid()
+            cell2.fill.fore_color.rgb = RGBColor(255,255,255)
+        except Exception as e:
+            print(f"Error de tipo {e.__class__} al tratar de actualizar tabla inventario")
+
+    def send_keys(self, element, text):
+        try:
+            element.clear()
+            element.send_keys(text)
+            element.send_keys(Keys.RETURN)
+        except Exception as e:
+            print(f"Error de tipo {e.__class__} // No se pudo enviar el comando")
 
     def accept_alert_popup(self):
         try:
@@ -91,12 +162,12 @@ class Get_Data:
             result = WebDriverWait(self.driver, 5).until(
                     EC.element_to_be_clickable((By.XPATH, first_result_xpath))
                 )
-            # result = self.driver.find_element_by_xpath(first_result_xpath)
             time.sleep(1)
             result.click()
         except Exception as e:
             print(f"Error de tipo {e.__class__}")
             print(f"No se pudo encontrar la ref {ref}")
+            exit()
 
     def get_original_ref_list_idx(self, ref) :
         if self.supplier == 'cat_promo':
@@ -109,7 +180,7 @@ class Get_Data:
             return self.references.index(ref)
         elif self.supplier == 'cdo_promo':
             return self.references.index("CD" + ref)
-
+    
     def get_title_and_subtitle(self, header_xpath, title_index, subtitle_index, ref):
         try:
             header = self.driver.find_element_by_xpath(header_xpath)
@@ -182,28 +253,6 @@ class Get_Data:
         except Exception as e:
             print(f"Error de tipo {e.__class__}")
             print(f'No se pudo obtener la info de empaque de la ref {ref}')
-
-    def get_inventory(self, xpath_colores, ref):
-        try:
-            time.sleep(1)
-            colores = self.driver.find_elements_by_xpath(xpath_colores)
-            q_colores = len(colores)
-
-            return q_colores
-
-        except Exception as e:
-            print(f"Error de tipo {e.__class__}")
-            print(f'No se pudo obtener los colores de la ref {ref}')
-    
-    def get_promo_op_stock(self, xpath_stock, ref):
-        try:
-            time.sleep(1)
-            stock = self.driver.find_element_by_xpath(xpath_stock)
-            return stock.text
-
-        except Exception as e:
-            print(f"Error de tipo {e.__class__}")
-            print(f'No se pudo obtener el inventario de la ref {ref}')
 
     def get_img(self, img_xpath, ref):
         try:
@@ -458,10 +507,10 @@ class Get_Data:
             print(f"Error de tipo {e.__class__}")
             print(f'No se pudo crear la tabla de inventario de la ref {ref}')
 
-    def create_promo_op_stock(self, stock, idx, ref):
+    def create_stock_table(self, colors_q, idx, ref):
         try:
             cols = 2
-            rows = 1
+            rows = colors_q
             if idx > 0:
                 top = Cm(self.t_6 - 1)
             else:
@@ -471,8 +520,8 @@ class Get_Data:
             # Table Header
             h1 = table.cell(0,0)
             h2 = table.cell(0,1)
-            h1.text = "Inventario"
-            h2.text = stock
+            h1.text = "Color"
+            h2.text = "Inventario"
             h1.text_frame.paragraphs[0].font.size = self.cell_font
             h2.text_frame.paragraphs[0].font.size = self.cell_font
             table.rows[0].height = Cm(0.5)
@@ -481,6 +530,8 @@ class Get_Data:
             
             table.columns[0].width = Cm(3.8)
             table.columns[1].width = Cm(2.2)
+
+            return table
 
         except Exception as e:
             print(f"Error de tipo {e.__class__}")

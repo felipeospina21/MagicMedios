@@ -8,7 +8,9 @@ def get_mp_promo_data(suppliers_dict, prs, references):
     for ref in suppliers_dict['mp_promo']:
         idx = data.get_original_ref_list_idx(ref)
         count = idx + 1
-        data.search_ref(ref,'mat-input-0')
+        # data.search_ref(ref,'mat-input-0')
+        search_input = data.get_element_with_xpath("//input[@id='mat-input-0']")
+        data.send_keys(search_input, ref)
         time.sleep(3)
         data.create_quantity_table(ref, idx)
         title_text = data.get_title_with_xpath("//h1[@class='g-font-size-20 g-font-weight-600']", ref)
@@ -18,7 +20,7 @@ def get_mp_promo_data(suppliers_dict, prs, references):
         
         desc_list = data.get_description("//ul[@class='g-mb-16 g-ml-20 g-pl-0 g-font-size-14']/child::li", ref)
         data.create_description(desc_list, idx, ref)
-        colors_len = data.get_inventory("//mat-table[@class='w-100 inventory-tabla mat-table']/child::mat-row", ref)
+        colors_len = data.get_elements_len_with_xpath("//mat-table[@class='w-100 inventory-tabla mat-table']/child::mat-row")
         data.create_inventory_table(colors_len, "//mat-table[@class='w-100 inventory-tabla mat-table']", idx, ref)
 
         img_src = data.get_img("//img[@class='ng-star-inserted']", ref)
