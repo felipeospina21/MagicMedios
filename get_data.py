@@ -9,9 +9,13 @@ from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
 from utils import text_frame_paragraph
 import requests
+import logging
 import time
 import re
 # from pptx.oxml.xmlchemy import OxmlElement
+
+logging.basicConfig(level=logging.ERROR, filename='app.log', filemode='w', 
+    format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s', datefmt='%m-%d %H:%M')
 
 class Get_Data:
     def __init__(self, supplier, prs, references, measures):
@@ -43,14 +47,21 @@ class Get_Data:
         self.cell_font = Pt(measures["cell_font"])
         self.cell_font_2 = Pt(measures["cell_font_2"])
 
+    def error_logging(self):
+        logging.error("Exception occurred", exc_info=True)
+        # exit()
+
     def execute_driver(self, url):
         self.path = "C:/chromedriver.exe"
+        options = webdriver.ChromeOptions()
+        options.add_experimental_option('excludeSwitches', ['enable-logging'])
+        # driver = webdriver.Chrome(options=options)
         if self.supplier == 'promo_op' or self.supplier == 'cat_promo' :
             capa = DesiredCapabilities.CHROME
             capa["pageLoadStrategy"] = "none"
-            self.driver = webdriver.Chrome(self.path, desired_capabilities=capa)
+            self.driver = webdriver.Chrome(self.path, desired_capabilities=capa, options=options)
         else:
-            self.driver = webdriver.Chrome(self.path)
+            self.driver = webdriver.Chrome(self.path, options=options)
             self.driver.set_page_load_timeout(20)
             
         if self.supplier == 'mp_promo':
@@ -61,29 +72,32 @@ class Get_Data:
         try:
             self.driver.get(url)
         except Exception as e:
-            print(f"Error de tipo {e.__class__}")
-
+            # print(f"Error de tipo {e.__class__}")
+            self.error_logging()
         time.sleep(5)
     
     def previous_page(self):
         try:
             self.driver.execute_script("window.history.go(-1)")
         except Exception as e:
-            print(f"Error de tipo {e.__class__} en script previous_page")
+            # print(f"Error de tipo {e.__class__} en script previous_page")
+            self.error_logging()
 
     def stop_loading(self):
         try:
             self.driver.execute_script("window.stop();")
         except Exception as e:
-            print(f"Error de tipo {e.__class__} en script stop_loading")
+            # print(f"Error de tipo {e.__class__} en script stop_loading")
+            self.error_logging()
 
     def check_pop_up(self):
         if self.supplier == 'nw_promo':
             try:
                 self.driver.execute_script("document.getElementsByClassName('fancybox-overlay fancybox-overlay-fixed labpopup')[0].style.display = 'none';")
             except Exception as e:
-                print(f"Error de tipo {e.__class__}")
-                print("No se encontro overlay")
+                # print(f"Error de tipo {e.__class__}")
+                # print("No se encontro overlay")
+                self.error_logging()
     
     def get_element_with_xpath(self, xpath):
         try:
@@ -97,7 +111,8 @@ class Get_Data:
             return element
 
         except Exception as e:
-            print(f"Error de tipo {e.__class__}")
+            # print(f"Error de tipo {e.__class__}")
+            self.error_logging()
 
     def get_elements_len_with_xpath(self, xpath):
         try:
@@ -106,7 +121,8 @@ class Get_Data:
             return len(elements)
 
         except Exception as e:
-            print(f"Error de tipo {e.__class__}")
+            # print(f"Error de tipo {e.__class__}")
+            self.execute_driver()
 
     def search_ref(self, ref, search_box_id):
         try:
@@ -120,8 +136,9 @@ class Get_Data:
             search_input.send_keys(ref)
             search_input.send_keys(Keys.RETURN)
         except Exception as e:
-            print(f"Error de tipo {e.__class__}")
-            print("No se pudo encontrar la barra de busqueda")
+            # print(f"Error de tipo {e.__class__}")
+            # print("No se pudo encontrar la barra de busqueda")
+            self.error_logging()
             
     def fill_stock_table(self, table, color, stock, row_index):
         try:
@@ -140,7 +157,8 @@ class Get_Data:
             cell2.fill.solid()
             cell2.fill.fore_color.rgb = RGBColor(255,255,255)
         except Exception as e:
-            print(f"Error de tipo {e.__class__} al tratar de actualizar tabla inventario")
+            # print(f"Error de tipo {e.__class__} al tratar de actualizar tabla inventario")
+            self.error_logging()
 
     def send_keys(self, element, text):
         try:
@@ -148,14 +166,16 @@ class Get_Data:
             element.send_keys(text)
             element.send_keys(Keys.RETURN)
         except Exception as e:
-            print(f"Error de tipo {e.__class__} // No se pudo enviar el comando")
+            # print(f"Error de tipo {e.__class__} // No se pudo enviar el comando")
+            self.error_logging()
 
     def accept_alert_popup(self):
         try:
             alert = self.driver.switch_to_alert()
             alert.accept()
         except Exception as e:
-            print(f"No se encuentra popup // Error de tipo {e.__class__}")
+            # print(f"No se encuentra popup // Error de tipo {e.__class__}")
+            self.error_logging()
 
     def click_first_result(self, first_result_xpath, ref):
         try:
@@ -165,9 +185,12 @@ class Get_Data:
             time.sleep(1)
             result.click()
         except Exception as e:
-            print(f"Error de tipo {e.__class__}")
-            print(f"No se pudo encontrar la ref {ref}")
-            exit()
+            self.error_logging()
+
+        # except Exception as e:
+        #     print(f"Error de tipo {e.__class__}")
+        #     print(f"No se pudo encontrar la ref {ref}")
+        #     exit()
 
     def get_original_ref_list_idx(self, ref) :
         if self.supplier == 'cat_promo':
@@ -190,8 +213,10 @@ class Get_Data:
             return (title, subtitle)
 
         except Exception as e:
-            print(f"Error de tipo {e.__class__}")   
-            print(f'No se pudo obtener el título de la ref {ref}')
+            self.error_logging()
+        # except Exception as e:
+        #     print(f"Error de tipo {e.__class__}")   
+        #     print(f'No se pudo obtener el título de la ref {ref}')
 
     def get_title_with_xpath(self, title_xpath, ref):
         try:
@@ -202,8 +227,10 @@ class Get_Data:
             return title.text
 
         except Exception as e:
-            print(f"Error de tipo {e.__class__}")
-            print(f'No se pudo obtener el título de la ref {ref}')
+            self.error_logging()
+        # except Exception as e:
+        #     print(f"Error de tipo {e.__class__}")
+        #     print(f'No se pudo obtener el título de la ref {ref}')
     
     def get_subtitle_with_xpath(self, sub_title_xpath, ref):
         def get_subtitle_promo_op(subtitle_result):
@@ -227,8 +254,9 @@ class Get_Data:
             return subtitle.text
             
         except Exception as e:
-            print(f"Error de tipo {e.__class__}")
-            print(f'No se pudo obtener el subtítulo de la ref {ref}')
+            # print(f"Error de tipo {e.__class__}")
+            # print(f'No se pudo obtener el subtítulo de la ref {ref}')
+            self.error_logging()
 
     def get_description(self, desc_xpath, ref):
         try:
@@ -265,8 +293,10 @@ class Get_Data:
             return img_src
 
         except Exception as e:
-            print(f"Error de tipo {e.__class__}")
-            print(f'No se pudo encontrar la imagen de la ref {ref}') 
+            self.error_logging()
+        # except Exception as e:
+        #     print(f"Error de tipo {e.__class__}")
+        #     print(f'No se pudo encontrar la imagen de la ref {ref}') 
 
     def create_quantity_table(self, ref, idx):
         try:
@@ -305,7 +335,7 @@ class Get_Data:
             table.columns[0].width = Cm(3)
             table.columns[1].width = Cm(9.5)
         except Exception as e:
-            print(f"Error al crear tabla de cantidades de la ref {ref} ({e.__class__})")
+            self.error_logging()
 
     def create_title(self, title_text, idx, count, ref):
         try:
@@ -320,8 +350,9 @@ class Get_Data:
             text_frame_paragraph(tf_titulo,f'{count}.{title} {ref}',12,True )
 
         except Exception as e:
-            print(f"Error de tipo {e.__class__}")   
-            print(f'No se pudo crear el título de la ref {ref}')
+            # print(f"Error de tipo {e.__class__}")   
+            # print(f'No se pudo crear el título de la ref {ref}')
+            self.error_logging()
 
     def create_subtitle(self, subtitle_text, idx, ref):
         try:
@@ -337,8 +368,9 @@ class Get_Data:
             text_frame_paragraph(tf_sub_titulo,subtitle,11 )
 
         except Exception as e:
-            print(f"Error de tipo {e.__class__}")   
-            print(f'No se pudo crear el subtítulo de la ref {ref}')
+            # print(f"Error de tipo {e.__class__}")   
+            # print(f'No se pudo crear el subtítulo de la ref {ref}')
+            self.error_logging()
 
     def create_description(self, desc_list, idx, ref):
         try:
@@ -354,8 +386,9 @@ class Get_Data:
                 text_frame_paragraph(tf_desc, element.text, 11 )
 
         except Exception as e:
-            print(f"Error de tipo {e.__class__}")
-            print(f'No se pudo crear la descripción de la ref {ref}')
+            # print(f"Error de tipo {e.__class__}")
+            # print(f'No se pudo crear la descripción de la ref {ref}')
+            self.error_logging()
 
     def create_description_promo_op(self, desc_list, idx, ref):
             try:
@@ -380,8 +413,9 @@ class Get_Data:
                     text_frame_paragraph(tf_desc_2, desc_list[i].text, 11 )
 
             except Exception as e:
-                print(f"Error de tipo {e.__class__}")
-                print(f'No se pudo crear la descripción de la ref {ref}')
+                # print(f"Error de tipo {e.__class__}")
+                # print(f'No se pudo crear la descripción de la ref {ref}')
+                self.error_logging()
 
     def create_package_info(self, unit_1_text, unit_2_text, package_1_text, package_2_text, idx, ref):
         try:
@@ -397,8 +431,9 @@ class Get_Data:
             text_frame_paragraph(tf_p1,f'{package_1_text} {package_2_text}',11,True )
 
         except Exception as e:
-            print(f"Error de tipo {e.__class__}")
-            print(f'No se pudo crear la info de empaque de la ref {ref}')
+            # print(f"Error de tipo {e.__class__}")
+            # print(f'No se pudo crear la info de empaque de la ref {ref}')
+            self.error_logging()
 
     def create_inventory_table(self, q_colores, xpath_tabla_colores, idx, ref):
         try:
@@ -459,8 +494,9 @@ class Get_Data:
             table.columns[0].width = Cm(3.8)
             table.columns[1].width = Cm(2.2)
         except Exception as e:
-            print(f"Error de tipo {e.__class__}")
-            print(f'No se pudo crear la tabla de inventario de la ref {ref}')
+            # print(f"Error de tipo {e.__class__}")
+            # print(f'No se pudo crear la tabla de inventario de la ref {ref}')
+            self.error_logging()
 
     def create_stock_table_api(self, q_colores, colors_list, idx, ref):
         try:
@@ -504,8 +540,9 @@ class Get_Data:
             table.columns[0].width = Cm(3.8)
             table.columns[1].width = Cm(2.2)
         except Exception as e:
-            print(f"Error de tipo {e.__class__}")
-            print(f'No se pudo crear la tabla de inventario de la ref {ref}')
+            # print(f"Error de tipo {e.__class__}")
+            # print(f'No se pudo crear la tabla de inventario de la ref {ref}')
+            self.error_logging()
 
     def create_stock_table(self, colors_q, idx, ref):
         try:
@@ -534,8 +571,9 @@ class Get_Data:
             return table
 
         except Exception as e:
-            print(f"Error de tipo {e.__class__}")
-            print(f'No se pudo crear la tabla de inventario de la ref {ref}')
+            # print(f"Error de tipo {e.__class__}")
+            # print(f'No se pudo crear la tabla de inventario de la ref {ref}')
+            self.error_logging()
 
     def create_img(self, img_src, idx, img_width, img_height, ref):
         response = requests.get(img_src)
@@ -560,8 +598,9 @@ class Get_Data:
                 print(f'Error al descargar imagen de la ref {ref}, status code({response.status_code})')
 
         except Exception as e:
-            print(f"Error de tipo {e.__class__}")
-            print(f'Error al crear la imagen de la ref {ref}')
+            # print(f"Error de tipo {e.__class__}")
+            # print(f'Error al crear la imagen de la ref {ref}')
+            self.error_logging()
 
     def close_driver(self):
         self.driver.close()     

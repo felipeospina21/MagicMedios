@@ -1,5 +1,7 @@
 proveedores.txt
 data.txt
+log.txt
+app.log
 
 # notebooks
 *.ipynb

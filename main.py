@@ -12,9 +12,11 @@ from dotenv import load_dotenv
 import locale
 import time
 import os
+import getpass
 
 # Variables
 start_time = time.time()
+username = getpass.getuser()
 load_dotenv()
 file_path = os.environ.get("FILE_PATH")
 cotizaciones_path = os.environ.get("COTIZACIONES_PATH")
@@ -32,28 +34,27 @@ strip_reference = [ref.strip() for ref in reference]
 ref_q = len(reference)
 
 # Load header info
-consecutivo_path = f"{cotizaciones_path}/data/consecutivo.txt"
-# consecutivo_path = f"{file_path}/data/consecutivo.txt"
+if username == "felipe.ospina":
+    consecutivo_path = f"{file_path}/data/consecutivo.txt"
+else:   
+    consecutivo_path = f"{cotizaciones_path}/data/consecutivo.txt"
+
 
 file = open(consecutivo_path, "r")
 consecutivo = file.readline().strip()
 file.close()
 
 # Routes
-## PC MM
-comercial_path = f"{cotizaciones_path}/data/comercial.txt"
-carlos_path = f"{cotizaciones_path}/data/carlos.txt"
-sergio_path = f"{cotizaciones_path}/data/sergio.txt"
-save_path = f'//192.168.1.40/todos/Cotizaciones Magic Medios S.A.S/Cotización N°{consecutivo}-{company}-Magic Medios SAS.pptm'
-
-## PC Felipe
-# comercial_path = f"{file_path}/data/comercial.txt"
-# carlos_path = f"{file_path}/data/carlos.txt"
-# sergio_path = f"{file_path}/data/sergio.txt"
-# save_path = f'./cotizaciones/cotización_{company}.pptm'
-
-
-
+if username == "felipe.ospina":
+    comercial_path = f"{file_path}/data/comercial.txt"
+    carlos_path = f"{file_path}/data/carlos.txt"
+    sergio_path = f"{file_path}/data/sergio.txt"
+    save_path = f'./cotizaciones/cotización_{company}.pptm'
+else:
+    comercial_path = f"{cotizaciones_path}/data/comercial.txt"
+    carlos_path = f"{cotizaciones_path}/data/carlos.txt"
+    sergio_path = f"{cotizaciones_path}/data/sergio.txt"
+    save_path = f'//192.168.1.40/todos/Cotizaciones Magic Medios S.A.S/Cotización N°{consecutivo}-{company}-Magic Medios SAS.pptm'
 
 # Get info asesor comercial
 if rep_name == "sergio":
