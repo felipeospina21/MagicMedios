@@ -122,7 +122,14 @@ class Get_Data:
 
         except Exception as e:
             # print(f"Error de tipo {e.__class__}")
-            self.execute_driver()
+            self.error_logging()
+
+    def get_element_attribute(self, element, attribute):
+        try:
+            return element.get_attribute(attribute)
+
+        except Exception as e:
+            self.error_logging()
 
     def search_ref(self, ref, search_box_id):
         try:
@@ -214,9 +221,6 @@ class Get_Data:
 
         except Exception as e:
             self.error_logging()
-        # except Exception as e:
-        #     print(f"Error de tipo {e.__class__}")   
-        #     print(f'No se pudo obtener el título de la ref {ref}')
 
     def get_title_with_xpath(self, title_xpath, ref):
         try:
@@ -228,9 +232,6 @@ class Get_Data:
 
         except Exception as e:
             self.error_logging()
-        # except Exception as e:
-        #     print(f"Error de tipo {e.__class__}")
-        #     print(f'No se pudo obtener el título de la ref {ref}')
     
     def get_subtitle_with_xpath(self, sub_title_xpath, ref):
         def get_subtitle_promo_op(subtitle_result):
@@ -253,9 +254,7 @@ class Get_Data:
 
             return subtitle.text
             
-        except Exception as e:
-            # print(f"Error de tipo {e.__class__}")
-            # print(f'No se pudo obtener el subtítulo de la ref {ref}')
+        except:
             self.error_logging()
 
     def get_description(self, desc_xpath, ref):
@@ -263,9 +262,8 @@ class Get_Data:
             desc = self.driver.find_elements_by_xpath(desc_xpath)
             return desc
 
-        except Exception as e:
-            print(f"Error de tipo {e.__class__}")
-            print(f'No se pudo obtener la descripción de la ref {ref}')
+        except:
+            self.error_logging()
 
     def get_package_info(self, ref):
         try:
@@ -347,7 +345,7 @@ class Get_Data:
             
             titulo = self.prs.slides[idx].shapes.add_textbox(left=self.lf_1, top=top, width=self.w_1, height=self.h_1)
             tf_titulo= titulo.text_frame
-            text_frame_paragraph(tf_titulo,f'{count}.{title} {ref}',12,True )
+            text_frame_paragraph(tf_titulo,f'{count}. {title} {ref}',12,True )
 
         except Exception as e:
             # print(f"Error de tipo {e.__class__}")   
@@ -417,6 +415,23 @@ class Get_Data:
                 # print(f'No se pudo crear la descripción de la ref {ref}')
                 self.error_logging()
 
+    def create_printing_info(self, printing_methods_list, idx):
+        try:
+            if idx > 0:
+                top = Cm(self.t_4 - 1)
+            else:
+                top = Cm(self.t_4)
+
+            p1 = self.prs.slides[idx].shapes.add_textbox(left=self.lf_1, top=top, width=self.w_1,height=self.h_2)
+            tf_p1= p1.text_frame
+         
+            for element in printing_methods_list:
+                text_frame_paragraph(tf_p1, element, 11 )
+
+        except Exception as e:
+            # print(f"Error de tipo {e.__class__}")
+            # print(f'No se pudo crear la info de empaque de la ref {ref}')
+            self.error_logging()
     def create_package_info(self, unit_1_text, unit_2_text, package_1_text, package_2_text, idx, ref):
         try:
             if idx > 0:

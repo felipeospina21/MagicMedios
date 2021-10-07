@@ -2,12 +2,15 @@ from utils import get_api_data, measures
 from get_data import Get_Data
 from dotenv import load_dotenv
 import os
+import time
 
 load_dotenv()
 auth_token = os.environ.get("API_TOKEN")
 
 def get_cdo_promo_data(suppliers_dict, prs, references):
     data = Get_Data('cdo_promo', prs, references, measures)
+    data.execute_driver('https://colombia.cdopromocionales.com/')
+
     for ref in suppliers_dict['cdo_promo']:
         idx = data.get_original_ref_list_idx(ref)
         data.create_quantity_table(ref, idx)
@@ -40,8 +43,20 @@ def get_cdo_promo_data(suppliers_dict, prs, references):
         except Exception as e:
             print(f"Error al obtener la información de la ref {ref} // Error {e.__class__}")
 
-        
-        
+        search_input = data.get_element_with_xpath("//input[@id='search_full_text']")
+        data.send_keys(search_input, ref)
+        data.click_first_result("//div[@class='variant-container']/a[1]", ref)
+        time.sleep(1)
+        packing = data.get_description("//div[@class='packing']", ref)
+        data.create_description(packing, idx, ref)
+        print_methods_q = data.get_elements_len_with_xpath("//div[@class='printing']/ul[1]/child::li")
+        printing_methods = ['Métodos de impresión:']
+        for i in range(1, print_methods_q + 1):
+            img_element = data.get_element_with_xpath(f"//div[@class='printing']/ul[1]/li[{i}]/img[1]")
+            img_title = data.get_element_attribute(img_element, 'title')
+            printing_methods.append(img_title)
+            
+        data.create_printing_info(printing_methods, idx)
         
         
         
