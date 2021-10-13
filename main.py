@@ -54,7 +54,7 @@ else:
     comercial_path = f"{cotizaciones_path}/data/comercial.txt"
     carlos_path = f"{cotizaciones_path}/data/carlos.txt"
     sergio_path = f"{cotizaciones_path}/data/sergio.txt"
-    save_path = f'//192.168.1.40/todos/Cotizaciones Magic Medios S.A.S/Cotización N°{consecutivo} - {company} - Magic Medios SAS.pptm'
+    save_path = f'{cotizaciones_path}/Cotización N°{consecutivo} - {company} - Magic Medios SAS.pptm'
 
 # Get info asesor comercial
 if rep_name == "sergio":

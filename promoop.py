@@ -47,7 +47,7 @@ def get_promo_op__data(suppliers_dict, prs, references):
 
             for i in range(2, colors_q + 1):
                 result_ref = data.get_title_with_xpath(f"//div[@class='page-header2']/div[2]/div[2]/div[@class='col-md-6'][{i}]/div[1]/div[2]/div[1]/small[1]/strong[1]", ref).split()
-                check_ref = f"{result_ref[0]} {result_ref[1]}"    
+                check_ref = f"{result_ref[0]} {result_ref[1]}".upper()    
                 if ref == check_ref:
                     data.click_first_result(f"//div[@class='page-header2']/div[2]/div[2]/div[@class='col-md-6'][{i}]/div[1]/div[1]/a[1]", ref)
                     time.sleep(1)

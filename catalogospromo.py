@@ -18,7 +18,8 @@ def get_cat_promo_data(suppliers_dict, prs, references):
             search_results_xpath = "//div[@id='backTable']/div[1]"
             colors_q = data.get_elements_len_with_xpath(f"{search_results_xpath}/child::div")
             for i in range(1, colors_q + 1):
-                result_ref = data.get_element_with_xpath(f"{search_results_xpath}/div[{i}]/div[2]/p[1]").text 
+                result_ref = data.get_element_with_xpath(f"{search_results_xpath}/div[{i}]/div[2]/p[1]").text.upper()
+                print(ref, result_ref)
                 if ref == result_ref:
                     data.click_first_result(f"{search_results_xpath}/div[{i}]/a[1]", ref)
                     time.sleep(1)
