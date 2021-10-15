@@ -17,6 +17,7 @@ import getpass
 # Variables
 start_time = time.time()
 username = getpass.getuser()
+print(username)
 load_dotenv()
 file_path = os.environ.get("FILE_PATH")
 cotizaciones_path = os.environ.get("COTIZACIONES_PATH")
@@ -50,11 +51,13 @@ if username == "felipe.ospina":
     carlos_path = f"{file_path}/data/carlos.txt"
     sergio_path = f"{file_path}/data/sergio.txt"
     save_path = f'./cotizaciones/cotización_{company}.pptm'
+    footer_path = f"{file_path}/data/data.txt"
 else:
     comercial_path = f"{cotizaciones_path}/data/comercial.txt"
     carlos_path = f"{cotizaciones_path}/data/carlos.txt"
     sergio_path = f"{cotizaciones_path}/data/sergio.txt"
     save_path = f'{cotizaciones_path}/Cotización N°{consecutivo} - {company} - Magic Medios SAS.pptm'
+    footer_path = f"{cotizaciones_path}/data/data.txt"
 
 # Get info asesor comercial
 if rep_name == "sergio":
@@ -71,7 +74,7 @@ email = file.readline()
 file.close()
 
 # Get footer info
-file = open(f"{file_path}/data/data.txt", "r")
+file = open(footer_path, "r")
 address = file.readline()
 web = file.readline()
 file.close()
