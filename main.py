@@ -38,7 +38,7 @@ ref_q = len(reference)
 if username == "felipe.ospina":
     consecutivo_path = f"{file_path}/data/consecutivo.txt"
 else:   
-    consecutivo_path = f"{cotizaciones_path}/data/consecutivo.txt"
+    consecutivo_path = f"{cotizaciones_path}/Z consecutivo.txt"
 
 
 file = open(consecutivo_path, "r")
