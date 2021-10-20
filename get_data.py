@@ -114,6 +114,16 @@ class Get_Data:
             # print(f"Error de tipo {e.__class__}")
             self.error_logging()
 
+    def get_elements_with_xpath(self, xpath):
+        try:
+            elements_list = self.driver.find_elements_by_xpath(xpath)
+
+            return elements_list
+
+        except Exception as e:
+            # print(f"Error de tipo {e.__class__}")
+            self.error_logging()
+
     def get_elements_len_with_xpath(self, xpath):
         try:
             time.sleep(1)
@@ -127,6 +137,13 @@ class Get_Data:
     def get_element_attribute(self, element, attribute):
         try:
             return element.get_attribute(attribute)
+
+        except Exception as e:
+            self.error_logging()
+
+    def get_element_css_property(self, element, css_property):
+        try:
+            return element.value_of_css_property(css_property)
 
         except Exception as e:
             self.error_logging()
@@ -186,9 +203,11 @@ class Get_Data:
 
     def click_first_result(self, first_result_xpath, ref):
         try:
-            result = WebDriverWait(self.driver, 5).until(
+            result = WebDriverWait(self.driver, 15).until(
                     EC.element_to_be_clickable((By.XPATH, first_result_xpath))
                 )
+            
+            # result = self.driver.find_element_by_xpath(first_result_xpath)
             time.sleep(1)
             result.click()
         except Exception as e:

@@ -28,8 +28,9 @@ def get_promo_op__data(suppliers_dict, prs, references):
             count = idx + 1
             search_input = data.get_element_with_xpath("//input[@id='q']")
             data.send_keys(search_input, ref)
-            colors_q = data.get_elements_len_with_xpath("//div[@class='col-sm-9']/child::div[@class='col-md-6']")
-            data.click_first_result("//a[@class='img-responsive']", ref)
+            data.click_first_result("//a[@class='img-responsive ']", ref)
+            time.sleep(1)
+            colors_q = data.get_elements_len_with_xpath("//table[@class='table table-striped']/tbody[1]/child::tr")
             data.create_quantity_table(ref, idx)
             title_text = data.get_title_with_xpath(f"{header_xpath}/h6[1]", ref)
             subtitle_text = data.get_subtitle_with_xpath(header_xpath, ref)
@@ -37,27 +38,39 @@ def get_promo_op__data(suppliers_dict, prs, references):
             data.create_subtitle(subtitle_text, idx, ref)
             desc_list = data.get_description("//table[@class='table-hover table-responsive']/tbody[1]/child::tr", ref)
             data.create_description_promo_op(desc_list, idx, ref)
-            img_src = data.get_img("//div[@id='imgItem']/img", ref)
-            data.create_img(img_src, idx, 8, 8, ref)
-            stock_table = data.create_stock_table(colors_q+1, idx, ref)
-            stock = data.get_element_with_xpath("//div[@id='ex']/h6[2]").text.split()[1]
-            color = data.get_element_with_xpath(f"{header_xpath}/h6[1]").text
-            data.fill_stock_table(stock_table, color, stock, 1)
-            data.previous_page()
+            stock_table = data.create_stock_table(colors_q, idx, ref)
+            colors_elements = data.get_elements_with_xpath("//ul[@class='colors']/child::li")
+            colors_stock = []
 
-            for i in range(2, colors_q + 1):
-                result_ref = data.get_title_with_xpath(f"//div[@class='page-header2']/div[2]/div[2]/div[@class='col-md-6'][{i}]/div[1]/div[2]/div[1]/small[1]/strong[1]", ref).split()
-                check_ref = f"{result_ref[0]} {result_ref[1]}".upper()    
-                if ref == check_ref:
-                    data.click_first_result(f"//div[@class='page-header2']/div[2]/div[2]/div[@class='col-md-6'][{i}]/div[1]/div[1]/a[1]", ref)
-                    time.sleep(1)
-                    stock = data.get_element_with_xpath("//div[@id='ex']/h6[2]").text.split()[1]
-                    color = data.get_element_with_xpath(f"{header_xpath}/h6[1]").text
-                    data.fill_stock_table(stock_table, color, stock, i)
-                    data.previous_page()
-                    time.sleep(1)
-                else:
-                    data.fill_stock_table(stock_table, "", "", i)
+            if len(colors_elements) == 0:
+                stock = data.get_element_with_xpath("//table[@class='table table-striped']/tbody[1]/tr[2]/td[3]").text
+                colors_stock.append({'title':"Color Único", 'stock':stock})
+                img_src = data.get_img("//div[@id='imgItem']/img", ref)
+                data.create_img(img_src, idx, 8, 8, ref)
+
+            else:
+                data.click_first_result("//ul[@class='colors']/li[1]", ref)
+                img_src = data.get_img("//div[@class='image-thumbnail']/div[4]/img", ref)
+                data.create_img(img_src, idx, 8, 8, ref)
+                for color in colors_elements:
+                    title = data.get_element_attribute(color, "title")
+                    color_rgb = color.value_of_css_property("background-color")
+                    colors_stock.append({'title':title, 'color_rgb':color_rgb})
+
+                for i in range(0, colors_q-1):
+                    color_element = data.get_element_with_xpath(f"//table[@class='table table-striped']/tbody[1]/tr[{i+2}]/td[1]/li[1]")
+                    color = data.get_element_css_property(color_element, "background-color")
+                    stock = data.get_element_with_xpath(f"//table[@class='table table-striped']/tbody[1]/tr[{i+2}]/td[3]").text
+
+                    for element in colors_stock:
+                        if element.get("color_rgb") == color:
+                            element.update({'stock':stock})
+            
+            for idx, element in enumerate(colors_stock):
+                color = element.get("title")
+                stock = element.get("stock")
+                data.fill_stock_table(stock_table, color, stock, idx+1)
+
         except:
             print(f"\nNo se pudo obtener la información del a ref {ref}")
             
