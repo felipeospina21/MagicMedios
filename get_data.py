@@ -95,6 +95,10 @@ class Get_Data:
         except Exception as e:
             # print(f"Error de tipo {e.__class__}")
             self.error_logging()
+            
+        # if self.supplier == "cat_promo":
+        #     time.sleep(20)
+            
         time.sleep(5)
 
     def previous_page(self):
