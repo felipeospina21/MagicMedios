@@ -47,7 +47,7 @@ consecutivo = file.readline().strip()
 file.close()
 
 # Routes
-if username == "felipe.ospina":
+if username == "felipe.ospina" or username == "felip":
     comercial_path = f"{file_path}/data/comercial.txt"
     carlos_path = f"{file_path}/data/carlos.txt"
     sergio_path = f"{file_path}/data/sergio.txt"
