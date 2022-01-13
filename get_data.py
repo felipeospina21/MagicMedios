@@ -12,7 +12,10 @@ import requests
 import logging
 import time
 import re
-# from pptx.oxml.xmlchemy import OxmlElement
+import pyderman as dr
+
+path = dr.install(browser=dr.chrome, file_directory='C:\\', verbose=True, chmod=True, overwrite=True, version=None, filename=None, return_info=False)
+print('Installed chromedriver to path: %s' % path)
 
 logging.basicConfig(level=logging.ERROR, filename='app.log', filemode='w', 
     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s', datefmt='%m-%d %H:%M')
