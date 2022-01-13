@@ -97,7 +97,7 @@ class Get_Data:
             self.error_logging()
             
         if self.supplier == "cat_promo":
-            time.sleep(20)
+            time.sleep(10)
             
         time.sleep(5)
 
