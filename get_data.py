@@ -56,7 +56,8 @@ class Get_Data:
         options = webdriver.ChromeOptions()
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
         # driver = webdriver.Chrome(options=options)
-        if self.supplier == 'promo_op' or self.supplier == 'cat_promo' :
+ 
+        if self.supplier == 'promo_op' :
             capa = DesiredCapabilities.CHROME
             capa["pageLoadStrategy"] = "none"
             self.driver = webdriver.Chrome(self.path, desired_capabilities=capa, options=options)
