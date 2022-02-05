@@ -81,6 +81,9 @@ class Get_Data:
             self.driver = webdriver.Chrome(
                 self.path, desired_capabilities=capa, options=options
             )
+        elif self.supplier == "nw_promo":
+            self.driver = webdriver.Chrome(self.path, options=options)
+            self.driver.set_page_load_timeout(200)
         else:
             self.driver = webdriver.Chrome(self.path, options=options)
             self.driver.set_page_load_timeout(20)
@@ -224,7 +227,7 @@ class Get_Data:
             # print(f"No se encuentra popup // Error de tipo {e.__class__}")
             self.error_logging()
 
-    def click_first_result(self, first_result_xpath, ref):
+    def click_first_result(self, first_result_xpath):
         try:
             result = WebDriverWait(self.driver, 15).until(
                 EC.element_to_be_clickable((By.XPATH, first_result_xpath))
@@ -413,7 +416,7 @@ class Get_Data:
             # print(f'No se pudo crear el título de la ref {ref}')
             self.error_logging()
 
-    def create_subtitle(self, subtitle_text, idx, ref):
+    def create_subtitle(self, subtitle_text, idx):
         try:
             subtitle = subtitle_text
             if idx > 0:
