@@ -3,6 +3,7 @@ varios.txt
 data.txt
 log.txt
 app.log
+consecutivo.txt
 
 # notebooks
 *.ipynb
@@ -13,6 +14,7 @@ app.log
 *.env
 
 /cotizaciones
+/driver
 
 cotizacion.pptx
 sample_image.jpg
