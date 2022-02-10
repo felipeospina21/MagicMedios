@@ -156,7 +156,7 @@ class Get_Data:
 
     def get_elements_len_with_xpath(self, xpath):
         try:
-            time.sleep(1)
+            time.sleep(5)
             elements = self.driver.find_elements_by_xpath(xpath)
             return len(elements)
 
