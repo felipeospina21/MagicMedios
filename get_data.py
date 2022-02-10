@@ -388,10 +388,14 @@ class Get_Data:
                 table.rows[i].height = Cm(0.5)
                 # Cell Color
                 cell1 = table.cell(i, 0)
-                cell1.text = "(Und)"
+                run = cell1.text_frame.paragraphs[0].add_run()
+                run.text = "(Und)"
+                run.font.bold = True
                 cell1.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
                 cell2 = table.cell(i, 1)
-                cell2.text = "$  +IVA"
+                run2 = cell2.text_frame.paragraphs[0].add_run()
+                run2.text = "$ + IVA"
+                run2.font.bold = True
                 cell2.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
                 cell1.fill.solid()
                 cell1.fill.fore_color.rgb = RGBColor(255, 255, 255)
