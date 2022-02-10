@@ -25,7 +25,7 @@ def get_cat_promo_data(suppliers_dict, prs, references):
                 ).text.upper()
                 if ref == result_ref:
                     data.click_first_result(f"{search_results_xpath}/div[{i}]/a[1]")
-                    time.sleep(2)
+                    time.sleep(5)
                     data.create_quantity_table(ref, idx)
 
                     header_text = data.get_title_and_subtitle(header_xpath, 0, 0, ref)

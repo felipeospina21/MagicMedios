@@ -14,7 +14,7 @@ def get_mp_promo_data(suppliers_dict, prs, references):
             # data.search_ref(ref,'mat-input-0')
             search_input = data.get_element_with_xpath("//input[@id='mat-input-0']")
             data.send_keys(search_input, ref)
-            time.sleep(3)
+            time.sleep(5)
             data.create_quantity_table(ref, idx)
             title_text = data.get_title_with_xpath(
                 "//h1[@class='g-font-size-20 g-font-weight-600']", ref

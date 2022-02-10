@@ -389,8 +389,10 @@ class Get_Data:
                 # Cell Color
                 cell1 = table.cell(i, 0)
                 cell1.text = "(Und)"
+                cell1.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
                 cell2 = table.cell(i, 1)
-                cell2.text = "$ +IVA"
+                cell2.text = "$  +IVA"
+                cell2.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
                 cell1.fill.solid()
                 cell1.fill.fore_color.rgb = RGBColor(255, 255, 255)
                 cell2.fill.solid()
