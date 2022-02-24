@@ -36,7 +36,7 @@ strip_reference = [ref.strip() for ref in reference]
 ref_q = len(reference)
 
 # Load header info
-if username == "felipe.ospina" or username == "felip":
+if username == "felipe" or username == "felip":
     consecutivo_path = f"{file_path}/data/consecutivo.txt"
 else:
     consecutivo_path = f"{cotizaciones_path}/Z consecutivo.txt"
