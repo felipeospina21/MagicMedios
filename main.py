@@ -37,7 +37,7 @@ ref_q = len(reference)
 
 # Load header info
 if username == "felipe" or username == "felip":
-    consecutivo_path = f"{file_path}/data/consecutivo.txt"
+    consecutivo_path = f"./data/consecutivo.txt"
 else:
     consecutivo_path = f"{cotizaciones_path}/Z consecutivo.txt"
 
@@ -48,7 +48,7 @@ file.close()
 
 # Routes
 if username == "felipe.ospina" or username == "felip":
-    comercial_path = f"{file_path}/data/comercial.txt"
+    comercial_path = f"./data/comercial.txt"
     carlos_path = f"{file_path}/data/carlos.txt"
     sergio_path = f"{file_path}/data/sergio.txt"
     juliana_path = f"{file_path}/data/sergio.txt"
