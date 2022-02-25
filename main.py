@@ -28,7 +28,9 @@ locale.setlocale(locale.LC_TIME, "")
 print("-------------****-------------- ")
 client = input("Ingrese nombre cliente: ").title()
 company = input("Ingrese nombre empresa: ").upper()
-rep_name = input("Ingrese nombre asesor comercial (sergio, carlos, com): ").lower()
+rep_name = input(
+    "Ingrese nombre asesor comercial (sergio, carlos, alejandra, juliana, com): "
+).lower()
 reference = (
     input("Ingrese referencias a consultar (separadas por coma): ").upper().split(",")
 )
@@ -37,7 +39,7 @@ ref_q = len(reference)
 
 # Load header info
 if username == "felipe" or username == "felip":
-    consecutivo_path = f"./data/consecutivo.txt"
+    consecutivo_path = f"{file_path}/data/consecutivo.txt"
 else:
     consecutivo_path = f"{cotizaciones_path}/Z consecutivo.txt"
 
@@ -47,11 +49,11 @@ consecutivo = file.readline().strip()
 file.close()
 
 # Routes
-if username == "felipe.ospina" or username == "felip":
-    comercial_path = f"./data/comercial.txt"
+if username == "felipe" or username == "felip":
+    comercial_path = f"{file_path}/data/comercial.txt"
     carlos_path = f"{file_path}/data/carlos.txt"
     sergio_path = f"{file_path}/data/sergio.txt"
-    juliana_path = f"{file_path}/data/sergio.txt"
+    juliana_path = f"{file_path}/data/juliana.txt"
     alejandra_path = f"{file_path}/data/sergio.txt"
     save_path = f"./cotizaciones/cotización_{company}.pptm"
     footer_path = f"{file_path}/data/data.txt"
