@@ -8,23 +8,26 @@ from pptx.util import Cm, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
 from utils import text_frame_paragraph
+from autoselenium import get_version
 import requests
 import logging
 import time
 import re
 import pyderman as dr
 
+# Download current chromedriver version
+curr_version = get_version("chrome", "current")
 path = dr.install(
     browser=dr.chrome,
     file_directory="./driver/",
-    verbose=True,
+    verbose=False,
     chmod=True,
     overwrite=True,
-    version=None,
+    version=f"{curr_version}",
     filename="chrome_webdriver.exe",
-    return_info=False,
+    return_info=True,
 )
-print("Installed chromedriver to path: %s" % path)
+print(f"Installed chromedriver -v {path['version']}")
 
 logging.basicConfig(
     level=logging.ERROR,
@@ -70,8 +73,7 @@ class Get_Data:
         # exit()
 
     def execute_driver(self, url):
-        # self.path = "./driver/chrome_webdriver.exe"
-        self.path = "./driver/chromedriver.exe"
+        self.path = "./driver/chrome_webdriver.exe"
         options = webdriver.ChromeOptions()
         options.add_experimental_option("excludeSwitches", ["enable-logging"])
 
