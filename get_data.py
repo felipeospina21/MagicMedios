@@ -531,8 +531,12 @@ class Get_Data:
             for i in range(1, q_colores + 1):
                 try:
                     if self.supplier == "cat_promo":
-                        color_xpath = f"tbody[1]/tr[{i+2}]/td[1]"
-                        inv_color_xpath = f"tbody[1]/tr[{i+2}]/td[4]"
+                        color_xpath = (
+                            f"tbody[1]/tr[not(@class='hideInfo')][{i+2}]/td[1]"
+                        )
+                        inv_color_xpath = (
+                            f"tbody[1]/tr[not(@class='hideInfo')][{i+2}]/td[4]"
+                        )
 
                     elif self.supplier == "mp_promo":
                         color_xpath = f"mat-row[{i}]/mat-cell[3]/span[2]"
