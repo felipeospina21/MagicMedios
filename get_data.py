@@ -84,6 +84,7 @@ class Get_Data:
                 self.path, desired_capabilities=capa, options=options
             )
         elif self.supplier == "nw_promo":
+            options.headless = True
             self.driver = webdriver.Chrome(self.path, options=options)
             self.driver.set_page_load_timeout(200)
         else:
