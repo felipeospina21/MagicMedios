@@ -29,7 +29,7 @@ print("-------------****-------------- ")
 client = input("Ingrese nombre cliente: ").title()
 company = input("Ingrese nombre empresa: ").upper()
 rep_name = input(
-    "Ingrese nombre asesor comercial (sergio, carlos, alejandra, juliana, com): "
+    "Ingrese nombre asesor comercial (sergio, carlos, ale, juli, com): "
 ).lower()
 reference = (
     input("Ingrese referencias a consultar (separadas por coma): ").upper().split(",")
@@ -71,9 +71,9 @@ if rep_name == "sergio":
     file = open(sergio_path, "r")
 elif rep_name == "carlos":
     file = open(carlos_path, "r")
-elif rep_name == "juliana":
+elif rep_name == "juli":
     file = open(juliana_path, "r")
-elif rep_name == "alejandra":
+elif rep_name == "ale":
     file = open(alejandra_path, "r")
 else:
     file = open(comercial_path, "r")
