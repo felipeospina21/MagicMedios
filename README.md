@@ -6,7 +6,8 @@ Automatización cotizador
 
 1. Instalar python==3.9.6 desde el link https://www.python.org/downloads/ or winget install python -v 3.8.6
 2. Instalar git desde el link https://git-scm.com/download/win
-3. git clone mkdiin C:/Robot
+3. in C://
+ mkdir Robot && cd Robot && git clone https://github.com/felipeospina21/MagicMedios.git && cd MagicMedios
 4. Instalar paquetes de python **pip install -r requirements.txt**
 5. Agregar archivo .env con variable de ruta y api_token
 6. Crear archivo .bat para ejecutar y actualizar el programa.
