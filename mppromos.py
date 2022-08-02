@@ -9,9 +9,7 @@ def get_mp_promo_data(suppliers_dict, prs, references):
     for ref in suppliers_dict["mp_promo"]:
         try:
             idx = data.get_original_ref_list_idx(ref)
-            print(idx)
             count = idx + 1
-            # data.search_ref(ref,'mat-input-0')
             search_input = data.get_element_with_xpath("//input[@id='mat-input-0']")
             data.send_keys(search_input, ref)
             time.sleep(5)
