@@ -53,14 +53,16 @@ def get_promo_op__data(suppliers_dict, prs, references):
             )
             colors_stock = []
 
+            # Color Unico
             if len(colors_elements) == 0:
                 stock = data.get_element_with_xpath(
-                    "//table[@class='table table-striped']/tbody[1]/tr[2]/td[3]"
+                    "//table[@class='table table-striped']/tbody[1]/tr[2]/td[4]"
                 ).text
                 colors_stock.append({"title": "Color Único", "stock": stock})
                 img_src = data.get_img("//div[@class='img-item']/img", ref)
                 data.create_img(img_src, idx, 8, 8, ref)
-
+                
+            # Varios Colores
             else:
                 data.click_first_result("//ul[@class='colors']/li[1]")
                 img_src = data.get_img("//div[@class='img-item']/img", ref)
@@ -73,13 +75,13 @@ def get_promo_op__data(suppliers_dict, prs, references):
 
                 for i in range(0, colors_q - 1):
                     color_element = data.get_element_with_xpath(
-                        f"//table[@class='table table-striped']/tbody[1]/tr[{i+2}]/td[1]/li[1]"
+                        f"//table[@class='table table-striped']/tbody[1]/tr[{i+2}]/td[2]/li[1]"
                     )
                     color = data.get_element_css_property(
                         color_element, "background-color"
                     )
                     stock = data.get_element_with_xpath(
-                        f"//table[@class='table table-striped']/tbody[1]/tr[{i+2}]/td[3]"
+                        f"//table[@class='table table-striped']/tbody[1]/tr[{i+2}]/td[4]"
                     ).text
 
                     for element in colors_stock:
