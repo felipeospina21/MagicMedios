@@ -682,8 +682,8 @@ class Get_Data:
                         "./images/sample_image.jpg",
                         left=self.lf_2,
                         top=top,
-                        width=Cm(img_width),
-                        # height=Cm(img_height),
+                        # width=Cm(img_width),
+                        height=Cm(img_height),
                     )
 
             else:
