@@ -683,7 +683,7 @@ class Get_Data:
                         left=self.lf_2,
                         top=top,
                         width=Cm(img_width),
-                        height=Cm(img_height),
+                        # height=Cm(img_height),
                     )
 
             else:
