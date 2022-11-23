@@ -3,8 +3,8 @@ varios.txt
 data.txt
 log.txt
 app.log
-data/consecutivo.txt
-driver/*
+/data
+driver/chrome_webdriver.exe
 
 # notebooks
 *.ipynb
