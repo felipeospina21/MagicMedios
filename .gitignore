@@ -3,7 +3,8 @@ varios.txt
 data.txt
 log.txt
 app.log
-consecutivo.txt
+data/consecutivo.txt
+driver/*
 
 # notebooks
 *.ipynb
@@ -14,8 +15,10 @@ consecutivo.txt
 *.env
 
 /cotizaciones
-/driver
+chrome_webdriver.exe
 
 cotizacion.pptx
 sample_image.jpg
 /__pycache__
+/.vscode
+.vscode

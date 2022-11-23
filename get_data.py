@@ -8,23 +8,26 @@ from pptx.util import Cm, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
 from utils import text_frame_paragraph
+from autoselenium import get_version
 import requests
 import logging
 import time
 import re
 import pyderman as dr
 
+# Download current chromedriver version
+curr_version = get_version("chrome", "current")
 path = dr.install(
     browser=dr.chrome,
     file_directory="./driver/",
-    verbose=True,
+    verbose=False,
     chmod=True,
     overwrite=True,
-    version=None,
+    version=f"{curr_version}",
     filename="chrome_webdriver.exe",
-    return_info=False,
+    return_info=True,
 )
-print("Installed chromedriver to path: %s" % path)
+print(f"Installed chromedriver -v {path['version']}")
 
 logging.basicConfig(
     level=logging.ERROR,
@@ -74,7 +77,6 @@ class Get_Data:
         self.path = "./driver/chrome_webdriver.exe"
         options = webdriver.ChromeOptions()
         options.add_experimental_option("excludeSwitches", ["enable-logging"])
-        # driver = webdriver.Chrome(options=options)
 
         if self.supplier == "promo_op" or self.supplier == "cat_promo":
             capa = DesiredCapabilities.CHROME
@@ -83,6 +85,7 @@ class Get_Data:
                 self.path, desired_capabilities=capa, options=options
             )
         elif self.supplier == "nw_promo":
+            options.headless = True
             self.driver = webdriver.Chrome(self.path, options=options)
             self.driver.set_page_load_timeout(200)
         else:
@@ -97,7 +100,6 @@ class Get_Data:
         try:
             self.driver.get(url)
         except Exception as e:
-            # print(f"Error de tipo {e.__class__}")
             self.error_logging()
 
         if self.supplier == "cat_promo":
@@ -109,14 +111,12 @@ class Get_Data:
         try:
             self.driver.execute_script("window.history.go(-1)")
         except Exception as e:
-            # print(f"Error de tipo {e.__class__} en script previous_page")
             self.error_logging()
 
     def stop_loading(self):
         try:
             self.driver.execute_script("window.stop();")
         except Exception as e:
-            # print(f"Error de tipo {e.__class__} en script stop_loading")
             self.error_logging()
 
     def check_pop_up(self):
@@ -126,8 +126,6 @@ class Get_Data:
                     "document.getElementsByClassName('fancybox-overlay fancybox-overlay-fixed labpopup')[0].style.display = 'none';"
                 )
             except Exception as e:
-                # print(f"Error de tipo {e.__class__}")
-                # print("No se encontro overlay")
                 self.error_logging()
 
     def get_element_with_xpath(self, xpath):
@@ -142,7 +140,6 @@ class Get_Data:
             return element
 
         except Exception as e:
-            # print(f"Error de tipo {e.__class__}")
             self.error_logging()
 
     def get_elements_with_xpath(self, xpath):
@@ -152,7 +149,6 @@ class Get_Data:
             return elements_list
 
         except Exception as e:
-            # print(f"Error de tipo {e.__class__}")
             self.error_logging()
 
     def get_elements_len_with_xpath(self, xpath):
@@ -162,7 +158,6 @@ class Get_Data:
             return len(elements)
 
         except Exception as e:
-            # print(f"Error de tipo {e.__class__}")
             self.error_logging()
 
     def get_element_attribute(self, element, attribute):
@@ -181,18 +176,12 @@ class Get_Data:
 
     def search_ref(self, ref, search_box_id):
         try:
-            # element_present =  WebDriverWait(self.driver, 30).until(
-            #         EC.presence_of_element_located((By.ID, search_box_id))
-            #     )
-
             search_input = self.driver.find_element_by_id(search_box_id)
             time.sleep(1)
             search_input.clear()
             search_input.send_keys(ref)
             search_input.send_keys(Keys.RETURN)
         except Exception as e:
-            # print(f"Error de tipo {e.__class__}")
-            # print("No se pudo encontrar la barra de busqueda")
             self.error_logging()
 
     def fill_stock_table(self, table, color, stock, row_index):
@@ -212,7 +201,6 @@ class Get_Data:
             cell2.fill.solid()
             cell2.fill.fore_color.rgb = RGBColor(255, 255, 255)
         except Exception as e:
-            # print(f"Error de tipo {e.__class__} al tratar de actualizar tabla inventario")
             self.error_logging()
 
     def send_keys(self, element, text):
@@ -221,7 +209,6 @@ class Get_Data:
             element.send_keys(text)
             element.send_keys(Keys.RETURN)
         except Exception as e:
-            # print(f"Error de tipo {e.__class__} // No se pudo enviar el comando")
             self.error_logging()
 
     def accept_alert_popup(self):
@@ -229,7 +216,6 @@ class Get_Data:
             alert = self.driver.switch_to_alert()
             alert.accept()
         except Exception as e:
-            # print(f"No se encuentra popup // Error de tipo {e.__class__}")
             self.error_logging()
 
     def click_first_result(self, first_result_xpath):
@@ -237,8 +223,6 @@ class Get_Data:
             result = WebDriverWait(self.driver, 15).until(
                 EC.element_to_be_clickable((By.XPATH, first_result_xpath))
             )
-
-            # result = self.driver.find_element_by_xpath(first_result_xpath)
             time.sleep(1)
             result.click()
         except Exception as e:
@@ -562,8 +546,12 @@ class Get_Data:
             for i in range(1, q_colores + 1):
                 try:
                     if self.supplier == "cat_promo":
-                        color_xpath = f"tbody[1]/tr[{i+2}]/td[1]"
-                        inv_color_xpath = f"tbody[1]/tr[{i+2}]/td[4]"
+                        color_xpath = (
+                            f"tbody[1]/tr[not(@class='hideInfo')][{i+2}]/td[1]"
+                        )
+                        inv_color_xpath = (
+                            f"tbody[1]/tr[not(@class='hideInfo')][{i+2}]/td[4]"
+                        )
 
                     elif self.supplier == "mp_promo":
                         color_xpath = f"mat-row[{i}]/mat-cell[3]/span[2]"
@@ -708,7 +696,7 @@ class Get_Data:
                         "./images/sample_image.jpg",
                         left=self.lf_2,
                         top=top,
-                        width=Cm(img_width),
+                        # width=Cm(img_width),
                         height=Cm(img_height),
                     )
 

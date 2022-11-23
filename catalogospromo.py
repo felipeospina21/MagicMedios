@@ -43,7 +43,7 @@ def get_cat_promo_data(suppliers_dict, prs, references):
                     )
 
                     colors_len = data.get_elements_len_with_xpath(
-                        "//tr[@class='titlesRow']/following-sibling::tr"
+                        "//tr[@class='titlesRow']/following-sibling::tr[not(@class='hideInfo')]"
                     )
                     data.create_inventory_table(
                         colors_len, "//table[@class='tableInfoProd']", idx, ref
