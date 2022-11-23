@@ -44,6 +44,7 @@ class Get_Data:
         self.lf_1 = Cm(measures["lf_1"])
         self.lf_2 = Cm(measures["lf_2"])
         self.lf_3 = Cm(measures["lf_3"])
+        self.lf_6 = Cm(measures["lf_6"])
 
         self.t_1 = measures["t_1"]
         self.t_2 = measures["t_2"]
@@ -243,11 +244,6 @@ class Get_Data:
         except Exception as e:
             self.error_logging()
 
-        # except Exception as e:
-        #     print(f"Error de tipo {e.__class__}")
-        #     print(f"No se pudo encontrar la ref {ref}")
-        #     exit()
-
     def get_original_ref_list_idx(self, ref):
         if self.supplier == "cat_promo":
             return self.references.index("CP" + ref)
@@ -354,58 +350,68 @@ class Get_Data:
 
         except Exception as e:
             self.error_logging()
-        # except Exception as e:
-        #     print(f"Error de tipo {e.__class__}")
-        #     print(f'No se pudo encontrar la imagen de la ref {ref}')
 
     def create_quantity_table(self, ref, idx):
-        try:
-            if idx > 0:
-                top = Cm(self.t_5 - 1)
-            else:
-                top = Cm(self.t_5)
+      ROWS=3
+      COLS=4
+      def createHeader(cell,text):
+          cell.text=text
+          cell.fill.solid()
+          cell.fill.fore_color.rgb = RGBColor(154, 173, 34)
+      
+      def createRowCell(cell, text):
+        run = cell.text_frame.paragraphs[0].add_run()
+        run.text = text
+        run.font.bold = True
+        cell.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+        cell.fill.solid()
+        cell.fill.fore_color.rgb = RGBColor(255, 255, 255)
+          
+      try:
+          if idx > 0:
+              top = Cm(self.t_5 - 1)
+          else:
+              top = Cm(self.t_5)
 
-            table = (
-                self.prs.slides[idx]
-                .shapes.add_table(3, 2, self.lf_3, top, self.w_1, self.h_2)
-                .table
-            )
-            c1 = table.cell(0, 0)
-            c2 = table.cell(0, 1)
-            c1.text = "CANTIDAD (UND)"
-            c2.text = "VALOR UNITARIO CON MARCACIÓN POR\n(1 MARCACIÓN, 1 TINTA)"
-            table.cell(0, 0).text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
-            table.cell(0, 1).text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
-            table.cell(0, 1).text_frame.paragraphs[1].alignment = PP_ALIGN.CENTER
-            c1.fill.solid()
-            c1.fill.fore_color.rgb = RGBColor(154, 173, 34)
-            c2.fill.solid()
-            c2.fill.fore_color.rgb = RGBColor(154, 173, 34)
-            table.rows[0].height = Cm(0.5)
-            table.first_row = True
-            table.horz_banding = False
-            for i in range(1, 3):
-                table.rows[i].height = Cm(0.5)
-                # Cell Color
-                cell1 = table.cell(i, 0)
-                run = cell1.text_frame.paragraphs[0].add_run()
-                run.text = "(Und)"
-                run.font.bold = True
-                cell1.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
-                cell2 = table.cell(i, 1)
-                run2 = cell2.text_frame.paragraphs[0].add_run()
-                run2.text = "$ + IVA"
-                run2.font.bold = True
-                cell2.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
-                cell1.fill.solid()
-                cell1.fill.fore_color.rgb = RGBColor(255, 255, 255)
-                cell2.fill.solid()
-                cell2.fill.fore_color.rgb = RGBColor(255, 255, 255)
+          table = (
+              self.prs.slides[idx]
+              .shapes.add_table(ROWS, COLS, self.lf_6, top, self.w_1, self.h_2)
+              .table
+          )
 
-            table.columns[0].width = Cm(3)
-            table.columns[1].width = Cm(9.5)
-        except Exception as e:
-            self.error_logging()
+          c1 = table.cell(0, 0)
+          c2 = table.cell(0, 1)
+          c3 = table.cell(0, 2)
+          c4 = table.cell(0, 3)
+          
+          createHeader(c1,"CANTIDAD")
+          createHeader(c2,"TÉCNICA DE MARCACIÓN")
+          createHeader(c3,"DETALLE")
+          createHeader(c4,"VALOR UNITARIO ANTES DE IVA")
+
+          for i in range(0, COLS):
+            table.cell(0, i).text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+
+          table.rows[0].height = Cm(0.5)
+          table.first_row = True
+          table.horz_banding = False
+          for i in range(1, 3):
+              table.rows[i].height = Cm(0.5)
+              # Cell Color
+              cell1 = table.cell(i, 0)
+              cell2 = table.cell(i, 1)
+              cell3 = table.cell(i, 2)
+              cell4 = table.cell(i, 3)
+
+              createRowCell(cell1, "(Und)")
+              createRowCell(cell2, "")
+              createRowCell(cell3, "")
+              createRowCell(cell4, "$")
+
+          table.columns[0].width = Cm(3)
+
+      except Exception as e:
+          self.error_logging()
 
     def create_title(self, title_text, idx, count, ref):
         try:
@@ -422,8 +428,6 @@ class Get_Data:
             text_frame_paragraph(tf_titulo, f"{count}. {title} {ref}", 12, True)
 
         except Exception as e:
-            # print(f"Error de tipo {e.__class__}")
-            # print(f'No se pudo crear el título de la ref {ref}')
             self.error_logging()
 
     def create_subtitle(self, subtitle_text, idx):
@@ -442,8 +446,6 @@ class Get_Data:
             text_frame_paragraph(tf_sub_titulo, subtitle, 11)
 
         except Exception as e:
-            # print(f"Error de tipo {e.__class__}")
-            # print(f'No se pudo crear el subtítulo de la ref {ref}')
             self.error_logging()
 
     def create_description(self, desc_list, idx, ref):
@@ -462,8 +464,6 @@ class Get_Data:
                 text_frame_paragraph(tf_desc, element.text, 11)
 
         except Exception as e:
-            # print(f"Error de tipo {e.__class__}")
-            # print(f'No se pudo crear la descripción de la ref {ref}')
             self.error_logging()
 
     def create_description_promo_op(self, desc_list, idx, ref):
@@ -493,8 +493,6 @@ class Get_Data:
                 text_frame_paragraph(tf_desc_2, desc_list[i].text, 11)
 
         except Exception as e:
-            # print(f"Error de tipo {e.__class__}")
-            # print(f'No se pudo crear la descripción de la ref {ref}')
             self.error_logging()
 
     def create_printing_info(self, printing_methods_list, idx):
@@ -513,8 +511,6 @@ class Get_Data:
                 text_frame_paragraph(tf_p1, element, 11)
 
         except Exception as e:
-            # print(f"Error de tipo {e.__class__}")
-            # print(f'No se pudo crear la info de empaque de la ref {ref}')
             self.error_logging()
 
     def create_package_info(
@@ -535,8 +531,6 @@ class Get_Data:
             text_frame_paragraph(tf_p1, f"{package_1_text} {package_2_text}", 11, True)
 
         except Exception as e:
-            # print(f"Error de tipo {e.__class__}")
-            # print(f'No se pudo crear la info de empaque de la ref {ref}')
             self.error_logging()
 
     def create_inventory_table(self, q_colores, xpath_tabla_colores, idx, ref):
@@ -608,8 +602,6 @@ class Get_Data:
             table.columns[0].width = Cm(3.8)
             table.columns[1].width = Cm(2.2)
         except Exception as e:
-            # print(f"Error de tipo {e.__class__}")
-            # print(f'No se pudo crear la tabla de inventario de la ref {ref}')
             self.error_logging()
 
     def create_stock_table_api(self, q_colores, colors_list, idx, ref):
@@ -658,8 +650,6 @@ class Get_Data:
             table.columns[0].width = Cm(3.8)
             table.columns[1].width = Cm(2.2)
         except Exception as e:
-            # print(f"Error de tipo {e.__class__}")
-            # print(f'No se pudo crear la tabla de inventario de la ref {ref}')
             self.error_logging()
 
     def create_stock_table(self, colors_q, idx, ref):
@@ -693,8 +683,6 @@ class Get_Data:
             return table
 
         except Exception as e:
-            # print(f"Error de tipo {e.__class__}")
-            # print(f'No se pudo crear la tabla de inventario de la ref {ref}')
             self.error_logging()
 
     def create_img(self, img_src, idx, img_width, img_height, ref):
@@ -730,8 +718,6 @@ class Get_Data:
                 )
 
         except Exception as e:
-            # print(f"Error de tipo {e.__class__}")
-            # print(f'Error al crear la imagen de la ref {ref}')
             self.error_logging()
 
     def close_driver(self):
