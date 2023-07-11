@@ -80,7 +80,7 @@ class New_Quotation:
         for i in range(0, self.ref_q + 1):
             self.prs.slides.add_slide(self.title_slide_layout)
             self.prs.slides[i].shapes.add_picture(
-                "./images/logo.jpg",
+                "./images/logo.jpeg",
                 left=Cm(1),
                 top=Cm(0.5),
                 width=Cm(8.9),
@@ -127,7 +127,7 @@ class New_Quotation:
 
     def create_commercial_policy(self):
         self.prs.slides[self.ref_q].shapes.add_picture(
-            "./images/condiciones.jpg",
+            "./images/condiciones.jpeg",
             left=Cm(1),
             top=Cm(4.5),
             width=Cm(17.27),

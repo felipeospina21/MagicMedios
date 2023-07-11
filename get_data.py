@@ -341,7 +341,7 @@ class Get_Data:
       def createHeader(cell,text):
           cell.text=text
           cell.fill.solid()
-          cell.fill.fore_color.rgb = RGBColor(154, 173, 34)
+          cell.fill.fore_color.rgb = RGBColor(26, 152, 139)
       
       def createRowCell(cell, text):
         run = cell.text_frame.paragraphs[0].add_run()
