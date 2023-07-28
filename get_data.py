@@ -16,7 +16,7 @@ import re
 import pyderman as dr
 
 # Download current chromedriver version
-curr_version = get_version("chrome", "current")
+curr_version = get_version("chrome", "latest")
 path = dr.install(
     browser=dr.chrome,
     file_directory="./driver/",
