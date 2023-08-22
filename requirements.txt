@@ -1,6 +1,6 @@
 python_pptx==0.6.19
 requests==2.25.1
-selenium==3.141.0
+selenium==4.11.2
 python-dotenv==0.19.0
-pyderman==2.0.2
-auto-selenium==1.0.1
+# pyderman==2.0.2
+# auto-selenium==1.0.1

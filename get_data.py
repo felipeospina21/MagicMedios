@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -8,26 +9,10 @@ from pptx.util import Cm, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
 from utils import text_frame_paragraph
-from autoselenium import get_version
 import requests
 import logging
 import time
 import re
-import pyderman as dr
-
-# Download current chromedriver version
-curr_version = get_version("chrome", "latest")
-path = dr.install(
-    browser=dr.chrome,
-    file_directory="./driver/",
-    verbose=False,
-    chmod=True,
-    overwrite=True,
-    version=f"{curr_version}",
-    filename="chrome_webdriver.exe",
-    return_info=True,
-)
-print(f"Installed chromedriver -v {path['version']}")
 
 logging.basicConfig(
     level=logging.ERROR,
@@ -74,22 +59,24 @@ class Get_Data:
         # exit()
 
     def execute_driver(self, url):
-        self.path = "./driver/chrome_webdriver.exe"
+        # self.path = "./driver/firefox_webdriver.exe"
+        service = Service()
         options = webdriver.ChromeOptions()
         options.add_experimental_option("excludeSwitches", ["enable-logging"])
 
         if self.supplier == "promo_op" or self.supplier == "cat_promo":
-            capa = DesiredCapabilities.CHROME
-            capa["pageLoadStrategy"] = "none"
+            options.page_load_strategy = 'eager'
+            # capa = DesiredCapabilities.CHROME
+            # capa["pageLoadStrategy"] = "none"
             self.driver = webdriver.Chrome(
-                self.path, desired_capabilities=capa, options=options
+                service=service, options=options
             )
         elif self.supplier == "nw_promo":
             options.headless = True
-            self.driver = webdriver.Chrome(self.path, options=options)
+            self.driver = webdriver.Chrome(service=service, options=options)
             self.driver.set_page_load_timeout(200)
         else:
-            self.driver = webdriver.Chrome(self.path, options=options)
+            self.driver = webdriver.Chrome(service=service, options=options)
             self.driver.set_page_load_timeout(20)
 
         if self.supplier == "mp_promo":
@@ -131,7 +118,7 @@ class Get_Data:
     def get_element_with_xpath(self, xpath):
         try:
             if self.supplier == "cat_promo":
-                element = self.driver.find_element_by_xpath(xpath)
+                element = self.driver.find_element(By.XPATH, xpath)
             else:
                 element = WebDriverWait(self.driver, 30).until(
                     EC.presence_of_element_located((By.XPATH, xpath))
@@ -154,7 +141,7 @@ class Get_Data:
     def get_elements_len_with_xpath(self, xpath):
         try:
             time.sleep(5)
-            elements = self.driver.find_elements_by_xpath(xpath)
+            elements = self.driver.find_elements(By.XPATH, xpath)
             return len(elements)
 
         except Exception as e:
@@ -242,7 +229,7 @@ class Get_Data:
 
     def get_title_and_subtitle(self, header_xpath, title_index, subtitle_index, ref):
         try:
-            header = self.driver.find_element_by_xpath(header_xpath)
+            header = self.driver.find_element(By.XPATH, header_xpath)
             header_text = header.text.split("\n")
             title = header_text[title_index]
             subtitle = header_text[subtitle_index]
@@ -256,7 +243,7 @@ class Get_Data:
             title = WebDriverWait(self.driver, 10).until(
                 EC.presence_of_element_located((By.XPATH, title_xpath))
             )
-            title = self.driver.find_element_by_xpath(title_xpath)
+            title = self.driver.find_element(By.XPATH, title_xpath)
             return title.text
 
         except Exception as e:
@@ -276,7 +263,7 @@ class Get_Data:
             subtitle = WebDriverWait(self.driver, 10).until(
                 EC.presence_of_element_located((By.XPATH, sub_title_xpath))
             )
-            subtitle = self.driver.find_element_by_xpath(sub_title_xpath)
+            subtitle = self.driver.find_element(By.XPATH,sub_title_xpath)
             if self.supplier == "promo_op":
                 subtitle_text = get_subtitle_promo_op(subtitle)
                 return subtitle_text
@@ -297,16 +284,16 @@ class Get_Data:
     def get_package_info(self, ref):
         try:
             table = "//table[@class='table-list']"
-            unit_col_1 = self.driver.find_element_by_xpath(
+            unit_col_1 = self.driver.find_element(By.XPATH,
                 f"{table}/tbody[1]/tr[1]/td[1]"
             )
-            unit_col_2 = self.driver.find_element_by_xpath(
+            unit_col_2 = self.driver.find_element(By.XPATH,
                 f"{table}/tbody[1]/tr[1]/td[2]"
             )
-            package_col_1 = self.driver.find_element_by_xpath(
+            package_col_1 = self.driver.find_element(By.XPATH,
                 f"{table}/tbody[1]/tr[2]/td[1]"
             )
-            package_col_2 = self.driver.find_element_by_xpath(
+            package_col_2 = self.driver.find_element(By.XPATH,
                 f"{table}/tbody[1]/tr[2]/td[2]"
             )
             table_texts_list = [
@@ -327,7 +314,7 @@ class Get_Data:
             if self.supplier == "promo_op":
                 time.sleep(5)
 
-            img = self.driver.find_element_by_xpath(img_xpath)
+            img = self.driver.find_element(By.XPATH,img_xpath)
             img_src = img.get_attribute("src")
 
             return img_src
@@ -450,6 +437,26 @@ class Get_Data:
         except Exception as e:
             self.error_logging()
 
+    # TODO: Replace this function for create_description.
+    # Identical implementation, here desc_list is a string[]
+    def create_desc(self, desc_list, idx, ref):
+        try:
+            if idx > 0:
+                top = Cm(self.t_3 - 1)
+            else:
+                top = Cm(self.t_3)
+
+            description = self.prs.slides[idx].shapes.add_textbox(
+                left=self.lf_1, top=top, width=self.w_1, height=self.h_3
+            )
+            tf_desc = description.text_frame
+            tf_desc.word_wrap = True
+            for element in desc_list:
+                text_frame_paragraph(tf_desc, element, 11)
+
+        except Exception as e:
+            self.error_logging()
+
     def create_description_promo_op(self, desc_list, idx, ref):
         try:
             if idx > 0:
@@ -475,6 +482,7 @@ class Get_Data:
                 text_frame_paragraph(tf_desc_1, desc_list[i].text, 11)
             for i in range(limit, list_len - 1):
                 text_frame_paragraph(tf_desc_2, desc_list[i].text, 11)
+            
 
         except Exception as e:
             self.error_logging()
@@ -566,10 +574,10 @@ class Get_Data:
                         f"No se pudo obtener el inventario de la ref {ref}// Error de tipo {e.__class__}"
                     )
 
-                color = self.driver.find_element_by_xpath(
+                color = self.driver.find_element(By.XPATH,
                     f"{xpath_tabla_colores}/{color_xpath}"
                 ).text
-                inv_color = self.driver.find_element_by_xpath(
+                inv_color = self.driver.find_element(By.XPATH,
                     f"{xpath_tabla_colores}/{inv_color_xpath}"
                 ).text
                 c1 = table.cell(i, 0)
