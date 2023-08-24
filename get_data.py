@@ -131,7 +131,7 @@ class Get_Data:
 
     def get_elements_with_xpath(self, xpath):
         try:
-            elements_list = self.driver.find_elements_by_xpath(xpath)
+            elements_list = self.driver.find_elements(By.XPATH,xpath)
 
             return elements_list
 
@@ -275,7 +275,7 @@ class Get_Data:
 
     def get_description(self, desc_xpath, ref):
         try:
-            desc = self.driver.find_elements_by_xpath(desc_xpath)
+            desc = self.driver.find_elements(By.XPATH,desc_xpath)
             return desc
 
         except:

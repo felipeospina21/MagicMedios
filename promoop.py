@@ -66,7 +66,7 @@ def get_promo_op__data(suppliers_dict, prs, references):
             else:
                 data.click_first_result("//ul[@class='colors']/li[1]")
                 img_src = data.get_img("//div[@class='img-item']/img", ref)
-                # img_src = data.get_img("//div[@class='image-thumbnail']/div[4]/img", ref)
+               
                 data.create_img(img_src, idx, 8, 8, ref)
                 for color in colors_elements:
                     title = data.get_element_attribute(color, "title")
