@@ -65,9 +65,7 @@ class Get_Data:
         options.add_experimental_option("excludeSwitches", ["enable-logging"])
 
         if self.supplier == "promo_op" or self.supplier == "cat_promo":
-            options.page_load_strategy = 'eager'
-            # capa = DesiredCapabilities.CHROME
-            # capa["pageLoadStrategy"] = "none"
+            # options.page_load_strategy = 'eager'
             self.driver = webdriver.Chrome(
                 service=service, options=options
             )
