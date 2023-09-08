@@ -30,18 +30,18 @@ def get_cat_promo_data(suppliers_dict, prs, references):
                     data.create_title(title, idx, count, ref)
                     data.create_desc(desc_list, idx, ref)
 
-                    pack_info_table = data.driver.find_element(By.CLASS_NAME, "table-list")
-                    pack_info_arr = pack_info_table.text.split("\n")
-                    pack_info_row1 = pack_info_arr[0].split(":")
-                    pack_info_row2 = pack_info_arr[1].split(":")
-                    data.create_package_info(
-                        pack_info_row1[0],
-                        pack_info_row1[1],
-                        pack_info_row2[0],
-                        pack_info_row1[1],
-                        idx,
-                        ref,
-                    )
+                    # pack_info_table = data.driver.find_element(By.CLASS_NAME, "table-list")
+                    # pack_info_arr = pack_info_table.text.split("\n")
+                    # pack_info_row1 = pack_info_arr[0].split(":")
+                    # pack_info_row2 = pack_info_arr[1].split(":")
+                    # data.create_package_info(
+                    #     pack_info_row1[0],
+                    #     pack_info_row1[1],
+                    #     pack_info_row2[0],
+                    #     pack_info_row2[1],
+                    #     idx,
+                    #     ref,
+                    # )
 
                     colors_len = data.get_elements_len_with_xpath(
                         "//tr[@class='titlesRow']/following-sibling::tr[not(@class='hideInfo')]"
