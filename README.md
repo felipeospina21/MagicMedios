@@ -4,24 +4,31 @@ Automatización cotizador
 
 # Instalación:
 
-1. Instalar python==3.9.6 desde el link https://www.python.org/downloads/ or winget install python -v 3.8.6
+1. Instalar python==3.9.6 desde el link https://www.python.org/downloads/ or winget install python -v 3.9.6
 2. Instalar git desde el link https://git-scm.com/download/win
 3. in C://
  mkdir Robot && cd Robot && git clone https://github.com/felipeospina21/MagicMedios.git && cd MagicMedios
 4. Instalar paquetes de python **pip install -r requirements.txt**
 5. Agregar archivo .env con variable de ruta y api_token
-6. Crear archivo .bat para ejecutar y actualizar el programa.
-  **Actualizar**
-    cd ../../../Robot/MagicMedios
-    git restore --staged .
-    git pull
-    pause
-    **Ejecutar**
-    cd ../../../Robot/MagicMedios
-    python main.py
+6. Crear accesos directos en escritorio (enviar a) para actualizar.bat y robot.bat
 7. Abrir cotizacion.pptm y guardarlo como \*.ppam
-  7.1 Agregar a complementos de PowerPoint 
+  7.1 Agregar a complementos de PowerPoint
+    - click en Mas comandos
+    - click en Complementos
+    - click en administrar (abajo) seleccionar complementos de Powerpoint
+    - click en ir
+    - click en agregar nuevo
+    - seleccionar cotizacion.ppam
+    - click en cerrar
+
   7.2 Agregar macro ***agregar_bordes*** en cinta de opciones.
+    - click en mas comandos
+    - click en Personalizar cinta de opcions
+    - seleccionar opcion Macros en el select Comandos disponibles en
+    - click en Nueva pestana (nombrar Robot)
+    - Renombrar grupo (Agregar Bordes)
+    - seleccionar macro agregar_bordes
+    - click agregar
 
 # Uso:
 
