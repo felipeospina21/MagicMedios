@@ -12,6 +12,7 @@ class New_Quotation:
     def __init__(self, prs, title_slide_layout, username) -> None:
         if username == "felipe" or username == "felip":
             self.path = os.environ.get("FILE_PATH")
+            self.path = "."
             self.consecutive_path = f"{self.path}/data/consecutivo.txt"
         else:
             self.path = os.environ.get("COTIZACIONES_PATH")
@@ -22,7 +23,8 @@ class New_Quotation:
         self.users = self.get_users()
         self.client = input("Ingrese nombre cliente: ").title()
         self.company = input("Ingrese nombre empresa: ").upper()
-        self.user = input(f"Ingrese nombre asesor ({', '.join(self.users)}): ").lower()
+        self.user = input(
+            f"Ingrese nombre asesor ({', '.join(self.users)}): ").lower()
         self.reference = (
             input("Ingrese referencias a consultar (separadas por coma): ")
             .upper()
@@ -109,7 +111,8 @@ class New_Quotation:
         text_frame_paragraph(tf, f"Cot N°{self.consecutive}", 14)
         text_frame_paragraph(tf, "", 11)
         text_frame_paragraph(tf, "Asesor Comercial", 11)
-        text_frame_paragraph(tf, f"{self.rep_name} {self.phone} {self.email}", 11)
+        text_frame_paragraph(
+            tf, f"{self.rep_name} {self.phone} {self.email}", 11)
 
     def add_client_name(self):
         header = self.prs.slides[0].shapes.add_textbox(

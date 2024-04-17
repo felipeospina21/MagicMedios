@@ -1,8 +1,10 @@
-from utils import get_api_data, measures
-from get_data import Get_Data
-from dotenv import load_dotenv
 import os
 import time
+
+from dotenv import load_dotenv
+
+from get_data import Get_Data
+from utils import get_api_data, measures
 
 load_dotenv()
 auth_token = os.environ.get("API_TOKEN")
@@ -14,7 +16,7 @@ def get_cdo_promo_data(suppliers_dict, prs, references):
 
     for ref in suppliers_dict["cdo_promo"]:
         idx = data.get_original_ref_list_idx(ref)
-        data.create_quantity_table(ref, idx)
+        data.create_quantity_table(idx)
         count = idx + 1
         url = f"http://api.colombia.cdopromocionales.com/v1/products/{ref}?auth_token={auth_token}"
         try:
@@ -36,14 +38,14 @@ def get_cdo_promo_data(suppliers_dict, prs, references):
             try:
                 colors = result["variants"]
                 q_colores = len(colors)
-                data.create_stock_table_api(q_colores, colors, idx, ref)
+                data.create_stock_table_api(q_colores, colors, idx)
             except Exception as e:
                 print(
                     f"No se pudo obtener el inventario de la ref {ref}// Error de tipo {e.__class__}"
                 )
             try:
                 img_src = colors[0]["detail_picture"]["medium"]
-                data.create_img(img_src, idx, 0, 0, ref)
+                data.create_img(img_src, idx, 0, ref)
             except Exception as e:
                 print(
                     f"No se pudo obtener la imagen de la ref {ref}// Error de tipo {e.__class__}"
@@ -58,8 +60,8 @@ def get_cdo_promo_data(suppliers_dict, prs, references):
         data.send_keys(search_input, ref)
         data.click_first_result("//div[@class='variant-container']/a[1]")
         time.sleep(1)
-        packing = data.get_description("//div[@class='packing']", ref)
-        data.create_description(packing, idx, ref)
+        packing = data.get_description("//div[@class='packing']")
+        data.create_description(packing, idx)
         print_methods_q = data.get_elements_len_with_xpath(
             "//div[@class='printing']/ul[1]/child::li"
         )

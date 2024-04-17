@@ -1,8 +1,10 @@
-from get_data import Get_Data
-from utils import measures
-from dotenv import load_dotenv
 import os
 import time
+
+from dotenv import load_dotenv
+
+from get_data import Get_Data
+from utils import measures
 
 
 def get_promo_op__data(suppliers_dict, prs, references):
@@ -35,19 +37,15 @@ def get_promo_op__data(suppliers_dict, prs, references):
             colors_q = data.get_elements_len_with_xpath(
                 "//table[@class='table table-striped']/tbody[1]/child::tr"
             )
-            data.create_quantity_table(ref, idx)
-            title_text = data.get_title_with_xpath(
-                f"{header_xpath}/tr[1]/td[1]/h6[1]", ref
-            )
-            subtitle_text = data.get_subtitle_with_xpath(
-                f"{header_xpath}/tr[2]/td[1]", ref
-            )
+            data.create_quantity_table(idx)
+            title_text = data.get_title_with_xpath(f"{header_xpath}/tr[1]/td[1]/h6[1]")
+            subtitle_text = data.get_subtitle_with_xpath(f"{header_xpath}/tr[2]/td[1]")
             data.create_title(title_text, idx, count, ref)
             data.create_subtitle(subtitle_text, idx)
 
-            desc_list = data.get_description(f"{header_xpath}/child::tr", ref)
-            data.create_description_promo_op(desc_list, idx, ref)
-            stock_table = data.create_stock_table(colors_q, idx, ref)
+            desc_list = data.get_description(f"{header_xpath}/child::tr")
+            data.create_description_promo_op(desc_list, idx)
+            stock_table = data.create_stock_table(colors_q, idx)
             colors_elements = data.get_elements_with_xpath(
                 "//ul[@class='colors']/child::li"
             )
@@ -59,15 +57,15 @@ def get_promo_op__data(suppliers_dict, prs, references):
                     "//table[@class='table table-striped']/tbody[1]/tr[2]/td[4]"
                 ).text
                 colors_stock.append({"title": "Color Único", "stock": stock})
-                img_src = data.get_img("//div[@class='img-item']/img", ref)
-                data.create_img(img_src, idx, 8, 8, ref)
-                
+                img_src = data.get_img("//div[@class='img-item']/img")
+                data.create_img(img_src, idx, 8, ref)
+
             # Varios Colores
             else:
                 data.click_first_result("//ul[@class='colors']/li[1]")
-                img_src = data.get_img("//div[@class='img-item']/img", ref)
-               
-                data.create_img(img_src, idx, 8, 8, ref)
+                img_src = data.get_img("//div[@class='img-item']/img")
+
+                data.create_img(img_src, idx, 8, ref)
                 for color in colors_elements:
                     title = data.get_element_attribute(color, "title")
                     color_rgb = color.value_of_css_property("background-color")

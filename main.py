@@ -1,9 +1,10 @@
-from pptx import Presentation
-from datetime import datetime
-from dotenv import load_dotenv
+import getpass
 import locale
 import time
-import getpass
+from datetime import datetime
+
+from dotenv import load_dotenv
+from pptx import Presentation
 
 from new_quotation import New_Quotation
 
