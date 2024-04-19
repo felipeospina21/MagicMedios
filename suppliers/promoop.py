@@ -7,7 +7,7 @@ from get_data import Get_Data
 from utils import measures
 
 
-def get_promo_op__data(suppliers_dict, prs, references):
+def get_data(suppliers_dict, prs, references):
     data = Get_Data("promo_op", prs, references, measures)
     data.execute_driver("https://www.promoopcioncolombia.co/")
     header_xpath = "//table[@class='table table-hover table-responsive']/tbody[1]"
@@ -19,9 +19,9 @@ def get_promo_op__data(suppliers_dict, prs, references):
     data.send_keys(psw_input, password)
 
     try:
-        time.sleep(3)
+        time.sleep(5)
         data.accept_alert_popup()
-        time.sleep(3)
+        time.sleep(5)
         data.stop_loading()
     except Exception as e:
         print(f"Error de tipo {e.__class__} al tratar de hacer click en alert_popup")

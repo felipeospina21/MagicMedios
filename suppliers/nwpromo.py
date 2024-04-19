@@ -12,7 +12,7 @@ def get_nw_promo_data(suppliers_dict, prs, references):
         try:
             idx = data.get_original_ref_list_idx(ref)
             count = idx + 1
-            data.check_pop_up()
+            # data.check_pop_up()
             search_input = data.get_element_with_xpath(
                 "//input[@id='search_query_top']"
             )

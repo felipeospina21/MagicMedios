@@ -40,6 +40,6 @@ Automatización cotizador
 
 cp => catalogos Promocionales (cpADV-STY)  
 mp => Mp Promocionales (mpGO0020)  
-po => Promo Opción (poAGTC 022 AR)  
+po => Promo Opción (poBBQ 002)  
 cd => CDO Promocionales (cdU315)  
 sin prefijo => NW Promocionales (no es necesario ya que todos sus códigos comienzan con NW)

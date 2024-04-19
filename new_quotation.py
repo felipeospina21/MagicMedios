@@ -1,11 +1,9 @@
-from utils import text_frame_paragraph, create_supplier_ref_list
-from catalogospromo import get_cat_promo_data
-from mppromos import get_mp_promo_data
-from nwpromo import get_nw_promo_data
-from promoop import get_promo_op__data
-from cdopromo import get_cdo_promo_data
-from pptx.util import Cm
 import os
+
+from pptx.util import Cm
+
+from suppliers import catalogospromo, cdopromo, mppromos, nwpromo, promoop
+from utils import create_supplier_ref_list, text_frame_paragraph
 
 
 class New_Quotation:
@@ -146,12 +144,14 @@ class New_Quotation:
 
     def scrapp_data(self, suppliers_list, suppliers_dict):
         if len(suppliers_list["cat_promo"]) != 0:
-            get_cat_promo_data(suppliers_dict, self.prs, self.strip_reference)
+            catalogospromo.get_cat_promo_data(
+                suppliers_dict, self.prs, self.strip_reference
+            )
         if len(suppliers_list["mp_promo"]) != 0:
-            get_mp_promo_data(suppliers_dict, self.prs, self.strip_reference)
+            mppromos.get_mp_promo_data(suppliers_dict, self.prs, self.strip_reference)
         if len(suppliers_list["promo_op"]) != 0:
-            get_promo_op__data(suppliers_dict, self.prs, self.strip_reference)
+            promoop.get_data(suppliers_dict, self.prs, self.strip_reference)
         if len(suppliers_list["nw_promo"]) != 0:
-            get_nw_promo_data(suppliers_dict, self.prs, self.strip_reference)
+            nwpromo.get_nw_promo_data(suppliers_dict, self.prs, self.strip_reference)
         if len(suppliers_list["cdo_promo"]) != 0:
-            get_cdo_promo_data(suppliers_dict, self.prs, self.strip_reference)
+            cdopromo.get_cdo_promo_data(suppliers_dict, self.prs, self.strip_reference)

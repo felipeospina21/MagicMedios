@@ -19,6 +19,6 @@ chrome_webdriver.exe
 
 cotizacion.pptx
 sample_image.jpg
-/__pycache__
+**/__pycache__
 /.vscode
 .vscode

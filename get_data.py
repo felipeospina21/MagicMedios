@@ -56,7 +56,7 @@ class Get_Data:
         self.cell_font_2 = Pt(measures["cell_font_2"])
 
     def error_logging(self):
-        logging.error("Exception occurred", exc_info=True)
+        logging.error("Error", exc_info=True)
         # exit()
 
     def execute_driver(self, url):
@@ -68,7 +68,7 @@ class Get_Data:
             # options.page_load_strategy = 'eager'
             self.driver = webdriver.Chrome(service=service, options=options)
         elif self.supplier == "nw_promo":
-            options.headless = True
+            # options.headless = True
             self.driver = webdriver.Chrome(service=service, options=options)
             self.driver.set_page_load_timeout(200)
         else:
