@@ -23,8 +23,7 @@ class New_Quotation:
         self.users = self.get_users()
         self.client = input("Ingrese nombre cliente: ").title()
         self.company = input("Ingrese nombre empresa: ").upper()
-        self.user = input(
-            f"Ingrese nombre asesor ({', '.join(self.users)}): ").lower()
+        self.user = input(f"Ingrese nombre asesor ({', '.join(self.users)}): ").lower()
         self.reference = (
             input("Ingrese referencias a consultar (separadas por coma): ")
             .upper()
@@ -111,8 +110,7 @@ class New_Quotation:
         text_frame_paragraph(tf, f"Cot N°{self.consecutive}", 14)
         text_frame_paragraph(tf, "", 11)
         text_frame_paragraph(tf, "Asesor Comercial", 11)
-        text_frame_paragraph(
-            tf, f"{self.rep_name} {self.phone} {self.email}", 11)
+        text_frame_paragraph(tf, f"{self.rep_name} {self.phone} {self.email}", 11)
 
     def add_client_name(self):
         header = self.prs.slides[0].shapes.add_textbox(

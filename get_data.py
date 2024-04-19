@@ -209,7 +209,7 @@ class Get_Data:
             self.error_logging()
             raise Exception(e)
 
-    def get_original_ref_list_idx(self, ref):
+    def get_original_ref_list_idx(self, ref: str) -> int:
         if self.supplier == "cat_promo":
             return self.references.index("CP" + ref)
         elif self.supplier == "mp_promo":
@@ -220,6 +220,8 @@ class Get_Data:
             return self.references.index(ref)
         elif self.supplier == "cdo_promo":
             return self.references.index("CD" + ref)
+        else:
+            raise Exception("not supported supplier")
 
     def get_title_and_subtitle(self, header_xpath, title_index, subtitle_index):
         try:
@@ -268,8 +270,9 @@ class Get_Data:
 
             return subtitle.text
 
-        except:
+        except Exception as e:
             self.error_logging()
+            raise Exception(e)
 
     def get_description(self, desc_xpath):
         try:

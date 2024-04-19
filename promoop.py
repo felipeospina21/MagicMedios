@@ -91,7 +91,7 @@ def get_promo_op__data(suppliers_dict, prs, references):
                 stock = element.get("stock")
                 data.fill_stock_table(stock_table, color, stock, idx + 1)
 
-        except:
-            print(f"\nNo se pudo obtener la información del a ref {ref}")
+        except Exception as e:
+            raise Exception(e)
 
     data.close_driver()

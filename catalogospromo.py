@@ -43,7 +43,7 @@ def get_cat_promo_data(suppliers_dict, prs, references):
                     img_src = data.get_img("//img[@id='img_01']")
                     data.create_img(img_src, idx, 8, ref)
                     break
-        except:
-            print(f"\nNo se pudo obtener la información del a ref {ref}")
+        except Exception as e:
+            raise Exception(e)
 
     data.close_driver()

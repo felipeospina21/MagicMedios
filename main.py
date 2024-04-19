@@ -18,7 +18,7 @@ title_slide_layout = prs.slide_layouts[6]
 locale.setlocale(locale.LC_TIME, "")
 
 print("-------------****-------------- ")
-suppliers = {
+suppliers: dict[str, list[str]] = {
     "cat_promo": [],
     "mp_promo": [],
     "promo_op": [],
