@@ -38,4 +38,4 @@ quotation.save()
 quotation.create_new_consecutive()
 
 total_time = "{:.2f}".format((time.time() - start_time) / 60)
-print(f"-------- Proceso Finalizado en {total_time} minutos --------")
+print(f"\n-------- Proceso Finalizado en {total_time} minutos --------")
