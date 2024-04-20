@@ -1,9 +1,10 @@
-from pptx import Presentation
-from datetime import datetime
-from dotenv import load_dotenv
+import getpass
 import locale
 import time
-import getpass
+from datetime import datetime
+
+from dotenv import load_dotenv
+from pptx import Presentation
 
 from new_quotation import New_Quotation
 
@@ -17,7 +18,7 @@ title_slide_layout = prs.slide_layouts[6]
 locale.setlocale(locale.LC_TIME, "")
 
 print("-------------****-------------- ")
-suppliers = {
+suppliers: dict[str, list[str]] = {
     "cat_promo": [],
     "mp_promo": [],
     "promo_op": [],
@@ -37,4 +38,4 @@ quotation.save()
 quotation.create_new_consecutive()
 
 total_time = "{:.2f}".format((time.time() - start_time) / 60)
-print(f"-------- Proceso Finalizado en {total_time} minutos --------")
+print(f"\n-------- Proceso Finalizado en {total_time} minutos --------")
