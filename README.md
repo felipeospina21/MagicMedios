@@ -38,8 +38,8 @@ Automatización cotizador
 
 ## Prefijos Proveedores:
 
-cp => catalogos Promocionales (cpADV-STY)  
+cp => catalogos Promocionales (cpMU-12-2)  
 mp => Mp Promocionales (mpGO0020)  
 po => Promo Opción (poBBQ 002)  
-cd => CDO Promocionales (cdU315)  
+cd => CDO Promocionales (cdk8)  
 sin prefijo => NW Promocionales (no es necesario ya que todos sus códigos comienzan con NW)

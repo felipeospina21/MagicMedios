@@ -144,14 +144,12 @@ class New_Quotation:
 
     def scrapp_data(self, suppliers_list, suppliers_dict):
         if len(suppliers_list["cat_promo"]) != 0:
-            catalogospromo.get_cat_promo_data(
-                suppliers_dict, self.prs, self.strip_reference
-            )
+            catalogospromo.crawl(suppliers_dict, self.prs, self.strip_reference)
         if len(suppliers_list["mp_promo"]) != 0:
-            mppromos.get_mp_promo_data(suppliers_dict, self.prs, self.strip_reference)
+            mppromos.crawl(suppliers_dict, self.prs, self.strip_reference)
         if len(suppliers_list["promo_op"]) != 0:
             promoop.get_data(suppliers_dict, self.prs, self.strip_reference)
         if len(suppliers_list["nw_promo"]) != 0:
             nwpromo.get_nw_promo_data(suppliers_dict, self.prs, self.strip_reference)
         if len(suppliers_list["cdo_promo"]) != 0:
-            cdopromo.get_cdo_promo_data(suppliers_dict, self.prs, self.strip_reference)
+            cdopromo.crawl(suppliers_dict, self.prs, self.strip_reference)

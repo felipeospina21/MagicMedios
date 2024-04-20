@@ -28,8 +28,7 @@ def get_data(suppliers_dict, prs, references):
 
     for ref in suppliers_dict["promo_op"]:
         try:
-            idx = data.get_original_ref_list_idx(ref)
-            count = idx + 1
+            ref_idx = data.get_original_ref_list_idx(ref)
             search_input = data.get_element_with_xpath("//input[@id='q']")
             data.send_keys(search_input, ref)
             data.click_first_result("//a[@class='img-responsive ']")
@@ -37,15 +36,15 @@ def get_data(suppliers_dict, prs, references):
             colors_q = data.get_elements_len_with_xpath(
                 "//table[@class='table table-striped']/tbody[1]/child::tr"
             )
-            data.create_quantity_table(idx)
+            data.create_quantity_table(ref_idx)
             title_text = data.get_title_with_xpath(f"{header_xpath}/tr[1]/td[1]/h6[1]")
             subtitle_text = data.get_subtitle_with_xpath(f"{header_xpath}/tr[2]/td[1]")
-            data.create_title(title_text, idx, count, ref)
-            data.create_subtitle(subtitle_text, idx)
+            data.create_title(title_text, ref_idx, ref_idx + 1, ref)
+            data.create_subtitle(subtitle_text, ref_idx)
 
             desc_list = data.get_description(f"{header_xpath}/child::tr")
-            data.create_description_promo_op(desc_list, idx)
-            stock_table = data.create_stock_table(colors_q, idx)
+            data.create_description_promo_op(desc_list, ref_idx)
+            stock_table = data.create_stock_table(colors_q, ref_idx)
             colors_elements = data.get_elements_with_xpath(
                 "//ul[@class='colors']/child::li"
             )
@@ -58,14 +57,14 @@ def get_data(suppliers_dict, prs, references):
                 ).text
                 colors_stock.append({"title": "Color Único", "stock": stock})
                 img_src = data.get_img("//div[@class='img-item']/img")
-                data.create_img(img_src, idx, 8, ref)
+                data.create_img(img_src, ref_idx, 8, ref)
 
             # Varios Colores
             else:
                 data.click_first_result("//ul[@class='colors']/li[1]")
                 img_src = data.get_img("//div[@class='img-item']/img")
 
-                data.create_img(img_src, idx, 8, ref)
+                data.create_img(img_src, ref_idx, 8, ref)
                 for color in colors_elements:
                     title = data.get_element_attribute(color, "title")
                     color_rgb = color.value_of_css_property("background-color")
@@ -86,10 +85,10 @@ def get_data(suppliers_dict, prs, references):
                         if element.get("color_rgb") == color:
                             element.update({"stock": stock})
 
-            for idx, element in enumerate(colors_stock):
+            for ref_idx, element in enumerate(colors_stock):
                 color = element.get("title")
                 stock = element.get("stock")
-                data.fill_stock_table(stock_table, color, stock, idx + 1)
+                data.fill_stock_table(stock_table, color, stock, ref_idx + 1)
 
         except Exception as e:
             raise Exception(e)

@@ -10,6 +10,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
@@ -145,9 +146,13 @@ class Get_Data:
             self.error_logging()
             raise Exception(e)
 
-    def get_element_attribute(self, element, attribute):
+    def get_element_attribute(self, element: WebElement, attribute: str):
         try:
-            return element.get_attribute(attribute)
+            attr = element.get_attribute(attribute)
+            if isinstance(attr, str):
+                return attr
+            else:
+                raise Exception("attribute not found")
 
         except Exception as e:
             self.error_logging()
