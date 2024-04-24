@@ -72,6 +72,11 @@ class Get_Data:
             # options.headless = True
             self.driver = webdriver.Chrome(service=service, options=options)
             self.driver.set_page_load_timeout(200)
+        elif self.supplier == "mp_promo":
+            self.driver = webdriver.Chrome(service=service, options=options)
+            self.driver.get("chrome://settings/")
+            time.sleep(1)
+            self.driver.execute_script("chrome.settingsPrivate.setDefaultZoom(0.25);")
         else:
             self.driver = webdriver.Chrome(service=service, options=options)
             self.driver.set_page_load_timeout(20)
