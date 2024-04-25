@@ -25,7 +25,7 @@ def create_supplier_ref_list(
         suppliers_dict["nw_promo"].append(ref)
     else:
         print(
-            "\nNo se pudo identificar la referencia, favor validar el prefijo ingresado"
+            f"\nNo se pudo identificar la referencia {ref}, favor validar el prefijo ingresado"
         )
 
     return suppliers_dict

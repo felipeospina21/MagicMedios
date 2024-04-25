@@ -1,16 +1,17 @@
+from logging import log
+import logging
 import os
 import time
-
-from dotenv import load_dotenv
 
 from get_data import Get_Data
 from utils import get_api_data, measures
 
-load_dotenv()
-auth_token = os.environ.get("API_TOKEN")
-
-
 def crawl(suppliers_dict, prs, references):
+    auth_token = os.environ.get("API_TOKEN")
+    if auth_token == "":
+      logging.error("No se encontro token para la api de CDO", exc_info=True)
+      print("No se encontro token para la api de CDO")
+      exit()
     data = Get_Data("cdo_promo", prs, references, measures)
     data.execute_driver("https://colombia.cdopromocionales.com/")
 
@@ -32,6 +33,7 @@ def crawl(suppliers_dict, prs, references):
                 "//input[@id='search_full_text']"
             )
             data.send_keys(search_input, ref)
+            time.sleep(2)
             data.click_first_result("//div[@class='variant-container']/a[1]")
             time.sleep(1)
             packing = data.get_description("//div[@class='packing']")
@@ -56,4 +58,6 @@ def crawl(suppliers_dict, prs, references):
             data.create_description(packing, idx)
             data.create_printing_info(printing_methods_list, idx)
         except Exception as e:
-            raise Exception(e)
+            data.error_logging(e)
+            raise SystemExit("Error: ",e)
+

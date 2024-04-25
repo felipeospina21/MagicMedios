@@ -56,8 +56,8 @@ class Get_Data:
         self.cell_font = Pt(measures["cell_font"])
         self.cell_font_2 = Pt(measures["cell_font_2"])
 
-    def error_logging(self):
-        logging.error("Error", exc_info=True)
+    def error_logging(self, error):
+        logging.error(error, exc_info=True)
         # exit()
 
     def execute_driver(self, url):
@@ -84,8 +84,8 @@ class Get_Data:
         try:
             self.driver.get(url)
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
         if self.supplier == "cat_promo":
             time.sleep(10)
@@ -96,15 +96,15 @@ class Get_Data:
         try:
             self.driver.execute_script("window.history.go(-1)")
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
     def stop_loading(self):
         try:
             self.driver.execute_script("window.stop();")
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
     def check_pop_up(self):
         if self.supplier == "nw_promo":
@@ -113,8 +113,8 @@ class Get_Data:
                     "document.getElementsByClassName('fancybox-overlay fancybox-overlay-fixed labpopup')[0].style.display = 'none';"
                 )
             except Exception as e:
-                self.error_logging()
-                raise Exception(e)
+                self.error_logging(e)
+                raise SystemExit("Error: ",e)
 
     def get_element_with_xpath(self, xpath):
         try:
@@ -128,8 +128,8 @@ class Get_Data:
             return element
 
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
     def get_elements_with_xpath(self, xpath):
         try:
@@ -138,8 +138,8 @@ class Get_Data:
             return elements_list
 
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
     def get_elements_len_with_xpath(self, xpath):
         try:
@@ -148,8 +148,8 @@ class Get_Data:
             return len(elements)
 
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
     def get_element_attribute(self, element: WebElement, attribute: str):
         try:
@@ -160,16 +160,16 @@ class Get_Data:
                 raise Exception("attribute not found")
 
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
     def get_element_css_property(self, element, css_property):
         try:
             return element.value_of_css_property(css_property)
 
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
     def fill_stock_table(self, table, color, stock, row_index):
         try:
@@ -188,8 +188,8 @@ class Get_Data:
             cell2.fill.solid()
             cell2.fill.fore_color.rgb = RGBColor(255, 255, 255)
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
     def send_keys(self, element, text):
         try:
@@ -197,16 +197,16 @@ class Get_Data:
             element.send_keys(text)
             element.send_keys(Keys.RETURN)
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
     def accept_alert_popup(self):
         try:
             alert = self.driver.switch_to.alert
             alert.accept()
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
     def click_first_result(self, first_result_xpath):
         try:
@@ -216,8 +216,8 @@ class Get_Data:
             time.sleep(1)
             result.click()
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
     def get_original_ref_list_idx(self, ref: str) -> int:
         if self.supplier == "cat_promo":
@@ -242,8 +242,8 @@ class Get_Data:
             return (title, subtitle)
 
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
     def get_title_with_xpath(self, title_xpath):
         try:
@@ -254,8 +254,8 @@ class Get_Data:
             return title.text
 
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
     def get_subtitle_with_xpath(self, sub_title_xpath):
         def get_subtitle_promo_op(subtitle_result):
@@ -281,8 +281,8 @@ class Get_Data:
             return subtitle.text
 
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
     def get_description(self, desc_xpath):
         try:
@@ -290,8 +290,8 @@ class Get_Data:
             return desc
 
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
     def get_package_info(self, ref):
         try:
@@ -332,8 +332,8 @@ class Get_Data:
             return img_src
 
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
     def create_quantity_table(self, idx):
         ROWS = 3
@@ -396,8 +396,8 @@ class Get_Data:
             table.columns[0].width = Cm(3)
 
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
     def create_title(self, title_text, idx, count, ref):
         try:
@@ -414,8 +414,8 @@ class Get_Data:
             text_frame_paragraph(tf_titulo, f"{count}. {title} {ref}", 12, True)
 
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
     def create_subtitle(self, subtitle_text, idx):
         try:
@@ -433,8 +433,8 @@ class Get_Data:
             text_frame_paragraph(tf_sub_titulo, subtitle, 11)
 
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
     def create_description(self, desc_list, idx):
         try:
@@ -452,8 +452,8 @@ class Get_Data:
                 text_frame_paragraph(tf_desc, element.text, 11)
 
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
     # TODO: Replace this function for create_description.
     # Identical implementation, here desc_list is a string[]
@@ -473,8 +473,8 @@ class Get_Data:
                 text_frame_paragraph(tf_desc, element, 11)
 
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
     def create_description_promo_op(self, desc_list, idx):
         try:
@@ -503,8 +503,8 @@ class Get_Data:
                 text_frame_paragraph(tf_desc_2, desc_list[i].text, 11)
 
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
     def create_printing_info(self, printing_methods_list, idx):
         try:
@@ -522,8 +522,8 @@ class Get_Data:
                 text_frame_paragraph(tf_p1, element, 11)
 
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
     def create_inventory_table(self, q_colores, xpath_tabla_colores, idx):
         try:
@@ -593,8 +593,8 @@ class Get_Data:
             table.columns[0].width = Cm(3.8)
             table.columns[1].width = Cm(2.2)
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
     def create_stock_table_api(self, q_colores, colors_list, idx):
         try:
@@ -642,8 +642,8 @@ class Get_Data:
             table.columns[0].width = Cm(3.8)
             table.columns[1].width = Cm(2.2)
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
     def create_stock_table(self, colors_q, idx):
         try:
@@ -676,8 +676,8 @@ class Get_Data:
             return table
 
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
     def create_img(self, img_src, idx, img_height, ref):
         response = requests.get(img_src)
@@ -712,8 +712,8 @@ class Get_Data:
                 )
 
         except Exception as e:
-            self.error_logging()
-            raise Exception(e)
+            self.error_logging(e)
+            raise SystemExit("Error: ",e)
 
     def close_driver(self):
         self.driver.close()
