@@ -6,8 +6,7 @@ Automatización cotizador
 
 1. Instalar python==3.9.6 desde el link https://www.python.org/downloads/ or winget install python -v 3.9.6
 2. Instalar git desde el link https://git-scm.com/download/win
-3. in C://
- mkdir Robot && cd Robot && git clone https://github.com/felipeospina21/MagicMedios.git && cd MagicMedios
+3. cd C:// && mkdir Robot && cd Robot && git clone https://github.com/felipeospina21/MagicMedios.git && cd MagicMedios
 4. Instalar paquetes de python **pip install -r requirements.txt**
 5. Agregar archivo .env con variable de ruta y api_token
 6. Crear accesos directos en escritorio (enviar a) para actualizar.bat y robot.bat
@@ -43,3 +42,8 @@ mp => Mp Promocionales (mpGO0020)
 po => Promo Opción (poBBQ 002)  
 cd => CDO Promocionales (cdk8, cdt591, cdt602, cdt578)  
 sin prefijo => NW Promocionales (no es necesario ya que todos sus códigos comienzan con NW)
+
+### TODO:
+1. Automatizar envio de app.log
+2. Compilar a .bat https://cx-freeze.readthedocs.io
+3. Mejorar manejo de errores
