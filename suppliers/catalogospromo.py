@@ -17,6 +17,16 @@ def crawl(suppliers_dict, prs, references):
             search_input = data.driver.find_element(By.ID, "productos")
             data.stop_loading()
             data.send_keys(search_input, ref)
+            i = 1
+            # TODO: add retry variables to replace 3
+            # TODO: move this to a global function to be reused (def retry ..)
+            while i <= 3:
+                productos = data.driver.find_elements(By.CLASS_NAME, "img-producto")
+                if len(productos) > 0:
+                    break
+
+                i += 1
+
             productos = data.driver.find_elements(By.CLASS_NAME, "img-producto")
             for i in range(0, len(productos)):
                 result_ref = data.driver.find_elements(By.CLASS_NAME, "ref")[i]
