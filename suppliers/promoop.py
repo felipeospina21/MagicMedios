@@ -49,6 +49,7 @@ def get_data(suppliers_dict, prs, references):
                 "//ul[@class='colors']/child::li"
             )
             colors_stock = []
+            img_path = "//div[@id='img-list-1']/div[1]/img"
 
             # Color Unico
             if len(colors_elements) == 0:
@@ -56,13 +57,13 @@ def get_data(suppliers_dict, prs, references):
                     "//table[@class='table table-striped']/tbody[1]/tr[2]/td[4]"
                 ).text
                 colors_stock.append({"title": "Color Único", "stock": stock})
-                img_src = data.get_img("//div[@class='img-item']/img")
+                img_src = data.get_img(img_path)
                 data.create_img(img_src, ref_idx, 8, ref)
 
             # Varios Colores
             else:
                 data.click_first_result("//ul[@class='colors']/li[1]")
-                img_src = data.get_img("//div[@class='img-item']/img")
+                img_src = data.get_img(img_path)
 
                 data.create_img(img_src, ref_idx, 8, ref)
                 for color in colors_elements:

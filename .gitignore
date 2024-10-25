@@ -22,3 +22,6 @@ sample_image.jpg
 **/__pycache__
 /.vscode
 .vscode
+
+# Venv
+/robot-env
