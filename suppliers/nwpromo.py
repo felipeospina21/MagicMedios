@@ -40,4 +40,6 @@ def get_nw_promo_data(suppliers_dict, prs, references):
         except Exception as e:
             raise Exception(e)
 
+        print(f"✓ {ref}")
+    print(f"✓ referencias nw promo")
     data.close_driver()

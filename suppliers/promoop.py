@@ -94,4 +94,6 @@ def get_data(suppliers_dict, prs, references):
         except Exception as e:
             raise Exception(e)
 
+        print(f"✓ {ref}")
+    print(f"✓ referencias promoopcion")
     data.close_driver()

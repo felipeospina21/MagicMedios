@@ -6,12 +6,13 @@ import time
 from get_data import Get_Data
 from utils import get_api_data, measures
 
+
 def crawl(suppliers_dict, prs, references):
     auth_token = os.environ.get("API_TOKEN")
     if auth_token == "":
-      logging.error("No se encontro token para la api de CDO", exc_info=True)
-      print("No se encontro token para la api de CDO")
-      exit()
+        logging.error("No se encontro token para la api de CDO", exc_info=True)
+        print("No se encontro token para la api de CDO")
+        exit()
     data = Get_Data("cdo_promo", prs, references, measures)
     data.execute_driver("https://colombia.cdopromocionales.com/")
 
@@ -59,5 +60,8 @@ def crawl(suppliers_dict, prs, references):
             data.create_printing_info(printing_methods_list, idx)
         except Exception as e:
             data.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
+        print(f"✓ {ref}")
+    print(f"✓ referencias cdo promo")
+    data.close_driver()

@@ -85,7 +85,7 @@ class Get_Data:
             self.driver.get(url)
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
         if self.supplier == "cat_promo":
             time.sleep(10)
@@ -97,14 +97,14 @@ class Get_Data:
             self.driver.execute_script("window.history.go(-1)")
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
     def stop_loading(self):
         try:
             self.driver.execute_script("window.stop();")
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
     def check_pop_up(self):
         if self.supplier == "nw_promo":
@@ -114,7 +114,7 @@ class Get_Data:
                 )
             except Exception as e:
                 self.error_logging(e)
-                raise SystemExit("Error: ",e)
+                raise SystemExit("Error: ", e)
 
     def get_element_with_xpath(self, xpath):
         try:
@@ -129,7 +129,7 @@ class Get_Data:
 
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
     def get_elements_with_xpath(self, xpath):
         try:
@@ -139,7 +139,7 @@ class Get_Data:
 
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
     def get_elements_len_with_xpath(self, xpath):
         try:
@@ -149,7 +149,7 @@ class Get_Data:
 
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
     def get_element_attribute(self, element: WebElement, attribute: str):
         try:
@@ -161,7 +161,7 @@ class Get_Data:
 
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
     def get_element_css_property(self, element, css_property):
         try:
@@ -169,7 +169,7 @@ class Get_Data:
 
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
     def fill_stock_table(self, table, color, stock, row_index):
         try:
@@ -189,7 +189,7 @@ class Get_Data:
             cell2.fill.fore_color.rgb = RGBColor(255, 255, 255)
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
     def send_keys(self, element, text):
         try:
@@ -198,7 +198,7 @@ class Get_Data:
             element.send_keys(Keys.RETURN)
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
     def accept_alert_popup(self):
         try:
@@ -206,7 +206,7 @@ class Get_Data:
             alert.accept()
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
     def click_first_result(self, first_result_xpath):
         try:
@@ -217,7 +217,7 @@ class Get_Data:
             result.click()
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
     def get_original_ref_list_idx(self, ref: str) -> int:
         if self.supplier == "cat_promo":
@@ -243,7 +243,7 @@ class Get_Data:
 
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
     def get_title_with_xpath(self, title_xpath):
         try:
@@ -255,7 +255,7 @@ class Get_Data:
 
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
     def get_subtitle_with_xpath(self, sub_title_xpath):
         def get_subtitle_promo_op(subtitle_result):
@@ -282,7 +282,7 @@ class Get_Data:
 
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
     def get_description(self, desc_xpath):
         try:
@@ -291,7 +291,7 @@ class Get_Data:
 
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
     def get_package_info(self, ref):
         try:
@@ -333,7 +333,7 @@ class Get_Data:
 
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
     def create_quantity_table(self, idx):
         ROWS = 3
@@ -397,7 +397,7 @@ class Get_Data:
 
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
     def create_title(self, title_text, idx, count, ref):
         try:
@@ -415,7 +415,7 @@ class Get_Data:
 
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
     def create_subtitle(self, subtitle_text, idx):
         try:
@@ -434,7 +434,7 @@ class Get_Data:
 
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
     def create_description(self, desc_list, idx):
         try:
@@ -453,7 +453,7 @@ class Get_Data:
 
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
     # TODO: Replace this function for create_description.
     # Identical implementation, here desc_list is a string[]
@@ -474,7 +474,7 @@ class Get_Data:
 
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
     def create_description_promo_op(self, desc_list, idx):
         try:
@@ -504,7 +504,7 @@ class Get_Data:
 
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
     def create_printing_info(self, printing_methods_list, idx):
         try:
@@ -523,7 +523,7 @@ class Get_Data:
 
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
     def create_inventory_table(self, q_colores, xpath_tabla_colores, idx):
         try:
@@ -594,7 +594,7 @@ class Get_Data:
             table.columns[1].width = Cm(2.2)
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
     def create_stock_table_api(self, q_colores, colors_list, idx):
         try:
@@ -643,7 +643,7 @@ class Get_Data:
             table.columns[1].width = Cm(2.2)
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
     def create_stock_table(self, colors_q, idx):
         try:
@@ -677,7 +677,7 @@ class Get_Data:
 
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
     def create_img(self, img_src, idx, img_height, ref):
         response = requests.get(img_src)
@@ -713,7 +713,22 @@ class Get_Data:
 
         except Exception as e:
             self.error_logging(e)
-            raise SystemExit("Error: ",e)
+            raise SystemExit("Error: ", e)
 
     def close_driver(self):
         self.driver.close()
+
+    def retry(self, times: int, className: str, ref):
+        idx = 1
+        elements = []
+        while idx <= times:
+            elements = self.driver.find_elements(By.CLASS_NAME, className)
+            if len(elements) > 0:
+                break
+
+            idx += 1
+
+        if len(elements) == 0:
+            print(f"retries exausted, product {ref} with class {className} not found")
+
+        return elements

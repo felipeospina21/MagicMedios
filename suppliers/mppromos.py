@@ -55,4 +55,6 @@ def crawl(suppliers_dict, prs, references):
         except Exception as e:
             raise Exception(e)
 
+        print(f"✓ {ref}")
+    print(f"✓ referencias mp")
     data.close_driver()
