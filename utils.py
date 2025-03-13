@@ -47,7 +47,7 @@ def get_api_data(url):
     return json.loads(content)
 
 
-measures = {
+measures: dict[str, float] = {
     "lf_1": 0.8,
     "lf_2": 8.5,
     "lf_3": 3,

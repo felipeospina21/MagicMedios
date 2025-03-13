@@ -1,9 +1,11 @@
 import os
+import asyncio
 
 from pptx.util import Cm
 
 from suppliers import catalogospromo, cdopromo, mppromos, nwpromo, promoop
 from utils import create_supplier_ref_list, text_frame_paragraph
+from demo import main
 
 
 class New_Quotation:
@@ -142,9 +144,11 @@ class New_Quotation:
     def save(self):
         self.prs.save(self.save_path)
 
-    def scrapp_data(self, suppliers_list, suppliers_dict):
+    async def scrapp_data(self, suppliers_list, suppliers_dict):
         if len(suppliers_list["cat_promo"]) != 0:
-            catalogospromo.crawl(suppliers_dict, self.prs, self.strip_reference)
+            # catalogospromo.crawl(suppliers_dict, self.prs, self.strip_reference)
+            await main(suppliers_dict["cat_promo"], self.prs, self.strip_reference)
+
         if len(suppliers_list["mp_promo"]) != 0:
             mppromos.crawl(suppliers_dict, self.prs, self.strip_reference)
         if len(suppliers_list["promo_op"]) != 0:
