@@ -1,9 +1,6 @@
 import time
 
 from selenium.webdriver.common.by import By
-from selenium.webdriver.remote.webelement import WebElement
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
 from get_data import Get_Data
 from utils import measures
@@ -24,11 +21,11 @@ def crawl(suppliers_dict, prs, references):
             print(f"search item {ref} not fount")
             raise Exception(e)
 
-        productos = data.retry(3, "img-producto", ref)
+        productos = data.retry(6, "img-producto", ref)
 
         for i in range(0, len(productos)):
             try:
-                result_ref = data.retry(3, "ref", ref)[i]
+                result_ref = data.retry(6, "ref", ref)[i]
             except Exception as e:
                 raise Exception(e)
 

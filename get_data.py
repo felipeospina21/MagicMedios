@@ -64,6 +64,7 @@ class Get_Data:
         service = Service()
         options = webdriver.ChromeOptions()
         options.add_experimental_option("excludeSwitches", ["enable-logging"])
+        options.add_argument("--headless")
 
         if self.supplier == "promo_op" or self.supplier == "cat_promo":
             # options.page_load_strategy = 'eager'
@@ -727,6 +728,7 @@ class Get_Data:
                 break
 
             idx += 1
+            time.sleep(1)
 
         if len(elements) == 0:
             print(f"retries exausted, product {ref} with class {className} not found")
