@@ -8,26 +8,29 @@ Automatización cotizador
 2. Instalar git desde el link https://git-scm.com/download/win
 3. cd C:// && mkdir Robot && cd Robot && git clone https://github.com/felipeospina21/MagicMedios.git && cd MagicMedios
 4. Instalar paquetes de python **pip install -r requirements.txt**
-5. Agregar archivo .env con variable de ruta y api_token
-6. Crear accesos directos en escritorio (enviar a) para actualizar.bat y robot.bat
-7. Abrir cotizacion.pptm y guardarlo como \*.ppam
-  7.1 Agregar a complementos de PowerPoint
-    - click en Mas comandos
-    - click en Complementos
-    - click en administrar (abajo) seleccionar complementos de Powerpoint
-    - click en ir
-    - click en agregar nuevo
-    - seleccionar cotizacion.ppam
-    - click en cerrar
+5. playwright install
+6. Agregar archivo .env con variable de ruta y api_token
+7. Crear accesos directos en escritorio (enviar a) para actualizar.bat y robot.bat
+8. Abrir cotizacion.pptm y guardarlo como \*.ppam
+   7.1 Agregar a complementos de PowerPoint
 
-  7.2 Agregar macro ***agregar_bordes*** en cinta de opciones.
-    - click en mas comandos
-    - click en Personalizar cinta de opcions
-    - seleccionar opcion Macros en el select Comandos disponibles en
-    - click en Nueva pestana (nombrar Robot)
-    - Renombrar grupo (Agregar Bordes)
-    - seleccionar macro agregar_bordes
-    - click agregar
+   - click en Mas comandos
+   - click en Complementos
+   - click en administrar (abajo) seleccionar complementos de Powerpoint
+   - click en ir
+   - click en agregar nuevo
+   - seleccionar cotizacion.ppam
+   - click en cerrar
+
+   7.2 Agregar macro **_agregar_bordes_** en cinta de opciones.
+
+   - click en mas comandos
+   - click en Personalizar cinta de opcions
+   - seleccionar opcion Macros en el select Comandos disponibles en
+   - click en Nueva pestana (nombrar Robot)
+   - Renombrar grupo (Agregar Bordes)
+   - seleccionar macro agregar_bordes
+   - click agregar
 
 # Uso:
 
@@ -44,6 +47,7 @@ cd => CDO Promocionales (cdk8, cdt591, cdt602, cdt578)
 sin prefijo => NW Promocionales (no es necesario ya que todos sus códigos comienzan con NW)
 
 ### TODO:
+
 1. Automatizar envio de app.log
 2. Compilar a .bat https://cx-freeze.readthedocs.io
 3. Mejorar manejo de errores
