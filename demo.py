@@ -178,8 +178,8 @@ async def create_ppt(products: Sequence[Data], prs, original_refs) -> None:
         #     image.save(image_bytes, format="PNG")
         #     prs.slides[idx].shapes.add_picture(image_bytes, left, top, height=height)
 
-    prs.save("Product_Presentation.pptx")
-    print("PowerPoint created: Product_Presentation.pptx")
+    # prs.save("Product_Presentation.pptx")
+    print("PowerPoint created")
 
 
 async def process_products(
