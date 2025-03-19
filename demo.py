@@ -217,8 +217,7 @@ async def get_selector(selector: str, product_code: str, page, context):
 
 async def main(refs: List[str], prs, original_refs: List[str]):
     product_codes: List[str] = [
-        "VA-1153",
-        "VA-509",
+        # cpVA-1153, cpVA-509
         "SO-65",
         "SO-75",
         "SO-47",
