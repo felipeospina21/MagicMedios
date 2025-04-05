@@ -1,10 +1,13 @@
 from datetime import datetime
-from typing import TypedDict
+from pptx.enum.text import PP_ALIGN
+from PIL import Image
+from io import BytesIO
 from pptx import Presentation as PPTX
-from pptx.util import Cm
-from utils import create_supplier_ref_list, text_frame_paragraph
+from pptx.dml.color import RGBColor
+from pptx.util import Cm, Pt
+from utils import measures, text_frame_paragraph
 
-from entities.entities import Contact, Representative, Client
+from entities.entities import Color_Inventory, Contact, Representative, Client
 
 
 class Presentation:
@@ -70,6 +73,221 @@ class Presentation:
             width=Cm(17.27),
             height=Cm(16.66),
         )
+
+    def create_title(self, title_text, idx, count, ref):
+        try:
+            title = title_text
+            if idx > 0:
+                top = Cm(measures["t_1"] - 1)
+            else:
+                top = Cm(measures["t_1"])
+
+            titulo = self.prs.slides[idx].shapes.add_textbox(
+                left=Cm(measures["lf_1"]),
+                top=top,
+                width=Cm(measures["w_1"]),
+                height=Cm(measures["h_1"]),
+            )
+            tf_titulo = titulo.text_frame
+            text_frame_paragraph(tf_titulo, f"{count}. {title} {ref}", 12, True)
+
+        except Exception as e:
+            raise SystemExit("Error: ", e)
+
+    def create_subtitle(self, subtitle_text, idx):
+        try:
+            subtitle = subtitle_text
+            if idx > 0:
+                top = Cm(measures["t_2"] - 1)
+            else:
+                top = Cm(measures["t_2"])
+
+            sub_titulo = self.prs.slides[idx].shapes.add_textbox(
+                left=Cm(measures["lf_1"]),
+                top=top,
+                width=Cm(measures["w_1"]),
+                height=Cm(measures["h_2"]),
+            )
+            tf_sub_titulo = sub_titulo.text_frame
+            tf_sub_titulo.word_wrap = True
+            text_frame_paragraph(tf_sub_titulo, subtitle, 11)
+
+        except Exception as e:
+            raise SystemExit("Error: ", e)
+
+    def create_description(self, desc_list, idx):
+        try:
+            if idx > 0:
+                top = Cm(measures["t_3"] - 1)
+            else:
+                top = Cm(measures["t_3"])
+
+            description = self.prs.slides[idx].shapes.add_textbox(
+                left=Cm(measures["lf_1"]),
+                top=top,
+                width=Cm(measures["w_1"]),
+                height=Cm(measures["h_3"]),
+            )
+            tf_desc = description.text_frame
+            tf_desc.word_wrap = True
+            for element in desc_list:
+                text_frame_paragraph(tf_desc, element, 11)
+
+        except Exception as e:
+            raise SystemExit("Error: ", e)
+
+    def create_img(self, image_data: BytesIO | None, idx: int):
+        if image_data:
+            if idx > 0:
+                top = Cm(measures["t_6"] - 1)
+            else:
+                top = Cm(measures["t_6"])
+            image = Image.open(image_data)
+            image_bytes = BytesIO()
+            image.save(image_bytes, format="PNG")
+            self.prs.slides[idx].shapes.add_picture(
+                image_bytes,
+                left=Cm(measures["lf_2"]),
+                top=top,
+                height=Cm(8),
+            )
+
+            # if self.supplier == "cdo_promo":
+            #     self.prs.slides[idx].shapes.add_picture(
+            #         image_bytes, left=self.lf_2, top=top
+            #     )
+            #
+            # else:
+            #     self.prs.slides[idx].shapes.add_picture(
+            #         image_bytes,
+            #         left=Cm(measures["lf_2"]),
+            #         top=top,
+            #         height=Cm(8),
+            #     )
+
+    def create_quantity_table(self, idx):
+        ROWS = 3
+        COLS = 4
+
+        def createHeader(cell, text):
+            cell.text = text
+            cell.fill.solid()
+            cell.fill.fore_color.rgb = RGBColor(26, 152, 139)
+
+        def createRowCell(cell, text):
+            run = cell.text_frame.paragraphs[0].add_run()
+            run.text = text
+            run.font.bold = True
+            cell.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+            cell.fill.solid()
+            cell.fill.fore_color.rgb = RGBColor(255, 255, 255)
+
+        try:
+            if idx > 0:
+                top = Cm(measures["t_5"] - 1)
+            else:
+                top = Cm(measures["t_5"])
+
+            table = (
+                self.prs.slides[idx]
+                .shapes.add_table(
+                    ROWS,
+                    COLS,
+                    Cm(measures["lf_6"]),
+                    top,
+                    Cm(measures["w_1"]),
+                    Cm(measures["h_2"]),
+                )
+                .table
+            )
+
+            c1 = table.cell(0, 0)
+            c2 = table.cell(0, 1)
+            c3 = table.cell(0, 2)
+            c4 = table.cell(0, 3)
+
+            createHeader(c1, "CANTIDAD")
+            createHeader(c2, "TÉCNICA DE MARCACIÓN")
+            createHeader(c3, "DETALLE")
+            createHeader(c4, "VALOR UNITARIO ANTES DE IVA")
+
+            for i in range(0, COLS):
+                table.cell(0, i).text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+
+            table.rows[0].height = Cm(0.5)
+            table.first_row = True
+            table.horz_banding = False
+            for i in range(1, 3):
+                table.rows[i].height = Cm(0.5)
+                # Cell Color
+                cell1 = table.cell(i, 0)
+                cell2 = table.cell(i, 1)
+                cell3 = table.cell(i, 2)
+                cell4 = table.cell(i, 3)
+
+                createRowCell(cell1, "(Und)")
+                createRowCell(cell2, "")
+                createRowCell(cell3, "")
+                createRowCell(cell4, "$")
+
+            table.columns[0].width = Cm(3)
+
+        except Exception as e:
+            raise SystemExit("Error: ", e)
+
+    def create_inventory_table(self, inventory: list[Color_Inventory], idx: int):
+        try:
+            cols = 2
+            rows = len(inventory)
+            if idx > 0:
+                top = Cm(measures["t_6"] - 1)
+            else:
+                top = Cm(measures["t_6"])
+
+            table = (
+                self.prs.slides[idx]
+                .shapes.add_table(
+                    rows + 1,
+                    cols,
+                    Cm(measures["lf_1"]),
+                    top,
+                    Cm(measures["w_2"]),
+                    Cm(measures["h_4"]),
+                )
+                .table
+            )
+
+            # Table Header
+            h1 = table.cell(0, 0)
+            h2 = table.cell(0, 1)
+            h1.text = "Color"
+            h2.text = "Inventario"
+            h1.text_frame.paragraphs[0].font.size = Pt(measures["cell_font"])
+            h2.text_frame.paragraphs[0].font.size = Pt(measures["cell_font"])
+            table.rows[0].height = Cm(0.5)
+            table.first_row = False
+            table.horz_banding = False
+
+            for i, element in enumerate(inventory, 1):
+                c1 = table.cell(i, 0)
+                c1.text = element["color"]
+                c1.text_frame.paragraphs[0].font.size = Pt(measures["cell_font"])
+                c2 = table.cell(i, 1)
+                c2.text = element["inventory"]
+                c2.text_frame.paragraphs[0].font.size = Pt(measures["cell_font"])
+                table.rows[i].height = Cm(0.5)
+                # Cell Color
+                cell1 = table.cell(i, 0)
+                cell2 = table.cell(i, 1)
+                cell1.fill.solid()
+                cell1.fill.fore_color.rgb = RGBColor(255, 255, 255)
+                cell2.fill.solid()
+                cell2.fill.fore_color.rgb = RGBColor(255, 255, 255)
+
+            table.columns[0].width = Cm(3.8)
+            table.columns[1].width = Cm(2.2)
+        except Exception as e:
+            raise SystemExit("Error: ", e)
 
     def save(self, path: str):
         self.prs.save(path)
