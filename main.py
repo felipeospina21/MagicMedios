@@ -26,16 +26,30 @@ async def main():
     client = app.get_client()
     references = app.get_references()
 
-    data = await scrape(references)
-    for d in data:
-        print(d)
-        print("\n")
+    scraped_refs = await scrape(references)
 
     presentation = Presentation(len(references))
     presentation.set_slides(contact)
     presentation.add_header(representative, consecutive)
     presentation.add_client_name(client)
     presentation.add_commercial_policy_slide()
+
+    for idx, ref_data in enumerate(scraped_refs):
+        presentation.create_title(
+            ref_data["title"], idx, count=idx + 1, ref=ref_data["ref"]
+        )
+        if "subtitle" in ref_data:
+            presentation.create_subtitle(ref_data["subtitle"], idx)
+
+        presentation.create_description(ref_data["description"], idx)
+        presentation.create_img(ref_data["image"], idx)
+        presentation.create_quantity_table(idx)
+        presentation.create_inventory_table(ref_data["color_inventory"], idx)
+        print(ref_data)
+        print("\n")
+
+    # FIX: hardcoded path
+    presentation.save("./cotizaciones/cotización_TEST.pptm")
     #
     # # quotation.save()
     # quotation.create_new_consecutive()

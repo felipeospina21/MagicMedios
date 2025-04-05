@@ -40,6 +40,7 @@ async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
         await context.close()
         return {
             "ref": ref,
+            "image": None,
             "title": "",
             "description": [],
             "color_inventory": [],
@@ -54,6 +55,7 @@ async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
             "ref": ref,
             "title": "",
             "description": [],
+            "image": None,
             "color_inventory": [],
         }
 
@@ -87,6 +89,7 @@ async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
             "ref": ref,
             "title": title,
             "description": desc_list,
+            "image": None,
             "color_inventory": color_inventory,
         }
 

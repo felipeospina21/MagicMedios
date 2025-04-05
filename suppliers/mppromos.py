@@ -153,6 +153,7 @@ async def extract_data(page: Page, context, ref: str) -> ProductData:
         return {
             "ref": ref,
             "title": "",
+            "image": None,
             "description": [],
             "color_inventory": [],
         }
@@ -169,9 +170,11 @@ async def extract_data(page: Page, context, ref: str) -> ProductData:
         await context.close()
         return {
             "ref": ref,
+            "image": None,
             "title": title,
             "description": description,
             "color_inventory": color_inventory,
+            "subtitle": subtitle,
         }
 
     response = requests.get(product_image_url)
@@ -184,4 +187,5 @@ async def extract_data(page: Page, context, ref: str) -> ProductData:
         "description": description,
         "image": image_data,
         "color_inventory": color_inventory,
+        "subtitle": subtitle,
     }
