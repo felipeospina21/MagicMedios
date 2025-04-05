@@ -30,4 +30,5 @@ class ProductData(TypedDict):
     title: str
     description: list[str]
     color_inventory: list[Color_Inventory]
-    image: NotRequired[BytesIO]
+    image: BytesIO | None
+    subtitle: NotRequired[str]
