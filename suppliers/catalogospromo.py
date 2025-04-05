@@ -1,62 +1,103 @@
-import time
+import asyncio
+from io import BytesIO
+from playwright.async_api import Page
+from typing import Any, Optional
 
-from selenium.webdriver.common.by import By
+import requests
+from entities.entities import ProductData
+from utils import wait_for_selector_with_retry
 
-from get_data import Get_Data
-from utils import measures
+
+async def search_product(
+    page: Page, product_code: str, retries: int = 3, delay: int = 2
+) -> bool:
+    """Attempts to search for a product, retrying if necessary."""
+    for _ in range(retries):
+        input: bool = await wait_for_selector_with_retry(
+            page, "#productos", retries=3, delay=0
+        )
+        if input:
+            await asyncio.sleep(2)
+            await page.locator("#productos").fill(product_code)
+            await page.locator("#productos").press("Enter")
+
+        found: bool = await wait_for_selector_with_retry(
+            page, ".img-producto", retries=3, delay=0
+        )
+        if found:
+            return True
+
+        await asyncio.sleep(delay)
+
+    return False
 
 
-def crawl(suppliers_dict, prs, references):
-    data = Get_Data("cat_promo", prs, references, measures)
-    data.execute_driver("https://www.catalogospromocionales.com/")
+async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
+    print(f"Processing: {ref}")
 
-    for ref in suppliers_dict["cat_promo"]:
-        try:
-            idx = data.get_original_ref_list_idx(ref)
-            count = idx + 1
-            search_input = data.driver.find_element(By.ID, "productos")
-            data.stop_loading()
-            data.send_keys(search_input, ref)
-        except Exception as e:
-            print(f"search item {ref} not fount")
-            raise Exception(e)
+    found: bool = await search_product(page, ref, delay=0)
+    if not found:
+        await context.close()
+        return {
+            "ref": ref,
+            "title": "",
+            "description": [],
+            "color_inventory": [],
+        }
 
-        productos = data.retry(6, "img-producto", ref)
+    await page.click(".img-producto")
 
-        for i in range(0, len(productos)):
-            try:
-                result_ref = data.retry(6, "ref", ref)[i]
-            except Exception as e:
-                raise Exception(e)
+    found = await wait_for_selector_with_retry(page, "#img_01", timeout=5000)
+    if not found:
+        await context.close()
+        return {
+            "ref": ref,
+            "title": "",
+            "description": [],
+            "color_inventory": [],
+        }
 
-            if ref == result_ref.text.upper():
-                producto = data.driver.find_elements(By.CLASS_NAME, "img-producto")[i]
-                producto.click()
-                time.sleep(5)
+    product_name: str = await page.locator(".hola").inner_text()
+    product_image_url: Optional[str] = await page.locator(
+        "#img_01"
+    ).first.get_attribute("src")
+    info_text_arr = product_name.split("\n\n")
+    title = info_text_arr[0]
+    desc_list = info_text_arr[2:]
+    color_inventory = []
+    try:
+        xpath = "//tr[@class='titlesRow']/following-sibling::tr[not(@class='hideInfo')]"
+        color_elements = await page.locator(xpath).all()
+        for element in color_elements:
+            if await element.is_visible():
+                cells = await element.locator("td").all()
+                cell_texts = [await cell.inner_text() for cell in cells]
+                color = cell_texts[0]
+                inventory = cell_texts[3]
+                color_inventory.append({"color": color, "inventory": inventory})
+            else:
+                print("not visible")
 
-                try:
-                    info_container = data.driver.find_element(By.CLASS_NAME, "hola")
-                    info_text_arr = info_container.text.split("\n")
-                    title = info_text_arr[0]
-                    desc_list = info_text_arr[2:]
-                except Exception as e:
-                    raise Exception(e)
+    except Exception as e:
+        raise SystemExit("Error: ", e)
 
-                number_of_colors = data.get_elements_len_with_xpath(
-                    "//tr[@class='titlesRow']/following-sibling::tr[not(@class='hideInfo')]"
-                )
-                img_src = data.get_img("//img[@id='img_01']")
+    if not product_image_url:
+        await context.close()
+        return {
+            "ref": ref,
+            "title": title,
+            "description": desc_list,
+            "color_inventory": color_inventory,
+        }
 
-                data.create_quantity_table(idx)
-                data.create_title(title, idx, count, ref)
-                data.create_desc(desc_list, idx)
-                data.create_inventory_table(
-                    number_of_colors, "//table[@class='tableInfoProd']", idx
-                )
-                data.create_img(img_src, idx, 8, ref)
+    response = requests.get(product_image_url)
+    image_data = BytesIO(response.content)
 
-                break
-
-        print(f"✓ {ref}")
-    print(f"✓ referencias catalogos")
-    data.close_driver()
+    await context.close()
+    return {
+        "ref": ref,
+        "title": title,
+        "description": desc_list,
+        "image": image_data,
+        "color_inventory": color_inventory,
+    }
