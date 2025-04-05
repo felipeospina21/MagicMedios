@@ -5,7 +5,7 @@ from io import BytesIO
 from pptx import Presentation as PPTX
 from pptx.dml.color import RGBColor
 from pptx.util import Cm, Pt
-from utils import measures, text_frame_paragraph
+from constants import measures
 
 from entities.entities import Color_Inventory, Contact, Representative, Client
 
@@ -16,6 +16,17 @@ class Presentation:
 
     def __init__(self, references_quantity: int) -> None:
         self.ref_q = references_quantity
+
+    def text_frame_paragraph(
+        self, text_frame, text, font_size, bold=False, centered=False
+    ):
+        tf = text_frame.add_paragraph()
+        tf.text = text
+        tf.font.size = Pt(font_size)
+        tf.font.bold = bold
+        tf.space_before = Cm(0)
+        if centered:
+            tf.alignment = PP_ALIGN.CENTER
 
     def set_slides(self, contact: Contact):
         for i in range(0, self.ref_q + 1):
@@ -31,7 +42,7 @@ class Presentation:
                 left=Cm(0.5), top=Cm(22.8), width=Cm(18), height=Cm(1)
             )
             tf_footer = footer_textbox.text_frame
-            text_frame_paragraph(
+            self.text_frame_paragraph(
                 tf_footer,
                 f"{contact['address']} {contact['phone']} {contact['email']} {contact['web']}",
                 7,
@@ -45,13 +56,13 @@ class Presentation:
             left=Cm(12), top=Cm(-0.5), width=Cm(6.6), height=Cm(6)
         )
         tf = txBox.text_frame
-        text_frame_paragraph(
+        self.text_frame_paragraph(
             tf, f"{today.day} {today.strftime('%B')} de {today.year}", 14
         )
-        text_frame_paragraph(tf, f"Cot N°{consecutive}", 14)
-        text_frame_paragraph(tf, "", 11)
-        text_frame_paragraph(tf, "Asesor Comercial", 11)
-        text_frame_paragraph(
+        self.text_frame_paragraph(tf, f"Cot N°{consecutive}", 14)
+        self.text_frame_paragraph(tf, "", 11)
+        self.text_frame_paragraph(tf, "Asesor Comercial", 11)
+        self.text_frame_paragraph(
             tf,
             f"{representative['name']} {representative['phone']} {representative['email']}",
             11,
@@ -62,8 +73,8 @@ class Presentation:
             left=Cm(1), top=Cm(1.8), width=Cm(6.4), height=Cm(2)
         )
         tf_header = header.text_frame
-        text_frame_paragraph(tf_header, f"Señor(a) {client['name']}.", 14, True)
-        text_frame_paragraph(tf_header, client["company"], 14, True)
+        self.text_frame_paragraph(tf_header, f"Señor(a) {client['name']}.", 14, True)
+        self.text_frame_paragraph(tf_header, client["company"], 14, True)
 
     def add_commercial_policy_slide(self):
         self.prs.slides[self.ref_q].shapes.add_picture(
@@ -89,7 +100,7 @@ class Presentation:
                 height=Cm(measures["h_1"]),
             )
             tf_titulo = titulo.text_frame
-            text_frame_paragraph(tf_titulo, f"{count}. {title} {ref}", 12, True)
+            self.text_frame_paragraph(tf_titulo, f"{count}. {title} {ref}", 12, True)
 
         except Exception as e:
             raise SystemExit("Error: ", e)
@@ -110,7 +121,7 @@ class Presentation:
             )
             tf_sub_titulo = sub_titulo.text_frame
             tf_sub_titulo.word_wrap = True
-            text_frame_paragraph(tf_sub_titulo, subtitle, 11)
+            self.text_frame_paragraph(tf_sub_titulo, subtitle, 11)
 
         except Exception as e:
             raise SystemExit("Error: ", e)
@@ -131,7 +142,7 @@ class Presentation:
             tf_desc = description.text_frame
             tf_desc.word_wrap = True
             for element in desc_list:
-                text_frame_paragraph(tf_desc, element, 11)
+                self.text_frame_paragraph(tf_desc, element, 11)
 
         except Exception as e:
             raise SystemExit("Error: ", e)

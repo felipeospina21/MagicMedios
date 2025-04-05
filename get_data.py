@@ -14,7 +14,6 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
-from utils import text_frame_paragraph
 
 logging.basicConfig(
     level=logging.ERROR,
@@ -400,83 +399,6 @@ class Get_Data:
             self.error_logging(e)
             raise SystemExit("Error: ", e)
 
-    def create_title(self, title_text, idx, count, ref):
-        try:
-            title = title_text
-            if idx > 0:
-                top = Cm(self.t_1 - 1)
-            else:
-                top = Cm(self.t_1)
-
-            titulo = self.prs.slides[idx].shapes.add_textbox(
-                left=self.lf_1, top=top, width=self.w_1, height=self.h_1
-            )
-            tf_titulo = titulo.text_frame
-            text_frame_paragraph(tf_titulo, f"{count}. {title} {ref}", 12, True)
-
-        except Exception as e:
-            self.error_logging(e)
-            raise SystemExit("Error: ", e)
-
-    def create_subtitle(self, subtitle_text, idx):
-        try:
-            subtitle = subtitle_text
-            if idx > 0:
-                top = Cm(self.t_2 - 1)
-            else:
-                top = Cm(self.t_2)
-
-            sub_titulo = self.prs.slides[idx].shapes.add_textbox(
-                left=self.lf_1, top=top, width=self.w_1, height=self.h_2
-            )
-            tf_sub_titulo = sub_titulo.text_frame
-            tf_sub_titulo.word_wrap = True
-            text_frame_paragraph(tf_sub_titulo, subtitle, 11)
-
-        except Exception as e:
-            self.error_logging(e)
-            raise SystemExit("Error: ", e)
-
-    def create_description(self, desc_list, idx):
-        try:
-            if idx > 0:
-                top = Cm(self.t_3 - 1)
-            else:
-                top = Cm(self.t_3)
-
-            description = self.prs.slides[idx].shapes.add_textbox(
-                left=self.lf_1, top=top, width=self.w_1, height=self.h_3
-            )
-            tf_desc = description.text_frame
-            tf_desc.word_wrap = True
-            for element in desc_list:
-                text_frame_paragraph(tf_desc, element.text, 11)
-
-        except Exception as e:
-            self.error_logging(e)
-            raise SystemExit("Error: ", e)
-
-    # TODO: Replace this function for create_description.
-    # Identical implementation, here desc_list is a string[]
-    def create_desc(self, desc_list, idx):
-        try:
-            if idx > 0:
-                top = Cm(self.t_3 - 1)
-            else:
-                top = Cm(self.t_3)
-
-            description = self.prs.slides[idx].shapes.add_textbox(
-                left=self.lf_1, top=top, width=self.w_1, height=self.h_3
-            )
-            tf_desc = description.text_frame
-            tf_desc.word_wrap = True
-            for element in desc_list:
-                text_frame_paragraph(tf_desc, element, 11)
-
-        except Exception as e:
-            self.error_logging(e)
-            raise SystemExit("Error: ", e)
-
     def create_description_promo_op(self, desc_list, idx):
         try:
             if idx > 0:
@@ -522,77 +444,6 @@ class Get_Data:
             for element in printing_methods_list:
                 text_frame_paragraph(tf_p1, element, 11)
 
-        except Exception as e:
-            self.error_logging(e)
-            raise SystemExit("Error: ", e)
-
-    def create_inventory_table(self, q_colores, xpath_tabla_colores, idx):
-        try:
-            cols = 2
-            rows = q_colores
-            if idx > 0:
-                top = Cm(self.t_6 - 1)
-            else:
-                top = Cm(self.t_6)
-
-            table = (
-                self.prs.slides[idx]
-                .shapes.add_table(rows + 1, cols, self.lf_1, top, self.w_2, self.h_4)
-                .table
-            )
-
-            # Table Header
-            h1 = table.cell(0, 0)
-            h2 = table.cell(0, 1)
-            h1.text = "Color"
-            h2.text = "Inventario"
-            h1.text_frame.paragraphs[0].font.size = self.cell_font
-            h2.text_frame.paragraphs[0].font.size = self.cell_font
-            table.rows[0].height = Cm(0.5)
-            table.first_row = False
-            table.horz_banding = False
-
-            for i in range(1, q_colores + 1):
-                if self.supplier == "cat_promo":
-                    color_xpath = f"tbody[1]/tr[not(@class='hideInfo')][{i+2}]/td[1]"
-                    inv_color_xpath = (
-                        f"tbody[1]/tr[not(@class='hideInfo')][{i+2}]/td[4]"
-                    )
-
-                elif self.supplier == "mp_promo":
-                    color_xpath = f"tr[{i}]/td[3]"
-                    inv_color_xpath = f"tr[{i}]/td[6]"
-
-                elif self.supplier == "nw_promo":
-                    color_xpath = f"tr[{i}]/td[1]"
-                    inv_color_xpath = f"tr[{i}]/td[5]"
-
-                else:
-                    raise Exception("Not supported method for supplier")
-
-                color = self.driver.find_element(
-                    By.XPATH, f"{xpath_tabla_colores}/{color_xpath}"
-                ).text
-                inv_color = self.driver.find_element(
-                    By.XPATH, f"{xpath_tabla_colores}/{inv_color_xpath}"
-                ).text
-                c1 = table.cell(i, 0)
-                c1.text = color
-                c1.text_frame.paragraphs[0].font.size = self.cell_font
-                c2 = table.cell(i, 1)
-                c2.text = inv_color
-                c2.text_frame.paragraphs[0].font.size = self.cell_font
-                table.rows[i].height = Cm(0.5)
-                # Cell Color
-                cell1 = table.cell(i, 0)
-                cell2 = table.cell(i, 1)
-                cell1.fill.solid()
-                cell1.fill.fore_color.rgb = RGBColor(255, 255, 255)
-                cell2.fill.solid()
-                cell2.fill.fore_color.rgb = RGBColor(255, 255, 255)
-
-            table.columns[0].width = Cm(3.8)
-            table.columns[1].width = Cm(2.2)
         except Exception as e:
             self.error_logging(e)
             raise SystemExit("Error: ", e)
@@ -675,42 +526,6 @@ class Get_Data:
             table.columns[1].width = Cm(2.2)
 
             return table
-
-        except Exception as e:
-            self.error_logging(e)
-            raise SystemExit("Error: ", e)
-
-    def create_img(self, img_src, idx, img_height, ref):
-        response = requests.get(img_src)
-        try:
-            if idx > 0:
-                top = Cm(self.t_6 - 1)
-            else:
-                top = Cm(self.t_6)
-
-            if response.status_code == 200:
-                file = open("./images/sample_image.jpg", "wb")
-                file.write(response.content)
-                file.close()
-
-                if self.supplier == "cdo_promo":
-                    self.prs.slides[idx].shapes.add_picture(
-                        "./images/sample_image.jpg", left=self.lf_2, top=top
-                    )
-
-                else:
-                    self.prs.slides[idx].shapes.add_picture(
-                        "./images/sample_image.jpg",
-                        left=self.lf_2,
-                        top=top,
-                        # width=Cm(img_width),
-                        height=Cm(img_height),
-                    )
-
-            else:
-                print(
-                    f"Error al descargar imagen de la ref {ref}, status code({response.status_code})"
-                )
 
         except Exception as e:
             self.error_logging(e)

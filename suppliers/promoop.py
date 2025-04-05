@@ -4,7 +4,7 @@ import time
 from dotenv import load_dotenv
 
 from get_data import Get_Data
-from utils import measures
+from constants import measures
 
 
 def get_data(suppliers_dict, prs, references):

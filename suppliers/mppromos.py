@@ -8,10 +8,10 @@ from entities.entities import Color_Inventory, ProductData
 from playwright.async_api import Page
 
 from get_data import Get_Data
+from constants import measures
 from utils import (
     get_all_selectors_with_retry,
     get_selector_with_retry,
-    measures,
     wait_for_selector_with_retry,
 )
 

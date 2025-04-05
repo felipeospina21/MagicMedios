@@ -4,7 +4,8 @@ import os
 import time
 
 from get_data import Get_Data
-from utils import get_api_data, measures
+from utils import get_api_data
+from constants import measures
 
 
 def crawl(suppliers_dict, prs, references):

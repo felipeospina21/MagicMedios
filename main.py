@@ -34,6 +34,7 @@ async def main():
     presentation.add_client_name(client)
     presentation.add_commercial_policy_slide()
 
+    # Add data to slides
     for idx, ref_data in enumerate(scraped_refs):
         presentation.create_title(
             ref_data["title"], idx, count=idx + 1, ref=ref_data["ref"]
@@ -45,13 +46,9 @@ async def main():
         presentation.create_img(ref_data["image"], idx)
         presentation.create_quantity_table(idx)
         presentation.create_inventory_table(ref_data["color_inventory"], idx)
-        print(ref_data)
-        print("\n")
 
     # FIX: hardcoded path
     presentation.save("./cotizaciones/cotización_TEST.pptm")
-    #
-    # # quotation.save()
     # quotation.create_new_consecutive()
     #
     total_time = "{:.2f}".format((time.time() - start_time) / 60)
