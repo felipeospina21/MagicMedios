@@ -22,7 +22,7 @@ Automatización cotizador
    - seleccionar cotizacion.ppam
    - click en cerrar
 
-   7.2 Agregar macro **_agregar_bordes_** en cinta de opciones.
+     7.2 Agregar macro **_agregar_bordes_** en cinta de opciones.
 
    - click en mas comandos
    - click en Personalizar cinta de opcions
@@ -40,11 +40,13 @@ Automatización cotizador
 
 ## Prefijos Proveedores:
 
-cp => catalogos Promocionales (cpMU-12-2)  
-mp => Mp Promocionales (mpGO0020)  
+cp => catalogos Promocionales (cpMU-12-2, cpVA-1153, cpVA-509)  
+mp => Mp Promocionales (mpGO0020, mpTE0677)  
 po => Promo Opción (poBBQ 002)  
 cd => CDO Promocionales (cdk8, cdt591, cdt602, cdt578)  
 sin prefijo => NW Promocionales (no es necesario ya que todos sus códigos comienzan con NW)
+
+test => (cpMU-12-2, cpVA-1153, cpVA-509,mpGO0020, mpTE0677)
 
 ### TODO:
 
