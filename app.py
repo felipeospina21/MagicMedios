@@ -8,9 +8,9 @@ class App:
     def __init__(self) -> None:
         parser = argparse.ArgumentParser()
         parser.add_argument("--debug", action="store_true", help="Enable debug mode")
-        args = parser.parse_args()
+        self.args = parser.parse_args()
 
-        if args.debug:
+        if self.args.debug:
             print("Debug Mode ON\n")
             self.path = os.environ.get("FILE_PATH")
             self.path = "."
@@ -23,10 +23,18 @@ class App:
         self.footer_path = f"{self.path}/data/data.txt"
 
     def prompt(self):
-        self.users = self.get_users()
-        self.client = input("Ingrese nombre cliente: ").title()
-        self.company = input("Ingrese nombre empresa: ").upper()
-        self.user = input(f"Ingrese nombre asesor ({', '.join(self.users)}): ").lower()
+        if self.args.debug:
+            self.client = "test"
+            self.company = "test"
+            self.user = "carlos"
+        else:
+            self.users = self.get_users()
+            self.client = input("Ingrese nombre cliente: ").title()
+            self.company = input("Ingrese nombre empresa: ").upper()
+            self.user = input(
+                f"Ingrese nombre asesor ({', '.join(self.users)}): "
+            ).lower()
+
         self.references = (
             input("Ingrese referencias a consultar (separadas por coma): ")
             .upper()
@@ -34,7 +42,7 @@ class App:
         )
 
     def get_references(self):
-        return self.references
+        return [ref.strip() for ref in self.references]
 
     def get_client(self) -> Client:
         return {"company": self.company, "name": self.client}

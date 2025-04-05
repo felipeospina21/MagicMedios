@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 from entities.presentation import Presentation
 from app import App
-from new_quotation import Quotation
+from scrape import scrape
 
 
 async def main():
@@ -25,8 +25,11 @@ async def main():
     consecutive = app.get_consecutive()
     client = app.get_client()
     references = app.get_references()
-    quotation = Quotation(references)
-    await quotation.scrapp_data()
+
+    data = await scrape(references)
+    for d in data:
+        print(d)
+        print("\n")
 
     presentation = Presentation(len(references))
     presentation.set_slides(contact)
