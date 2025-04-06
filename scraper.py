@@ -53,7 +53,12 @@ def get_ref_and_url(ref: str) -> Tuple[str, str, Task]:
             "api",
             cdopromo.extract_data,
         )
-    # elif re.search("^NW|^nw", ref):
+    elif re.search("^NW|^nw", ref):
+        return (
+            ref,
+            "https://promocionalesnw.com/",
+            nwpromo.extract_data,
+        )
     raise Exception(
         f"Error: {ref} no pudo ser asociada a ningun proveedor, verificar prefijo"
     )

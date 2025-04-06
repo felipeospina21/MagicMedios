@@ -46,7 +46,7 @@ po => Promo Opción (poTMPS 234, poBBQ 002)
 cd => CDO Promocionales (cdk8, cdt591, cdt602, cdt578)  
 sin prefijo => NW Promocionales (no es necesario ya que todos sus códigos comienzan con NW)
 
-test => (cpMU-12-2, cpVA-1153, cpVA-509,mpGO0020, mpTE0677)
+test => (cpMU-12-2, cpVA-1153, cpVA-509,mpGO0020, mpTE0677, nw8313)
 
 ### TODO:
 
