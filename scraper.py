@@ -6,18 +6,12 @@ from typing import Any, Callable, Coroutine, Dict, Tuple
 from playwright._impl._errors import Error as PlaywrightError
 
 from entities.entities import ProductData
-from playwright.async_api import async_playwright, Browser, Page, Playwright
+from playwright.async_api import async_playwright, Browser, Page
 from suppliers import catalogospromo, mppromos, promoop, cdopromo, nwpromo
 
 MAX_CONCURRENT_TASKS = 5  # Configurable
 
 semaphore = asyncio.Semaphore(MAX_CONCURRENT_TASKS)
-
-SUPPLIER_URLS = {
-    "cp": "https://www.catalogospromocionales.com/",
-    "mp": "https://www.marpicopromocionales.com/",
-    "po": "https://www.promoopcioncolombia.co/",
-}
 
 type Data = Dict[str, str | BytesIO]
 
@@ -85,12 +79,12 @@ async def scrape_product(browser: Browser, ref: str) -> ProductData:
             return data
 
 
-async def scrape(ref_list):
+async def scrape(ref_list) -> list[ProductData] | None:
     async with async_playwright() as p:
         # loop to install browser and try again if not found
         for _ in range(2):
             try:
-                browser = await p.chromium.launch(headless=False)
+                browser = await p.chromium.launch(headless=True)
                 tasks = [scrape_product(browser, ref) for ref in ref_list]
                 results = await asyncio.gather(*tasks)
                 await browser.close()

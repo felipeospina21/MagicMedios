@@ -9,7 +9,6 @@ from playwright.async_api import Page
 from utils import (
     get_all_selectors_with_retry,
     get_inventory,
-    get_selector_with_retry,
     wait_for_selector_with_retry,
     get_image_url,
 )
@@ -19,7 +18,7 @@ async def search_product(
     page: Page, product_code: str, retries: int = 3, delay: int = 2
 ) -> bool:
     """Attempts to search for a product, retrying if necessary."""
-    for attempt in range(retries):
+    for _ in range(retries):
         input: bool = await wait_for_selector_with_retry(
             page, "#input-buscar-menu", retries=3, delay=0
         )

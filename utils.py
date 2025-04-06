@@ -1,5 +1,5 @@
 import asyncio
-from typing import Literal, Optional
+from typing import Optional
 
 from playwright.async_api import Locator, Page
 
@@ -12,16 +12,15 @@ async def wait_for_selector_with_retry(
     timeout: int = 5000,
     retries: int = 3,
     delay: int = 2,
-    state: Literal["attached", "detached", "hidden", "visible"] | None = None,
 ) -> bool:
     """Retries waiting for a selector multiple times before failing."""
     for attempt in range(1, retries + 1):
         try:
             print(f"wating for selector {selector}, {attempt}/{retries}")
             element = page.locator(selector)
-            await element.wait_for(timeout=timeout, state="visible")
+            await element.wait_for(timeout=timeout)
             return True
-        except Exception as e:
+        except:
             if attempt < retries - 1:
                 await asyncio.sleep(delay)
             else:
