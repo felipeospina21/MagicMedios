@@ -1,67 +1,70 @@
-from logging import log
+from io import BytesIO
+import json
 import logging
 import os
-import time
+from typing import Any
 
-from get_data import Get_Data
-from utils import get_api_data, measures
+from playwright.async_api import Page
+import requests
+
+from entities.variant import Product, Variant
+from entities.entities import Color_Inventory, ProductData
 
 
-def crawl(suppliers_dict, prs, references):
+def get_api_data(url):
+    response = requests.get(url)
+    content = response.content
+    return json.loads(content)
+
+
+async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
+    print(f"Processing: {ref}")
+
     auth_token = os.environ.get("API_TOKEN")
     if auth_token == "":
         logging.error("No se encontro token para la api de CDO", exc_info=True)
         print("No se encontro token para la api de CDO")
-        exit()
-    data = Get_Data("cdo_promo", prs, references, measures)
-    data.execute_driver("https://colombia.cdopromocionales.com/")
 
-    for ref in suppliers_dict["cdo_promo"]:
-        idx = data.get_original_ref_list_idx(ref)
-        data.create_quantity_table(idx)
-        count = idx + 1
-        url = f"http://api.colombia.cdopromocionales.com/v1/products/{ref}?auth_token={auth_token}"
-        try:
-            result = get_api_data(url)
-            title = result["name"]
-            desc = result["description"]
-            colors = result["variants"]
-            q_colores = len(colors)
-            img_src = colors[0]["detail_picture"]["medium"]
+    url = f"http://api.colombia.cdopromocionales.com/v2/products/{ref}?auth_token={auth_token}"
+    result: Product = get_api_data(url)
+    title = result["name"]
+    subtitle = result["description"]
+    variants: list[Variant] = result["variants"]
+    icons = result["icons"]
+    description = []
+    for icon in icons:
+        description.append(icon["label"])
 
-            # NOTE: This data can't be received from the API
-            search_input = data.get_element_with_xpath(
-                "//input[@id='search_full_text']"
-            )
-            data.send_keys(search_input, ref)
-            time.sleep(2)
-            data.click_first_result("//div[@class='variant-container']/a[1]")
-            time.sleep(1)
-            packing = data.get_description("//div[@class='packing']")
+    product_image_url = variants[0]["detail_picture"]["medium"]
+    color_inventory: list[Color_Inventory] = []
+    for variant in variants:
+        color_inventory.append(
+            {
+                "color": variant["color"]["name"],
+                "inventory": str(variant["stock_existent"]),
+            }
+        )
 
-            # NOTE: gets the print method icons to then get its text
-            printing_methods_list = ["Métodos de impresión:"]
-            number_of_print_methods = data.get_elements_len_with_xpath(
-                "//div[@class='printing']/ul[1]/child::li"
-            )
-            for i in range(1, number_of_print_methods + 1):
-                img_element = data.get_element_with_xpath(
-                    f"//div[@class='printing']/ul[1]/li[{i}]/img[1]"
-                )
-                img_title = data.get_element_attribute(img_element, "title")
-                printing_methods_list.append(img_title)
+    if not product_image_url:
+        await context.close()
+        return {
+            "ref": ref,
+            "title": title,
+            "subtitle": subtitle,
+            "description": description,
+            "image": None,
+            "color_inventory": color_inventory,
+        }
 
-            # creates slide
-            data.create_title(title, idx, count, ref)
-            data.create_subtitle(desc, idx)
-            data.create_stock_table_api(q_colores, colors, idx)
-            data.create_img(img_src, idx, 0, ref)
-            data.create_description(packing, idx)
-            data.create_printing_info(printing_methods_list, idx)
-        except Exception as e:
-            data.error_logging(e)
-            raise SystemExit("Error: ", e)
+    response = requests.get(product_image_url)
+    image_data = BytesIO(response.content)
 
-        print(f"✓ {ref}")
-    print(f"✓ referencias cdo promo")
-    data.close_driver()
+    await context.close()
+    return {
+        "ref": ref,
+        "title": title,
+        "subtitle": subtitle,
+        "description": description,
+        "image": image_data,
+        "color_inventory": color_inventory,
+    }

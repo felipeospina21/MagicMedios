@@ -1,99 +1,144 @@
+import asyncio
+from io import BytesIO
 import os
-import time
+from typing import Any, Dict, Tuple
 
 from dotenv import load_dotenv
+from playwright.async_api import Page
+import requests
 
-from get_data import Get_Data
-from utils import measures
+from entities.entities import ProductData
+from utils import (
+    get_all_selectors_with_retry,
+    get_image_url,
+    get_inventory,
+    get_selector_with_retry,
+    humanize_text,
+    remove_prefix,
+    wait_for_selector_with_retry,
+)
 
 
-def get_data(suppliers_dict, prs, references):
-    data = Get_Data("promo_op", prs, references, measures)
-    data.execute_driver("https://www.promoopcioncolombia.co/")
-    header_xpath = "//table[@class='table table-hover table-responsive']/tbody[1]"
-    # header_xpath = "//td[@class='table-responsive']"
+async def login(page: Page):
     load_dotenv()
     password = os.environ.get("PROMO_OP_PASSWORD")
+    if not password:
+        print(f"promo opcion password not found")
+        return
 
-    psw_input = data.get_element_with_xpath("//input[@id='psw']")
-    data.send_keys(psw_input, password)
+    input = await get_selector_with_retry(page, "#psw")
+    if input:
+        await input.fill(password)
+        await input.press("Enter")
 
-    try:
-        time.sleep(5)
-        data.accept_alert_popup()
-        time.sleep(5)
-        data.stop_loading()
-    except Exception as e:
-        print(f"Error de tipo {e.__class__} al tratar de hacer click en alert_popup")
 
-    for ref in suppliers_dict["promo_op"]:
-        try:
-            ref_idx = data.get_original_ref_list_idx(ref)
-            search_input = data.get_element_with_xpath("//input[@id='q']")
-            data.send_keys(search_input, ref)
-            data.click_first_result("//a[@class='img-responsive ']")
-            time.sleep(1)
-            colors_q = data.get_elements_len_with_xpath(
-                "//table[@class='table table-striped']/tbody[1]/child::tr"
-            )
-            data.create_quantity_table(ref_idx)
-            title_text = data.get_title_with_xpath(f"{header_xpath}/tr[1]/td[1]/h6[1]")
-            subtitle_text = data.get_subtitle_with_xpath(f"{header_xpath}/tr[2]/td[1]")
-            data.create_title(title_text, ref_idx, ref_idx + 1, ref)
-            data.create_subtitle(subtitle_text, ref_idx)
+async def get_description(page: Page, header_xpath: str) -> Tuple[str, str, list[str]]:
+    title = ""
+    subtitle = ""
+    description = []
+    content_table = await get_selector_with_retry(page, header_xpath)
+    if content_table:
+        text = await content_table.inner_text()
+        rows = text.split("\n")
+        title = rows[0]
+        subtitle = rows[2]
+        description = rows[3:]
 
-            desc_list = data.get_description(f"{header_xpath}/child::tr")
-            data.create_description_promo_op(desc_list, ref_idx)
-            stock_table = data.create_stock_table(colors_q, ref_idx)
-            colors_elements = data.get_elements_with_xpath(
-                "//ul[@class='colors']/child::li"
-            )
-            colors_stock = []
-            img_path = "//div[@id='img-list-1']/div[1]/img"
+    return title, subtitle, description
 
-            # Color Unico
-            if len(colors_elements) == 0:
-                stock = data.get_element_with_xpath(
-                    "//table[@class='table table-striped']/tbody[1]/tr[2]/td[4]"
-                ).text
-                colors_stock.append({"title": "Color Único", "stock": stock})
-                img_src = data.get_img(img_path)
-                data.create_img(img_src, ref_idx, 8, ref)
 
-            # Varios Colores
-            else:
-                data.click_first_result("//ul[@class='colors']/li[1]")
-                img_src = data.get_img(img_path)
+async def search_product(
+    page: Page, product_code: str, retries: int = 3, delay: int = 2
+) -> bool:
+    """Attempts to search for a product, retrying if necessary."""
+    for _ in range(retries):
+        input: bool = await wait_for_selector_with_retry(page, "#q", retries=3, delay=0)
+        if input:
+            await asyncio.sleep(2)
+            await page.locator("#q").fill(product_code)
+            await page.locator("#q").press("Enter")
 
-                data.create_img(img_src, ref_idx, 8, ref)
-                for color in colors_elements:
-                    title = data.get_element_attribute(color, "title")
-                    color_rgb = color.value_of_css_property("background-color")
-                    colors_stock.append({"title": title, "color_rgb": color_rgb})
+        found: bool = await wait_for_selector_with_retry(
+            page, "//a[@class='img-responsive ']", retries=3, delay=0
+        )
+        if found:
+            return True
 
-                for i in range(0, colors_q - 1):
-                    color_element = data.get_element_with_xpath(
-                        f"//table[@class='table table-striped']/tbody[1]/tr[{i+2}]/td[2]/li[1]"
-                    )
-                    color = data.get_element_css_property(
-                        color_element, "background-color"
-                    )
-                    stock = data.get_element_with_xpath(
-                        f"//table[@class='table table-striped']/tbody[1]/tr[{i+2}]/td[4]"
-                    ).text
+        await asyncio.sleep(delay)
 
-                    for element in colors_stock:
-                        if element.get("color_rgb") == color:
-                            element.update({"stock": stock})
+    return False
 
-            for ref_idx, element in enumerate(colors_stock):
-                color = element.get("title")
-                stock = element.get("stock")
-                data.fill_stock_table(stock_table, color, stock, ref_idx + 1)
 
-        except Exception as e:
-            raise Exception(e)
+async def get_colors_map(page: Page) -> Dict[str, str]:
+    colors = {}
+    color_element = await get_all_selectors_with_retry(
+        page, "//ul[@class='colors']/child::li"
+    )
+    if color_element:
+        for color in color_element:
+            id = await color.get_attribute("id")
+            t = await color.get_attribute("title")
+            name = t.capitalize() if t else ""
+            color_ref = humanize_text(remove_prefix(id, "product_color_")) if id else ""
+            colors[color_ref] = name
 
-        print(f"✓ {ref}")
-    print(f"✓ referencias promoopcion")
-    data.close_driver()
+    return colors
+
+
+async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
+    print(f"Processing: {ref}")
+
+    await login(page)
+    await asyncio.sleep(3)
+
+    found: bool = await search_product(page, ref, delay=0)
+    if not found:
+        await context.close()
+        return {
+            "ref": ref,
+            "image": None,
+            "title": "",
+            "description": [],
+            "color_inventory": [],
+        }
+
+    await page.click("//a[@class='img-responsive ']")
+
+    product_image_url = await get_image_url(page, "#img_01")
+    header_xpath = "//table[@class='table table-hover table-responsive']/tbody[1]"
+    title, subtitle, description = await get_description(page, header_xpath)
+    xpath = "//table[@class='table table-striped']/tbody[1]/child::tr"
+    color_inventory = await get_inventory(
+        page, xpath, color_cell_index=2, inventory_cell_index=3
+    )
+    colors_map = await get_colors_map(page)
+
+    # reassign color key value
+    for item in color_inventory:
+        ref = item["color"]
+        if ref in colors_map:
+            item["color"] = colors_map[ref]
+
+    if not product_image_url:
+        await context.close()
+        return {
+            "ref": ref,
+            "title": title,
+            "subtitle": subtitle,
+            "description": description,
+            "image": None,
+            "color_inventory": color_inventory,
+        }
+
+    response = requests.get(product_image_url)
+    image_data = BytesIO(response.content)
+
+    await context.close()
+    return {
+        "ref": ref,
+        "title": title,
+        "subtitle": subtitle,
+        "description": description,
+        "image": image_data,
+        "color_inventory": color_inventory,
+    }

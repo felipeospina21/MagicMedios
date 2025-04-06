@@ -1,78 +1,102 @@
-import json
-import re
+import asyncio
+from typing import Optional
 
-import requests
-from pptx.enum.text import PP_ALIGN
-from pptx.util import Cm, Pt
+from playwright.async_api import Locator, Page
+
+from entities.entities import Color_Inventory
 
 
-def create_supplier_ref_list(
-    ref, suppliers_dict: dict[str, list[str]]
-) -> dict[str, list[str]]:
-    if re.search("^CP|^cp]", ref):
-        split_ref = ref.split("CP", 1)
-        suppliers_dict["cat_promo"].append(split_ref[1])
-    elif re.search("^MP|^mp]", ref):
-        split_ref = ref.split("MP", 1)
-        suppliers_dict["mp_promo"].append(split_ref[1])
-    elif re.search("^PO|^po]", ref):
-        split_ref = ref.split("PO", 1)
-        suppliers_dict["promo_op"].append(split_ref[1])
-    elif re.search("^CD|^cd", ref):
-        split_ref = ref.split("CD", 1)
-        suppliers_dict["cdo_promo"].append(split_ref[1])
-    elif re.search("^NW|^nw", ref):
-        suppliers_dict["nw_promo"].append(ref)
+async def wait_for_selector_with_retry(
+    page: Page,
+    selector: str,
+    timeout: int = 5000,
+    retries: int = 3,
+    delay: int = 2,
+) -> bool:
+    """Retries waiting for a selector multiple times before failing."""
+    for attempt in range(1, retries + 1):
+        try:
+            print(f"wating for selector {selector}, {attempt}/{retries}")
+            element = page.locator(selector)
+            await element.wait_for(timeout=timeout)
+            return True
+        except:
+            if attempt < retries - 1:
+                await asyncio.sleep(delay)
+            else:
+                return False
+    return False
+
+
+async def get_selector_with_retry(
+    page: Page, selector: str, timeout: int = 5000, retries: int = 3, delay: int = 2
+) -> Locator | None:
+    """Retries waiting for a selector multiple times before failing."""
+    for attempt in range(1, retries + 1):
+        try:
+            print(f"wating for selector {selector}, {attempt}/{retries}")
+            element = page.locator(selector)
+            await element.wait_for(timeout=timeout)
+            return element
+        except Exception:
+            if attempt < retries - 1:
+                await asyncio.sleep(delay)
+            else:
+                return None
+
+
+async def get_all_selectors_with_retry(
+    page: Page, selector: str, timeout: int = 1000, retries: int = 3, delay: int = 0
+) -> list[Locator] | None:
+    """Retries waiting for a selector multiple times before failing."""
+    for attempt in range(1, retries + 1):
+        try:
+            print(f"wating for selectors {selector}, {attempt}/{retries}")
+            elements = await page.locator(selector).all()
+            for element in elements:
+                await element.wait_for(timeout=timeout)
+            return elements
+        except Exception:
+            if attempt < retries - 1:
+                await asyncio.sleep(delay)
+            else:
+                return None
+
+
+async def get_image_url(page: Page, locator: str) -> Optional[str]:
+    img = await get_selector_with_retry(page, locator, 1000)
+    product_image_url: Optional[str]
+    if img:
+        product_image_url = await page.locator(locator).first.get_attribute("src")
     else:
-        print(
-            f"\nNo se pudo identificar la referencia {ref}, favor validar el prefijo ingresado"
-        )
+        product_image_url = None
 
-    return suppliers_dict
+    return product_image_url
 
 
-def text_frame_paragraph(text_frame, text, font_size, bold=False, centered=False):
-    tf = text_frame.add_paragraph()
-    tf.text = text
-    tf.font.size = Pt(font_size)
-    tf.font.bold = bold
-    tf.space_before = Cm(0)
-    if centered:
-        tf.alignment = PP_ALIGN.CENTER
+async def get_inventory(
+    page: Page, selector: str, color_cell_index: int, inventory_cell_index: int
+) -> list[Color_Inventory]:
+    color_inventory: list[Color_Inventory] = []
+    color_elements = await get_all_selectors_with_retry(page, selector)
+    if color_elements:
+        for element in color_elements:
+            if await element.is_visible():
+                cells = await element.locator("td").all()
+                if len(cells) > 0:
+                    cell_texts = [await cell.inner_text() for cell in cells]
+                    color = cell_texts[color_cell_index]
+                    inventory = cell_texts[inventory_cell_index]
+                    color_inventory.append({"color": color, "inventory": inventory})
+            else:
+                print(f"{element} not visible")
+
+    return color_inventory
 
 
-def get_api_data(url):
-    response = requests.get(url)
-    content = response.content
-    return json.loads(content)
+def humanize_text(text: str) -> str:
+    return text.upper().replace("-", " ")
 
 
-measures = {
-    "lf_1": 0.8,
-    "lf_2": 8.5,
-    "lf_3": 3,
-    "lf_4": 12,
-    "lf_5": 1,
-    "lf_6": 1.5,
-    "t_0": -0.5,
-    "t_1": 3.5,
-    "t_2": 4,
-    "t_3": 5.5,
-    "t_4": 8.5,
-    "t_5": 11.5,
-    "t_6": 14.5,
-    "t_7": 2.5,
-    "w_1": 17.4,
-    "w_2": 6,
-    "w_3": 8,
-    "w_4": 6.6,
-    "w_5": 6.4,
-    "h_1": 1,
-    "h_2": 2,
-    "h_3": 5,
-    "h_4": 8.5,
-    "h_5": 8,
-    "h_6": 6,
-    "cell_font": 7,
-    "cell_font_2": 11,
-}
+def remove_prefix(text: str, prefix: str) -> str:
+    return text[len(prefix) :] if text.startswith(prefix) else text
