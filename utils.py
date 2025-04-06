@@ -1,8 +1,11 @@
 import asyncio
 import json
+from typing import Optional
 
 import requests
 from playwright.async_api import Locator, Page
+
+from entities.entities import Color_Inventory
 
 
 def get_api_data(url):
@@ -17,9 +20,9 @@ async def wait_for_selector_with_retry(
     """Retries waiting for a selector multiple times before failing."""
     for attempt in range(1, retries + 1):
         try:
+            print(f"wating for selector {selector}, {attempt}/{retries}")
             element = page.locator(selector)
             await element.wait_for(timeout=timeout)
-            print(f"wating for selector {selector}, {attempt}/{retries}")
             return True
         except Exception as e:
             if attempt < retries - 1:
@@ -62,3 +65,33 @@ async def get_all_selectors_with_retry(
                 await asyncio.sleep(delay)
             else:
                 return None
+
+
+async def get_image_url(page: Page, locator: str) -> Optional[str]:
+    img = await get_selector_with_retry(page, locator, 1000)
+    product_image_url: Optional[str]
+    if img:
+        product_image_url = await page.locator(locator).first.get_attribute("src")
+    else:
+        product_image_url = None
+
+    return product_image_url
+
+
+async def get_inventory(
+    page: Page, selector: str, color_cell_index: int, inventory_cell_index: int
+) -> list[Color_Inventory]:
+    color_inventory: list[Color_Inventory] = []
+    color_elements = await get_all_selectors_with_retry(page, selector)
+    if color_elements:
+        for element in color_elements:
+            if await element.is_visible():
+                cells = await element.locator("td").all()
+                cell_texts = [await cell.inner_text() for cell in cells]
+                color = cell_texts[color_cell_index]
+                inventory = cell_texts[inventory_cell_index]
+                color_inventory.append({"color": color, "inventory": inventory})
+            else:
+                print(f"{element} not visible")
+
+    return color_inventory

@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 from entities.presentation import Presentation
 from app import App
-from scrape import scrape
+from scraper import scrape
 
 
 async def main():

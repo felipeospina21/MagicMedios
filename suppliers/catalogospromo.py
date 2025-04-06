@@ -1,11 +1,16 @@
 import asyncio
 from io import BytesIO
 from playwright.async_api import Page
-from typing import Any, Optional
+from typing import Any, Tuple
 
 import requests
 from entities.entities import ProductData
-from utils import wait_for_selector_with_retry
+from utils import (
+    get_inventory,
+    get_selector_with_retry,
+    wait_for_selector_with_retry,
+    get_image_url,
+)
 
 
 async def search_product(
@@ -32,6 +37,20 @@ async def search_product(
     return False
 
 
+async def get_description(page: Page) -> Tuple[str, list[str]]:
+    title = ""
+    description = []
+
+    section = await get_selector_with_retry(page, ".hola")
+    if section:
+        product_name = await section.inner_text()
+        info_text_arr = product_name.split("\n\n")
+        title = info_text_arr[0]
+        description = info_text_arr[2:]
+
+    return title, description
+
+
 async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
     print(f"Processing: {ref}")
 
@@ -48,47 +67,19 @@ async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
 
     await page.click(".img-producto")
 
-    found = await wait_for_selector_with_retry(page, "#img_01", timeout=5000)
-    if not found:
-        await context.close()
-        return {
-            "ref": ref,
-            "title": "",
-            "description": [],
-            "image": None,
-            "color_inventory": [],
-        }
-
-    product_name: str = await page.locator(".hola").inner_text()
-    product_image_url: Optional[str] = await page.locator(
-        "#img_01"
-    ).first.get_attribute("src")
-    info_text_arr = product_name.split("\n\n")
-    title = info_text_arr[0]
-    desc_list = info_text_arr[2:]
-    color_inventory = []
-    try:
-        xpath = "//tr[@class='titlesRow']/following-sibling::tr[not(@class='hideInfo')]"
-        color_elements = await page.locator(xpath).all()
-        for element in color_elements:
-            if await element.is_visible():
-                cells = await element.locator("td").all()
-                cell_texts = [await cell.inner_text() for cell in cells]
-                color = cell_texts[0]
-                inventory = cell_texts[3]
-                color_inventory.append({"color": color, "inventory": inventory})
-            else:
-                print("not visible")
-
-    except Exception as e:
-        raise SystemExit("Error: ", e)
+    product_image_url = await get_image_url(page, "#img_01")
+    title, description = await get_description(page)
+    xpath = "//tr[@class='titlesRow']/following-sibling::tr[not(@class='hideInfo')]"
+    color_inventory = await get_inventory(
+        page, xpath, color_cell_index=0, inventory_cell_index=3
+    )
 
     if not product_image_url:
         await context.close()
         return {
             "ref": ref,
             "title": title,
-            "description": desc_list,
+            "description": description,
             "image": None,
             "color_inventory": color_inventory,
         }
@@ -100,7 +91,7 @@ async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
     return {
         "ref": ref,
         "title": title,
-        "description": desc_list,
+        "description": description,
         "image": image_data,
         "color_inventory": color_inventory,
     }

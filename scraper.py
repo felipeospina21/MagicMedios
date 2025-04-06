@@ -72,7 +72,7 @@ async def scrape_product(browser: Browser, ref: str) -> ProductData:
 
 async def scrape(ref_list):
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
+        browser = await p.chromium.launch(headless=False)
         tasks = [scrape_product(browser, ref) for ref in ref_list]
         results = await asyncio.gather(*tasks)
         await browser.close()
