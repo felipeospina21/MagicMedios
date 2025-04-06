@@ -5,7 +5,7 @@ from typing import Any, Callable, Coroutine, Dict, Tuple
 
 from entities.entities import ProductData
 from playwright.async_api import async_playwright, Browser, Page
-from suppliers import catalogospromo, mppromos, promoop
+from suppliers import catalogospromo, mppromos, promoop, cdopromo, nwpromo
 
 MAX_CONCURRENT_TASKS = 5  # Configurable
 
@@ -47,9 +47,12 @@ def get_ref_and_url(ref: str) -> Tuple[str, str, Task]:
             "https://www.promoopcioncolombia.co/",
             promoop.extract_data,
         )
-    # elif re.search("^CD|^cd", ref):
-    #     split_ref = ref.split("CD", 1)
-    #     suppliers_dict["cdo_promo"].append(split_ref[1])
+    elif re.search("^CD|^cd", ref):
+        return (
+            ref.upper().split("CD", 1)[1],
+            "api",
+            cdopromo.extract_data,
+        )
     # elif re.search("^NW|^nw", ref):
     raise Exception(
         f"Error: {ref} no pudo ser asociada a ningun proveedor, verificar prefijo"
@@ -57,21 +60,22 @@ def get_ref_and_url(ref: str) -> Tuple[str, str, Task]:
 
 
 async def scrape_product(browser: Browser, ref: str) -> ProductData:
-
     product_ref, url, task = get_ref_and_url(ref.upper())
+
     async with semaphore:  # Limit concurrency
         context = await browser.new_context()
-        page = await context.new_page()
-        await page.goto(url)
+        if url == "api":
+            data = await task(None, context, product_ref)
+            await context.close()
+            return data
 
-        # TODO: This line seems unnecesary when headless
-        # await page.wait_for_load_state(
-        #     "domcontentloaded"
-        # )  # Waits for network to be idle
+        else:
+            page = await context.new_page()
+            await page.goto(url)
 
-        data = await task(page, context, product_ref)
-        await context.close()
-        return data
+            data = await task(page, context, product_ref)
+            await context.close()
+            return data
 
 
 async def scrape(ref_list):

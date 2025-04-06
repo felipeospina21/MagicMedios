@@ -1,28 +1,25 @@
 import asyncio
-import json
-from typing import Optional
+from typing import Literal, Optional
 
-import requests
 from playwright.async_api import Locator, Page
 
 from entities.entities import Color_Inventory
 
 
-def get_api_data(url):
-    response = requests.get(url)
-    content = response.content
-    return json.loads(content)
-
-
 async def wait_for_selector_with_retry(
-    page: Page, selector: str, timeout: int = 5000, retries: int = 3, delay: int = 2
+    page: Page,
+    selector: str,
+    timeout: int = 5000,
+    retries: int = 3,
+    delay: int = 2,
+    state: Literal["attached", "detached", "hidden", "visible"] | None = None,
 ) -> bool:
     """Retries waiting for a selector multiple times before failing."""
     for attempt in range(1, retries + 1):
         try:
             print(f"wating for selector {selector}, {attempt}/{retries}")
             element = page.locator(selector)
-            await element.wait_for(timeout=timeout)
+            await element.wait_for(timeout=timeout, state="visible")
             return True
         except Exception as e:
             if attempt < retries - 1:
