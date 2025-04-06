@@ -1,10 +1,12 @@
 import asyncio
+import subprocess
 from io import BytesIO
 import re
 from typing import Any, Callable, Coroutine, Dict, Tuple
+from playwright._impl._errors import Error as PlaywrightError
 
 from entities.entities import ProductData
-from playwright.async_api import async_playwright, Browser, Page
+from playwright.async_api import async_playwright, Browser, Page, Playwright
 from suppliers import catalogospromo, mppromos, promoop, cdopromo, nwpromo
 
 MAX_CONCURRENT_TASKS = 5  # Configurable
@@ -85,9 +87,21 @@ async def scrape_product(browser: Browser, ref: str) -> ProductData:
 
 async def scrape(ref_list):
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=False)
-        tasks = [scrape_product(browser, ref) for ref in ref_list]
-        results = await asyncio.gather(*tasks)
-        await browser.close()
+        # loop to install browser and try again if not found
+        for _ in range(2):
+            try:
+                browser = await p.chromium.launch(headless=False)
+                tasks = [scrape_product(browser, ref) for ref in ref_list]
+                results = await asyncio.gather(*tasks)
+                await browser.close()
+                return results
 
-        return results
+            except PlaywrightError as e:
+                if "Executable doesn't exist" in str(e):
+                    print("Browser not found. Installing...")
+                    subprocess.run(
+                        ["python", "-m", "playwright", "install", "chromium"],
+                        check=True,
+                    )
+                else:
+                    raise
