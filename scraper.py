@@ -5,7 +5,7 @@ from typing import Any, Callable, Coroutine, Dict, Tuple
 
 from entities.entities import ProductData
 from playwright.async_api import async_playwright, Browser, Page
-from suppliers import catalogospromo, mppromos
+from suppliers import catalogospromo, mppromos, promoop
 
 MAX_CONCURRENT_TASKS = 5  # Configurable
 
@@ -14,6 +14,7 @@ semaphore = asyncio.Semaphore(MAX_CONCURRENT_TASKS)
 SUPPLIER_URLS = {
     "cp": "https://www.catalogospromocionales.com/",
     "mp": "https://www.marpicopromocionales.com/",
+    "po": "https://www.promoopcioncolombia.co/",
 }
 
 type Data = Dict[str, str | BytesIO]
@@ -40,9 +41,12 @@ def get_ref_and_url(ref: str) -> Tuple[str, str, Task]:
             "https://www.marpicopromocionales.com/",
             mppromos.extract_data,
         )
-    # elif re.search("^PO|^po]", ref):
-    #     split_ref = ref.split("PO", 1)
-    #     suppliers_dict["promo_op"].append(split_ref[1])
+    elif re.search("^PO|^po]", ref):
+        return (
+            ref.upper().split("PO", 1)[1],
+            "https://www.promoopcioncolombia.co/",
+            promoop.extract_data,
+        )
     # elif re.search("^CD|^cd", ref):
     #     split_ref = ref.split("CD", 1)
     #     suppliers_dict["cdo_promo"].append(split_ref[1])

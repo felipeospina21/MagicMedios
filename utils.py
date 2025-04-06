@@ -87,11 +87,20 @@ async def get_inventory(
         for element in color_elements:
             if await element.is_visible():
                 cells = await element.locator("td").all()
-                cell_texts = [await cell.inner_text() for cell in cells]
-                color = cell_texts[color_cell_index]
-                inventory = cell_texts[inventory_cell_index]
-                color_inventory.append({"color": color, "inventory": inventory})
+                if len(cells) > 0:
+                    cell_texts = [await cell.inner_text() for cell in cells]
+                    color = cell_texts[color_cell_index]
+                    inventory = cell_texts[inventory_cell_index]
+                    color_inventory.append({"color": color, "inventory": inventory})
             else:
                 print(f"{element} not visible")
 
     return color_inventory
+
+
+def humanize_text(text: str) -> str:
+    return text.upper().replace("-", " ")
+
+
+def remove_prefix(text: str, prefix: str) -> str:
+    return text[len(prefix) :] if text.startswith(prefix) else text
