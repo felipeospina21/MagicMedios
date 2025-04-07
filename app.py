@@ -14,7 +14,7 @@ class App:
         self.user_path = f"{self.path}/data"
         self.footer_path = f"{self.path}/data/data.txt"
 
-        if self.args.debug or self.args.test:
+        if self.args.debug:
             print("Debug Mode ON\n")
             self.consecutive_path = f"{self.path}/data/consecutivo.txt"
         else:
