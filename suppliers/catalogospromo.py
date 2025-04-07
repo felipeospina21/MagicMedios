@@ -1,11 +1,12 @@
 import asyncio
 from io import BytesIO
-from playwright.async_api import Page
+from playwright.async_api import Locator, Page
 from typing import Any, Tuple
 
 import requests
 from entities.entities import ProductData
 from utils import (
+    get_all_selectors_with_retry,
     get_inventory,
     get_selector_with_retry,
     wait_for_selector_with_retry,
@@ -15,7 +16,7 @@ from utils import (
 
 async def search_product(
     page: Page, product_code: str, retries: int = 3, delay: int = 2
-) -> bool:
+) -> list[Locator] | None:
     """Attempts to search for a product, retrying if necessary."""
     for _ in range(retries):
         input: bool = await wait_for_selector_with_retry(
@@ -26,15 +27,15 @@ async def search_product(
             await page.locator("#productos").fill(product_code)
             await page.locator("#productos").press("Enter")
 
-        found: bool = await wait_for_selector_with_retry(
+        found = await get_all_selectors_with_retry(
             page, ".img-producto", retries=3, delay=0
         )
         if found:
-            return True
+            return found
 
         await asyncio.sleep(delay)
 
-    return False
+    return None
 
 
 async def get_description(page: Page) -> Tuple[str, list[str]]:
@@ -54,8 +55,8 @@ async def get_description(page: Page) -> Tuple[str, list[str]]:
 async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
     print(f"Processing: {ref}")
 
-    found: bool = await search_product(page, ref, delay=0)
-    if not found:
+    product_links = await search_product(page, ref, delay=0)
+    if not product_links:
         await context.close()
         return {
             "ref": ref,
@@ -65,7 +66,7 @@ async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
             "color_inventory": [],
         }
 
-    await page.click(".img-producto")
+    await product_links[0].click()
 
     product_image_url = await get_image_url(page, "#img_01")
     title, description = await get_description(page)
