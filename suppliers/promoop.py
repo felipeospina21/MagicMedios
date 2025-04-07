@@ -17,6 +17,7 @@ from utils import (
     remove_prefix,
     wait_for_selector_with_retry,
 )
+from constants import urls
 
 
 async def login(page: Page):
@@ -104,7 +105,10 @@ async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
 
     await page.click("//a[@class='img-responsive ']")
 
-    product_image_url = await get_image_url(page, "#img_01")
+    partial_image_url = await get_image_url(
+        page, "//div[@id='img-list-1']/div[1]/img[1]"
+    )
+    product_image_url = f"{urls["po"]}/{partial_image_url}"
     header_xpath = "//table[@class='table table-hover table-responsive']/tbody[1]"
     title, subtitle, description = await get_description(page, header_xpath)
     xpath = "//table[@class='table table-striped']/tbody[1]/child::tr"
