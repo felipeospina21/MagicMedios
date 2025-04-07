@@ -11,24 +11,20 @@ class App:
         parser.add_argument("--test", action="store_true", help="Enable test mode")
         self.args = parser.parse_args()
         self.path = os.environ.get("COTIZACIONES_PATH")
-
-        if self.args.debug:
-            print("Debug Mode ON\n")
-            self.path = os.environ.get("FILE_PATH")
-            self.path = "."
-            self.consecutive_path = f"{self.path}/data/consecutivo.txt"
-        else:
-            self.path = os.environ.get("COTIZACIONES_PATH")
-            self.consecutive_path = f"{self.path}/data/consecutivo.txt"
-
         self.user_path = f"{self.path}/data"
         self.footer_path = f"{self.path}/data/data.txt"
+
+        if self.args.debug or self.args.test:
+            print("Debug Mode ON\n")
+            self.consecutive_path = f"{self.path}/data/consecutivo.txt"
+        else:
+            self.consecutive_path = f"{self.path}/Z consecutivo.txt"
 
     def prompt(self):
         if self.args.debug or self.args.test:
             self.client = "test"
             self.company = "test"
-            self.user = "carlos"
+            self.user = "sergio"
         else:
             self.users = self.get_users()
             self.client = input("Ingrese nombre cliente: ").title()
@@ -48,7 +44,7 @@ class App:
             return "./cotizaciones/cotización_TEST.pptm"
 
         if self.args.test:
-            return f"{self.path}/test-borrar.pptm"
+            return f"{self.path}/z-test-borrar.pptm"
 
         return f"{self.path}/Cotización N°{self.get_consecutive()} - {self.company} - Magic Medios SAS.pptm"
 
@@ -68,12 +64,6 @@ class App:
                     users.append(user)
 
         return users
-
-    def get_consecutive(self) -> int:
-        file = open(self.consecutive_path, "r")
-        consecutive = file.readline().strip()
-        file.close()
-        return int(consecutive)
 
     def get_contact_info(self) -> Representative:
         file = open(f"{self.user_path}/{self.user}.txt", "r")
@@ -98,6 +88,12 @@ class App:
             "phone": representative["phone"],
             "email": representative["email"],
         }
+    
+    def get_consecutive(self) -> int:
+        file = open(self.consecutive_path, "r")
+        consecutive = file.readline().strip()
+        file.close()
+        return int(consecutive)
 
     def create_new_consecutive(self):
         if not self.args.test:
