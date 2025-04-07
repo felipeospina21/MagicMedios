@@ -8,6 +8,7 @@ from playwright._impl._errors import Error as PlaywrightError
 from entities.entities import ProductData
 from playwright.async_api import async_playwright, Browser, Page
 from suppliers import catalogospromo, mppromos, promoop, cdopromo, nwpromo
+from constants import urls
 
 MAX_CONCURRENT_TASKS = 5  # Configurable
 
@@ -27,32 +28,32 @@ def get_ref_and_url(ref: str) -> Tuple[str, str, Task]:
     if re.search("^CP|^cp]", ref):
         return (
             ref.upper().split("CP", 1)[1],
-            "https://www.catalogospromocionales.com/",
+            urls["cp"],
             catalogospromo.extract_data,
         )
 
     elif re.search("^MP|^mp]", ref):
         return (
             ref.upper().split("MP", 1)[1],
-            "https://www.marpicopromocionales.com/",
+            urls["mp"],
             mppromos.extract_data,
         )
     elif re.search("^PO|^po]", ref):
         return (
             ref.upper().split("PO", 1)[1],
-            "https://www.promoopcioncolombia.co/",
+            urls["po"],
             promoop.extract_data,
         )
     elif re.search("^CD|^cd", ref):
         return (
             ref.upper().split("CD", 1)[1],
-            "api",
+            urls["cd"],
             cdopromo.extract_data,
         )
     elif re.search("^NW|^nw", ref):
         return (
             ref,
-            "https://promocionalesnw.com/",
+            urls["nw"],
             nwpromo.extract_data,
         )
     raise Exception(

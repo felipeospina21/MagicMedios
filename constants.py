@@ -1,3 +1,6 @@
+from typing import TypedDict
+
+
 measures: dict[str, float] = {
     "lf_1": 0.8,
     "lf_2": 8.5,
@@ -26,4 +29,21 @@ measures: dict[str, float] = {
     "h_6": 6,
     "cell_font": 7,
     "cell_font_2": 11,
+}
+
+
+class URLS(TypedDict):
+    cp: str
+    mp: str
+    po: str
+    cd: str
+    nw: str
+
+
+urls: URLS = {
+    "cp": "https://www.catalogospromocionales.com/",
+    "mp": "https://www.marpicopromocionales.com/",
+    "po": "https://www.promoopcioncolombia.co/",
+    "cd": "api",
+    "nw": "https://promocionalesnw.com/",
 }
