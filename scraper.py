@@ -1,14 +1,15 @@
 import asyncio
+import re
 import subprocess
 from io import BytesIO
-import re
 from typing import Any, Callable, Coroutine, Dict, Tuple
-from playwright._impl._errors import Error as PlaywrightError
 
-from entities.entities import ProductData
-from playwright.async_api import async_playwright, Browser, Page
-from suppliers import catalogospromo, mppromos, promoop, cdopromo, nwpromo
+from playwright._impl._errors import Error as PlaywrightError
+from playwright.async_api import Browser, Page, async_playwright
+
 from constants import urls
+from entities.entities import ProductData
+from suppliers import catalogospromo, cdopromo, mppromos, nwpromo, promoop
 
 MAX_CONCURRENT_TASKS = 5  # Configurable
 

@@ -1,17 +1,22 @@
 import asyncio
 from io import BytesIO
-from playwright.async_api import Locator, Page
 from typing import Any, Tuple
 
 import requests
+from playwright.async_api import Locator, Page
+
 from entities.entities import ProductData
-from utils import (
-    get_all_selectors_with_retry,
-    get_inventory,
-    get_selector_with_retry,
-    wait_for_selector_with_retry,
-    get_image_url,
-)
+from utils import (get_all_selectors_with_retry, get_image_url, get_inventory,
+                   get_selector_with_retry, wait_for_selector_with_retry)
+
+
+async def search_product_link(
+    product_containers: list[Locator], ref: str
+) -> Locator | None:
+    for product in product_containers:
+        title = await product.locator(".ref.textoColor").inner_text()
+        if title.lower() == ref.lower():
+            return product.locator(".img-producto")
 
 
 async def search_product(
@@ -27,11 +32,11 @@ async def search_product(
             await page.locator("#productos").fill(product_code)
             await page.locator("#productos").press("Enter")
 
-        found = await get_all_selectors_with_retry(
-            page, ".img-producto", retries=3, delay=0
+        product_containers = await get_all_selectors_with_retry(
+            page, ".itemProducto-", retries=3, delay=0
         )
-        if found:
-            return found
+        if product_containers:
+            return product_containers
 
         await asyncio.sleep(delay)
 
@@ -52,22 +57,30 @@ async def get_description(page: Page) -> Tuple[str, list[str]]:
     return title, description
 
 
+async def not_found(ref: str, msg: str, context) -> ProductData:
+    print(f"{ref} {msg}")
+    await context.close()
+    return {
+        "ref": ref,
+        "image": None,
+        "title": "",
+        "description": [],
+        "color_inventory": [],
+    }
+
+
 async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
     print(f"Processing: {ref}")
 
-    product_links = await search_product(page, ref, delay=0)
-    if not product_links:
-        await context.close()
-        return {
-            "ref": ref,
-            "image": None,
-            "title": "",
-            "description": [],
-            "color_inventory": [],
-        }
+    product_containers = await search_product(page, ref, retries=5)
+    if not product_containers:
+        return await not_found(ref, "not found", context)
 
-    await product_links[0].click()
+    product_link = await search_product_link(product_containers, ref)
+    if not product_link:
+        return await not_found(ref, "link not found", context)
 
+    await product_link.click()
     product_image_url = await get_image_url(page, "#img_01")
     title, description = await get_description(page)
     xpath = "//tr[@class='titlesRow']/following-sibling::tr[not(@class='hideInfo')]"
