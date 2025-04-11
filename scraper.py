@@ -81,12 +81,12 @@ async def scrape_product(browser: Browser, ref: str) -> ProductData:
             return data
 
 
-async def scrape(ref_list) -> list[ProductData] | None:
+async def scrape(ref_list: list[str], headless_flag=True) -> list[ProductData] | None:
     async with async_playwright() as p:
         # loop to install browser and try again if not found
         for _ in range(2):
             try:
-                browser = await p.chromium.launch(headless=True)
+                browser = await p.chromium.launch(headless=headless_flag)
                 tasks = [scrape_product(browser, ref) for ref in ref_list]
                 results = await asyncio.gather(*tasks)
                 await browser.close()

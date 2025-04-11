@@ -4,8 +4,8 @@ import time
 
 from dotenv import load_dotenv
 
-from presentation import Presentation
 from app import App
+from presentation import Presentation
 from scraper import scrape
 
 
@@ -32,7 +32,7 @@ async def main():
     presentation.add_client_name(client)
     presentation.add_commercial_policy_slide()
 
-    scraped_refs = await scrape(references)
+    scraped_refs = await scrape(references, app.args.headless)
     if scraped_refs:
         for idx, ref_data in enumerate(scraped_refs):
             presentation.create_title(

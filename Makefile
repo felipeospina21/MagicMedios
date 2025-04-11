@@ -1,5 +1,7 @@
+h ?= true
+
 debug:
-	python main.py --debug
+	python main.py --debug --headles=$(h)
 
 start:
 	python main.py

@@ -1,6 +1,7 @@
-import os
 import argparse
+import os
 
+from app_utils import str2bool
 from entities.entities import Client, Contact, Representative
 
 
@@ -9,6 +10,13 @@ class App:
         parser = argparse.ArgumentParser()
         parser.add_argument("--debug", action="store_true", help="Enable debug mode")
         parser.add_argument("--test", action="store_true", help="Enable test mode")
+        parser.add_argument(
+            "-H",
+            "--headless",
+            type=str2bool,
+            default=True,
+            help="Run in headless mode (true/false)",
+        )
         self.args = parser.parse_args()
         self.path = os.environ.get("COTIZACIONES_PATH")
         self.user_path = f"{self.path}/data"
@@ -88,7 +96,7 @@ class App:
             "phone": representative["phone"],
             "email": representative["email"],
         }
-    
+
     def get_consecutive(self) -> int:
         file = open(self.consecutive_path, "r")
         consecutive = file.readline().strip()

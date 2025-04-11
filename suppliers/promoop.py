@@ -1,23 +1,17 @@
 import asyncio
-from io import BytesIO
 import os
+from io import BytesIO
 from typing import Any, Dict, Tuple
 
+import requests
 from dotenv import load_dotenv
 from playwright.async_api import Page
-import requests
 
-from entities.entities import ProductData
-from utils import (
-    get_all_selectors_with_retry,
-    get_image_url,
-    get_inventory,
-    get_selector_with_retry,
-    humanize_text,
-    remove_prefix,
-    wait_for_selector_with_retry,
-)
 from constants import urls
+from entities.entities import ProductData
+from utils import (get_all_selectors_with_retry, get_image_url, get_inventory,
+                   get_selector_with_retry, humanize_text, remove_prefix,
+                   wait_for_selector_with_retry)
 
 
 async def login(page: Page):
