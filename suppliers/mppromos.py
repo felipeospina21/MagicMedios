@@ -3,15 +3,11 @@ from io import BytesIO
 from typing import Tuple
 
 import requests
-from entities.entities import ProductData
 from playwright.async_api import Page
 
-from utils import (
-    get_all_selectors_with_retry,
-    get_inventory,
-    wait_for_selector_with_retry,
-    get_image_url,
-)
+from entities.entities import ProductData
+from utils import (get_all_selectors_with_retry, get_image_url, get_inventory,
+                   wait_for_selector_with_retry)
 
 
 async def search_product(
@@ -42,7 +38,7 @@ async def get_description(page: Page) -> Tuple[str, str, list[str]]:
     description = []
 
     sections = await get_all_selectors_with_retry(page, "//div[@class='card-body']")
-    if sections:
+    if sections and len(sections) > 1:
         content_section = sections[1]
 
         if await content_section.is_visible():
@@ -52,13 +48,16 @@ async def get_description(page: Page) -> Tuple[str, str, list[str]]:
             subtitle = split_text[2]
             description = split_text[4:-2]
 
+    else:
+        print("description not found")
+
     return title, subtitle, description
 
 
 async def extract_data(page: Page, context, ref: str) -> ProductData:
     print(f"Processing: {ref}")
 
-    found: bool = await search_product(page, ref, delay=0)
+    found: bool = await search_product(page, ref, delay=2, retries=5)
     if not found:
         await context.close()
         return {
