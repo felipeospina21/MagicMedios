@@ -3,6 +3,7 @@ import os
 
 from app_utils import str2bool
 from entities.entities import Client, Contact, Representative
+from log import logger
 
 
 class App:
@@ -46,6 +47,7 @@ class App:
             .upper()
             .split(",")
         )
+        logger.info(f"cotizacion: {self.references}")
 
     def get_saving_path(self):
         if self.args.debug:
