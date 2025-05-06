@@ -11,7 +11,7 @@ from constants import urls
 from entities.entities import ProductData
 from suppliers import catalogospromo, cdopromo, mppromos, nwpromo, promoop
 
-MAX_CONCURRENT_TASKS = 5  # Configurable
+MAX_CONCURRENT_TASKS = 2  # Configurable
 
 semaphore = asyncio.Semaphore(MAX_CONCURRENT_TASKS)
 
