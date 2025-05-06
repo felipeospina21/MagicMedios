@@ -2,18 +2,12 @@ import asyncio
 from io import BytesIO
 from typing import Any, Tuple
 
-from playwright.async_api import Page
 import requests
+from playwright.async_api import Page
 
 from entities.entities import ProductData
-from utils import (
-    get_all_selectors_with_retry,
-    get_image_url,
-    get_inventory,
-    get_selector_with_retry,
-    wait_for_selector_with_retry,
-)
-
+from utils import (get_all_selectors_with_retry, get_image_url, get_inventory,
+                   get_selector_with_retry, wait_for_selector_with_retry)
 
 # def get_nw_promo_data(suppliers_dict, prs, references):
 #     data = Get_Data("nw_promo", prs, references, measures)
@@ -56,11 +50,11 @@ from utils import (
 #     data.close_driver()
 
 
-async def get_title_and_subtitle(page: Page) -> Tuple[str, str]:
+async def get_title_and_subtitle(page: Page, ref: str) -> Tuple[str, str]:
     title = ""
     subtitle = ""
     content = await get_selector_with_retry(
-        page, "//div[@class='pb-center-column  col-xs-12 col-sm-6 col-md-6']"
+        page, "//div[@class='pb-center-column  col-xs-12 col-sm-6 col-md-6']", ref
     )
     if content:
         text = await content.inner_text()
@@ -71,10 +65,10 @@ async def get_title_and_subtitle(page: Page) -> Tuple[str, str]:
     return title, subtitle
 
 
-async def get_description(page: Page) -> list[str]:
+async def get_description(page: Page, ref: str) -> list[str]:
     description = []
     content = await get_all_selectors_with_retry(
-        page, "//div[@id='short_description_content']/child::p[1]"
+        page, "//div[@id='short_description_content']/child::p[1]", ref
     )
     if content:
         for element in content:
@@ -91,7 +85,7 @@ async def search_product(
     for _ in range(retries):
         locator = "#search"
         input: bool = await wait_for_selector_with_retry(
-            page, locator, retries=3, delay=0
+            page, locator, product_code, retries=3, delay=0
         )
         if input:
             await asyncio.sleep(2)
@@ -99,7 +93,7 @@ async def search_product(
             await page.locator(locator).press("Enter")
 
         found: bool = await wait_for_selector_with_retry(
-            page, "//a[@class='product_image']", retries=3, delay=0
+            page, "//a[@class='product_image']", product_code, retries=3, delay=0
         )
         if found:
             return True
@@ -125,12 +119,12 @@ async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
 
     await page.click("//a[@class='product_image']")
 
-    product_image_url = await get_image_url(page, "//img[@id='bigpic']")
-    title, subtitle = await get_title_and_subtitle(page)
-    description = await get_description(page)
+    product_image_url = await get_image_url(page, "//img[@id='bigpic']", ref)
+    title, subtitle = await get_title_and_subtitle(page, ref)
+    description = await get_description(page, ref)
     xpath = "//table[@class='table-bordered']/tbody[1]"
     color_inventory = await get_inventory(
-        page, xpath, color_cell_index=0, inventory_cell_index=4
+        page, xpath, ref, color_cell_index=0, inventory_cell_index=4
     )
 
     if not product_image_url:

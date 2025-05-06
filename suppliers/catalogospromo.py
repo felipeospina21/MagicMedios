@@ -6,6 +6,7 @@ import requests
 from playwright.async_api import Locator, Page
 
 from entities.entities import ProductData
+from log import logger
 from utils import (get_all_selectors_with_retry, get_image_url, get_inventory,
                    get_selector_with_retry, wait_for_selector_with_retry)
 
@@ -25,7 +26,7 @@ async def search_product(
     """Attempts to search for a product, retrying if necessary."""
     for _ in range(retries):
         input: bool = await wait_for_selector_with_retry(
-            page, "#productos", retries=3, delay=0
+            page, "#productos", product_code, retries=3, delay=0
         )
         if input:
             await asyncio.sleep(2)
@@ -33,7 +34,7 @@ async def search_product(
             await page.locator("#productos").press("Enter")
 
         product_containers = await get_all_selectors_with_retry(
-            page, ".itemProducto-", retries=3, delay=0
+            page, ".itemProducto-", product_code, retries=3, delay=0
         )
         if product_containers:
             return product_containers
@@ -43,11 +44,11 @@ async def search_product(
     return None
 
 
-async def get_description(page: Page) -> Tuple[str, list[str]]:
+async def get_description(page: Page, ref: str) -> Tuple[str, list[str]]:
     title = ""
     description = []
 
-    section = await get_selector_with_retry(page, ".hola")
+    section = await get_selector_with_retry(page, ".hola", ref)
     if section:
         product_name = await section.inner_text()
         info_text_arr = product_name.split("\n\n")
@@ -58,7 +59,7 @@ async def get_description(page: Page) -> Tuple[str, list[str]]:
 
 
 async def not_found(ref: str, msg: str, context) -> ProductData:
-    print(f"{ref} {msg}")
+    logger.error(f"{ref} {msg}")
     await context.close()
     return {
         "ref": ref,
@@ -81,11 +82,11 @@ async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
         return await not_found(ref, "link not found", context)
 
     await product_link.click()
-    product_image_url = await get_image_url(page, "#img_01")
-    title, description = await get_description(page)
+    product_image_url = await get_image_url(page, "#img_01", ref)
+    title, description = await get_description(page, ref)
     xpath = "//tr[@class='titlesRow']/following-sibling::tr[not(@class='hideInfo')]"
     color_inventory = await get_inventory(
-        page, xpath, color_cell_index=0, inventory_cell_index=3
+        page, xpath, ref, color_cell_index=0, inventory_cell_index=3
     )
 
     if not product_image_url:

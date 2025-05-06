@@ -6,6 +6,7 @@ import requests
 from playwright.async_api import Page
 
 from entities.entities import ProductData
+from log import logger
 from utils import (get_all_selectors_with_retry, get_image_url, get_inventory,
                    wait_for_selector_with_retry)
 
@@ -16,7 +17,7 @@ async def search_product(
     """Attempts to search for a product, retrying if necessary."""
     for _ in range(retries):
         input: bool = await wait_for_selector_with_retry(
-            page, "#input-buscar-menu", retries=3, delay=0
+            page, "#input-buscar-menu", product_code, retries=3, delay=0
         )
         if input:
             await asyncio.sleep(2)
@@ -32,12 +33,14 @@ async def search_product(
     return False
 
 
-async def get_description(page: Page) -> Tuple[str, str, list[str]]:
+async def get_description(page: Page, ref: str) -> Tuple[str, str, list[str]]:
     title = ""
     subtitle = ""
     description = []
 
-    sections = await get_all_selectors_with_retry(page, "//div[@class='card-body']")
+    sections = await get_all_selectors_with_retry(
+        page, "//div[@class='card-body']", ref
+    )
     if sections and len(sections) > 1:
         content_section = sections[1]
 
@@ -49,7 +52,7 @@ async def get_description(page: Page) -> Tuple[str, str, list[str]]:
             description = split_text[4:-2]
 
     else:
-        print("description not found")
+        logger.error(f"{ref}: description not found")
 
     return title, subtitle, description
 
@@ -68,15 +71,18 @@ async def extract_data(page: Page, context, ref: str) -> ProductData:
             "color_inventory": [],
         }
 
-    await page.click(
-        "//a[@class='col-md-3 text-decoration-none text-dark ng-star-inserted']"
-    )
+    selector = "//a[@class='col-md-3 text-decoration-none text-dark ng-star-inserted']"
+    try:
+        await page.wait_for_selector(selector)
+        await page.click(selector)
+    except:
+        logger.error(f"{ref}: {selector} couldn't be clicked")
 
-    product_image_url = await get_image_url(page, "#imagen-material-0")
-    title, subtitle, description = await get_description(page)
+    product_image_url = await get_image_url(page, "#imagen-material-0", ref)
+    title, subtitle, description = await get_description(page, ref)
     xpath = "//tbody[@class='text-center text-pequeno-x1 align-middle']/child::tr"
     color_inventory = await get_inventory(
-        page, xpath, color_cell_index=2, inventory_cell_index=5
+        page, xpath, ref, color_cell_index=2, inventory_cell_index=5
     )
 
     if not product_image_url:

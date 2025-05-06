@@ -14,24 +14,26 @@ from utils import (get_all_selectors_with_retry, get_image_url, get_inventory,
                    wait_for_selector_with_retry)
 
 
-async def login(page: Page):
+async def login(page: Page, ref: str):
     load_dotenv()
     password = os.environ.get("PROMO_OP_PASSWORD")
     if not password:
         print(f"promo opcion password not found")
         return
 
-    input = await get_selector_with_retry(page, "#psw")
+    input = await get_selector_with_retry(page, "#psw", ref)
     if input:
         await input.fill(password)
         await input.press("Enter")
 
 
-async def get_description(page: Page, header_xpath: str) -> Tuple[str, str, list[str]]:
+async def get_description(
+    page: Page, header_xpath: str, ref: str
+) -> Tuple[str, str, list[str]]:
     title = ""
     subtitle = ""
     description = []
-    content_table = await get_selector_with_retry(page, header_xpath)
+    content_table = await get_selector_with_retry(page, header_xpath, ref)
     if content_table:
         text = await content_table.inner_text()
         rows = text.split("\n")
@@ -47,14 +49,16 @@ async def search_product(
 ) -> bool:
     """Attempts to search for a product, retrying if necessary."""
     for _ in range(retries):
-        input: bool = await wait_for_selector_with_retry(page, "#q", retries=3, delay=0)
+        input: bool = await wait_for_selector_with_retry(
+            page, "#q", product_code, retries=3, delay=0
+        )
         if input:
             await asyncio.sleep(2)
             await page.locator("#q").fill(product_code)
             await page.locator("#q").press("Enter")
 
         found: bool = await wait_for_selector_with_retry(
-            page, "//a[@class='img-responsive ']", retries=3, delay=0
+            page, "//a[@class='img-responsive ']", product_code, retries=3, delay=0
         )
         if found:
             return True
@@ -64,10 +68,10 @@ async def search_product(
     return False
 
 
-async def get_colors_map(page: Page) -> Dict[str, str]:
+async def get_colors_map(page: Page, ref: str) -> Dict[str, str]:
     colors = {}
     color_element = await get_all_selectors_with_retry(
-        page, "//ul[@class='colors']/child::li"
+        page, "//ul[@class='colors']/child::li", ref
     )
     if color_element:
         for color in color_element:
@@ -83,7 +87,7 @@ async def get_colors_map(page: Page) -> Dict[str, str]:
 async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
     print(f"Processing: {ref}")
 
-    await login(page)
+    await login(page, ref)
     await asyncio.sleep(3)
 
     found: bool = await search_product(page, ref, delay=0)
@@ -100,16 +104,16 @@ async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
     await page.click("//a[@class='img-responsive ']")
 
     partial_image_url = await get_image_url(
-        page, "//div[@id='img-list-1']/div[1]/img[1]"
+        page, "//div[@id='img-list-1']/div[1]/img[1]", ref
     )
     product_image_url = f"{urls["po"]}/{partial_image_url}"
     header_xpath = "//table[@class='table table-hover table-responsive']/tbody[1]"
-    title, subtitle, description = await get_description(page, header_xpath)
+    title, subtitle, description = await get_description(page, header_xpath, ref)
     xpath = "//table[@class='table table-striped']/tbody[1]/child::tr"
     color_inventory = await get_inventory(
-        page, xpath, color_cell_index=2, inventory_cell_index=3
+        page, xpath, ref, color_cell_index=2, inventory_cell_index=3
     )
-    colors_map = await get_colors_map(page)
+    colors_map = await get_colors_map(page, ref)
 
     # reassign color key value
     for item in color_inventory:

@@ -1,14 +1,14 @@
-from io import BytesIO
 import json
-import logging
 import os
+from io import BytesIO
 from typing import Any
 
-from playwright.async_api import Page
 import requests
+from playwright.async_api import Page
 
-from entities.variant import Product, Variant
 from entities.entities import Color_Inventory, ProductData
+from entities.variant import Product, Variant
+from log import logger
 
 
 def get_api_data(url):
@@ -22,7 +22,7 @@ async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
 
     auth_token = os.environ.get("API_TOKEN")
     if auth_token == "":
-        logging.error("No se encontro token para la api de CDO", exc_info=True)
+        logger.error("No se encontro token para la api de CDO")
         print("No se encontro token para la api de CDO")
 
     url = f"http://api.colombia.cdopromocionales.com/v2/products/{ref}?auth_token={auth_token}"

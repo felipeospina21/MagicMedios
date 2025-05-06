@@ -4,11 +4,13 @@ from typing import Optional
 from playwright.async_api import Locator, Page
 
 from entities.entities import Color_Inventory
+from log import logger
 
 
 async def wait_for_selector_with_retry(
     page: Page,
     selector: str,
+    ref: str,
     timeout: int = 5000,
     retries: int = 3,
     delay: int = 2,
@@ -16,7 +18,7 @@ async def wait_for_selector_with_retry(
     """Retries waiting for a selector multiple times before failing."""
     for attempt in range(1, retries + 1):
         try:
-            print(f"wating for selector {selector}, {attempt}/{retries}")
+            logger.info(f"{ref}: wating for selector {selector}, {attempt}/{retries}")
             element = page.locator(selector)
             await element.wait_for(timeout=timeout)
             return True
@@ -29,12 +31,17 @@ async def wait_for_selector_with_retry(
 
 
 async def get_selector_with_retry(
-    page: Page, selector: str, timeout: int = 5000, retries: int = 3, delay: int = 2
+    page: Page,
+    selector: str,
+    ref: str,
+    timeout: int = 5000,
+    retries: int = 3,
+    delay: int = 2,
 ) -> Locator | None:
     """Retries waiting for a selector multiple times before failing."""
     for attempt in range(1, retries + 1):
         try:
-            print(f"wating for selector {selector}, {attempt}/{retries}")
+            logger.info(f"{ref}: wating for selector {selector}, {attempt}/{retries}")
             element = page.locator(selector)
             await element.wait_for(timeout=timeout)
             return element
@@ -46,12 +53,17 @@ async def get_selector_with_retry(
 
 
 async def get_all_selectors_with_retry(
-    page: Page, selector: str, timeout: int = 1000, retries: int = 3, delay: int = 0
+    page: Page,
+    selector: str,
+    ref: str,
+    timeout: int = 1000,
+    retries: int = 3,
+    delay: int = 0,
 ) -> list[Locator] | None:
     """Retries waiting for a selector multiple times before failing."""
     for attempt in range(1, retries + 1):
         try:
-            print(f"wating for selectors {selector}, {attempt}/{retries}")
+            logger.info(f"{ref}: wating for selectors {selector}, {attempt}/{retries}")
             elements = await page.locator(selector).all()
             for element in elements:
                 await element.wait_for(timeout=timeout)
@@ -63,8 +75,8 @@ async def get_all_selectors_with_retry(
                 return None
 
 
-async def get_image_url(page: Page, locator: str) -> Optional[str]:
-    img = await get_selector_with_retry(page, locator, 1000)
+async def get_image_url(page: Page, locator: str, ref: str) -> Optional[str]:
+    img = await get_selector_with_retry(page, locator, ref, 1000)
     product_image_url: Optional[str]
     if img:
         product_image_url = await page.locator(locator).first.get_attribute("src")
@@ -75,10 +87,14 @@ async def get_image_url(page: Page, locator: str) -> Optional[str]:
 
 
 async def get_inventory(
-    page: Page, selector: str, color_cell_index: int, inventory_cell_index: int
+    page: Page,
+    selector: str,
+    ref: str,
+    color_cell_index: int,
+    inventory_cell_index: int,
 ) -> list[Color_Inventory]:
     color_inventory: list[Color_Inventory] = []
-    color_elements = await get_all_selectors_with_retry(page, selector)
+    color_elements = await get_all_selectors_with_retry(page, selector, ref)
     if color_elements:
         for element in color_elements:
             if await element.is_visible():
@@ -89,7 +105,7 @@ async def get_inventory(
                     inventory = cell_texts[inventory_cell_index]
                     color_inventory.append({"color": color, "inventory": inventory})
             else:
-                print(f"{element} not visible")
+                logger.info(f"{element} not visible")
 
     return color_inventory
 

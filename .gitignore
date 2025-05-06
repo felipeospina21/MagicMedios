@@ -3,6 +3,8 @@ varios.txt
 data.txt
 log.txt
 app.log
+errors.log
+/logs
 /data
 driver/chrome_webdriver.exe
 
