@@ -8,7 +8,7 @@ from playwright._impl._errors import Error as PlaywrightError
 from playwright.async_api import Browser, Page, async_playwright
 
 from constants import urls
-from entities.entities import ProductData
+from entities.entities import TaskResult
 from suppliers import catalogospromo, cdopromo, mppromos, nwpromo, promoop
 
 MAX_CONCURRENT_TASKS = 2  # Configurable
@@ -19,7 +19,7 @@ type Data = Dict[str, str | BytesIO]
 
 type Task = Callable[
     [Page, Any, str],
-    Coroutine[Any, Any, ProductData],
+    Coroutine[Any, Any, TaskResult],
 ]
 
 type EmptyTask = Callable[[], None]
@@ -62,15 +62,15 @@ def get_ref_and_url(ref: str) -> Tuple[str, str, Task]:
     )
 
 
-async def scrape_product(browser: Browser, ref: str) -> ProductData:
+async def scrape_product(browser: Browser, ref: str) -> TaskResult:
     product_ref, url, task = get_ref_and_url(ref.upper())
 
     async with semaphore:  # Limit concurrency
         context = await browser.new_context()
         if url == "api":
-            data = await task(None, context, product_ref)
+            data, not_found = await task(None, context, product_ref)
             await context.close()
-            return data
+            return data, not_found
 
         else:
             page = await context.new_page()
@@ -81,7 +81,7 @@ async def scrape_product(browser: Browser, ref: str) -> ProductData:
             return data
 
 
-async def scrape(ref_list: list[str], headless_flag=True) -> list[ProductData] | None:
+async def scrape(ref_list: list[str], headless_flag=True) -> list[TaskResult] | None:
     async with async_playwright() as p:
         # loop to install browser and try again if not found
         for _ in range(2):

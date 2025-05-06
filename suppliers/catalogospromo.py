@@ -5,7 +5,7 @@ from typing import Any, Tuple
 import requests
 from playwright.async_api import Locator, Page
 
-from entities.entities import ProductData
+from entities.entities import ProductData, TaskResult
 from log import logger
 from utils import (get_all_selectors_with_retry, get_image_url, get_inventory,
                    get_selector_with_retry, wait_for_selector_with_retry)
@@ -58,19 +58,20 @@ async def get_description(page: Page, ref: str) -> Tuple[str, list[str]]:
     return title, description
 
 
-async def not_found(ref: str, msg: str, context) -> ProductData:
+async def not_found(ref: str, msg: str, context) -> TaskResult:
     logger.error(f"{ref} {msg}")
     await context.close()
-    return {
+    data: ProductData = {
         "ref": ref,
         "image": None,
         "title": "",
         "description": [],
         "color_inventory": [],
     }
+    return data, ref
 
 
-async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
+async def extract_data(page: Page, context: Any, ref: str) -> TaskResult:
     print(f"Processing: {ref}")
 
     product_containers = await search_product(page, ref, retries=5)
@@ -97,7 +98,7 @@ async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
             "description": description,
             "image": None,
             "color_inventory": color_inventory,
-        }
+        }, None
 
     response = requests.get(product_image_url)
     image_data = BytesIO(response.content)
@@ -109,4 +110,4 @@ async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
         "description": description,
         "image": image_data,
         "color_inventory": color_inventory,
-    }
+    }, None

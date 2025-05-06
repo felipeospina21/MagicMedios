@@ -37,18 +37,23 @@ async def main():
         # iterates to scrape data and log
         for test_idx in range(app.args.load_test):
             print(f"Loop {test_idx+1}/{app.args.load_test}")
-            scraped_refs = await scrape(references, app.args.headless)
-            if scraped_refs:
-                for ref_data in scraped_refs:
-                    has_data = "ok" if ref_data["title"] else "not found"
+            task_result = await scrape(references, app.args.headless)
+            if task_result:
+                for [ref_data, not_found] in task_result:
+                    has_data = "not found" if not_found else "ok"
                     flagged_logger.info(
                         f"load_test-{test_idx+1}: {ref_data['ref']}-{has_data}"
                     )
 
     else:
-        scraped_refs = await scrape(references, app.args.headless)
-        if scraped_refs:
-            for idx, ref_data in enumerate(scraped_refs):
+        task_result = await scrape(references, app.args.headless)
+        not_found_refs = []
+        if task_result:
+            for idx, [ref_data, not_found] in enumerate(task_result):
+                if not_found:
+                    not_found_refs.append(not_found)
+                    continue
+
                 presentation.create_title(
                     ref_data["title"], idx, count=idx + 1, ref=ref_data["ref"]
                 )
@@ -61,6 +66,7 @@ async def main():
                 presentation.create_inventory_table(ref_data["color_inventory"], idx)
 
     if not app.args.load_test:
+        print(f"not found {not_found_refs}")
         path = app.get_saving_path()
         presentation.save(path)
         app.create_new_consecutive()

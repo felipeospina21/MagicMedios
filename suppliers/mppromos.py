@@ -5,7 +5,7 @@ from typing import Tuple
 import requests
 from playwright.async_api import Page
 
-from entities.entities import ProductData
+from entities.entities import TaskResult
 from log import logger
 from utils import (get_all_selectors_with_retry, get_image_url, get_inventory,
                    wait_for_selector_with_retry)
@@ -57,7 +57,7 @@ async def get_description(page: Page, ref: str) -> Tuple[str, str, list[str]]:
     return title, subtitle, description
 
 
-async def extract_data(page: Page, context, ref: str) -> ProductData:
+async def extract_data(page: Page, context, ref: str) -> TaskResult:
     print(f"Processing: {ref}")
 
     found: bool = await search_product(page, ref, delay=2, retries=5)
@@ -69,7 +69,7 @@ async def extract_data(page: Page, context, ref: str) -> ProductData:
             "image": None,
             "description": [],
             "color_inventory": [],
-        }
+        }, ref
 
     selector = "//a[@class='col-md-3 text-decoration-none text-dark ng-star-inserted']"
     try:
@@ -94,7 +94,7 @@ async def extract_data(page: Page, context, ref: str) -> ProductData:
             "description": description,
             "color_inventory": color_inventory,
             "subtitle": subtitle,
-        }
+        }, None
 
     response = requests.get(product_image_url)
     image_data = BytesIO(response.content)
@@ -107,4 +107,4 @@ async def extract_data(page: Page, context, ref: str) -> ProductData:
         "image": image_data,
         "color_inventory": color_inventory,
         "subtitle": subtitle,
-    }
+    }, None

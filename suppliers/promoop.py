@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from playwright.async_api import Page
 
 from constants import urls
-from entities.entities import ProductData
+from entities.entities import TaskResult
 from utils import (get_all_selectors_with_retry, get_image_url, get_inventory,
                    get_selector_with_retry, humanize_text, remove_prefix,
                    wait_for_selector_with_retry)
@@ -84,7 +84,7 @@ async def get_colors_map(page: Page, ref: str) -> Dict[str, str]:
     return colors
 
 
-async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
+async def extract_data(page: Page, context: Any, ref: str) -> TaskResult:
     print(f"Processing: {ref}")
 
     await login(page, ref)
@@ -99,7 +99,7 @@ async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
             "title": "",
             "description": [],
             "color_inventory": [],
-        }
+        }, ref
 
     await page.click("//a[@class='img-responsive ']")
 
@@ -130,7 +130,7 @@ async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
             "description": description,
             "image": None,
             "color_inventory": color_inventory,
-        }
+        }, None
 
     response = requests.get(product_image_url)
     image_data = BytesIO(response.content)
@@ -143,4 +143,4 @@ async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
         "description": description,
         "image": image_data,
         "color_inventory": color_inventory,
-    }
+    }, None

@@ -6,7 +6,7 @@ from typing import Any
 import requests
 from playwright.async_api import Page
 
-from entities.entities import Color_Inventory, ProductData
+from entities.entities import Color_Inventory, TaskResult
 from entities.variant import Product, Variant
 from log import logger
 
@@ -17,7 +17,7 @@ def get_api_data(url):
     return json.loads(content)
 
 
-async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
+async def extract_data(page: Page, context: Any, ref: str) -> TaskResult:
     print(f"Processing: {ref}")
 
     auth_token = os.environ.get("API_TOKEN")
@@ -54,7 +54,7 @@ async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
             "description": description,
             "image": None,
             "color_inventory": color_inventory,
-        }
+        }, None
 
     response = requests.get(product_image_url)
     image_data = BytesIO(response.content)
@@ -67,4 +67,4 @@ async def extract_data(page: Page, context: Any, ref: str) -> ProductData:
         "description": description,
         "image": image_data,
         "color_inventory": color_inventory,
-    }
+    }, None

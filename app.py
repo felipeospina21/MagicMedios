@@ -16,7 +16,7 @@ class App:
             "-l",
             "--load_test",
             type=int,
-            default=3,
+            default=None,
             help="Loop scrapper and log result",
         )
         parser.add_argument(
