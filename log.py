@@ -27,7 +27,7 @@ general_handler = TimedRotatingFileHandler(
     filename=os.path.join(info_log_dir, "info.log"),
     when="midnight",
     interval=1,
-    backupCount=30,
+    backupCount=15,
     encoding="utf-8",
 )
 general_handler.setLevel(logging.DEBUG)  # Log everything (DEBUG and above)
