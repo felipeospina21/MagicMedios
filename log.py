@@ -14,7 +14,7 @@ error_handler = TimedRotatingFileHandler(
     filename=os.path.join(error_log_dir, "errors.log"),
     when="midnight",
     interval=1,
-    backupCount=30,
+    backupCount=15,
     encoding="utf-8",
 )
 error_handler.setLevel(logging.ERROR)  # Only log ERROR and CRITICAL
