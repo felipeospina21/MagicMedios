@@ -3,6 +3,7 @@ import os
 
 from app_utils import str2bool
 from entities.entities import Client, Contact, Representative
+from lock_file import lock_file, unlock_file
 from log import logger
 
 
@@ -107,8 +108,18 @@ class App:
 
     def create_new_consecutive(self):
         if not self.args.test:
-            curr_consecutive = self.get_consecutive()
-            new_consecutive = curr_consecutive + 1
-            file = open(self.consecutive_path, "w")
-            file.write(f"{new_consecutive}\n")
-            file.close()
+            if not os.path.exists(self.consecutive_path):
+                with open(self.consecutive_path, "w") as f:
+                    f.write("0\n")
+
+            with open(self.consecutive_path, "r+") as f:
+                lock_file(f)
+                try:
+                    content = f.read().strip()
+                    curr = int(content) if content else 0
+                    f.seek(0)
+                    f.truncate()
+                    f.write(f"{curr + 1}\n")
+                    f.flush()
+                finally:
+                    unlock_file(f)

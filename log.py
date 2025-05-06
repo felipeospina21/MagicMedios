@@ -5,6 +5,7 @@ from logging.handlers import TimedRotatingFileHandler
 base_log_dir = "logs"
 error_log_dir = os.path.join(base_log_dir, "errors")
 info_log_dir = os.path.join(base_log_dir, "info")
+backup_count = 15
 
 os.makedirs(error_log_dir, exist_ok=True)
 os.makedirs(info_log_dir, exist_ok=True)
@@ -14,7 +15,7 @@ error_handler = TimedRotatingFileHandler(
     filename=os.path.join(error_log_dir, "errors.log"),
     when="midnight",
     interval=1,
-    backupCount=15,
+    backupCount=backup_count,
     encoding="utf-8",
 )
 error_handler.setLevel(logging.ERROR)  # Only log ERROR and CRITICAL
@@ -27,7 +28,7 @@ general_handler = TimedRotatingFileHandler(
     filename=os.path.join(info_log_dir, "info.log"),
     when="midnight",
     interval=1,
-    backupCount=15,
+    backupCount=backup_count,
     encoding="utf-8",
 )
 general_handler.setLevel(logging.DEBUG)  # Log everything (DEBUG and above)
