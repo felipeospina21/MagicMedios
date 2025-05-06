@@ -13,6 +13,16 @@ class App:
         parser.add_argument("--debug", action="store_true", help="Enable debug mode")
         parser.add_argument("--test", action="store_true", help="Enable test mode")
         parser.add_argument(
+            "-l",
+            "--load_test",
+            type=int,
+            default=3,
+            help="Loop scrapper and log result",
+        )
+        parser.add_argument(
+            "-c", "--concurrent_tasks", type=int, default=3, help="Max concurrent tasks"
+        )
+        parser.add_argument(
             "-H",
             "--headless",
             type=str2bool,
