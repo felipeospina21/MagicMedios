@@ -60,6 +60,20 @@ class App:
         )
         logger.info(f"cotizacion: {self.references}")
 
+    def prompt_not_found(self, not_found: list[str]) -> bool:
+        retry = (
+            input(
+                f"Las siguientes referencias no pudieron ser extraidas {not_found}\nDesea intentar extraerlas nuevament? [S/N]: "
+            )
+            .strip()
+            .lower()
+        )
+
+        if retry == "s":
+            return True
+        else:
+            return False
+
     def get_saving_path(self):
         if self.args.debug:
             return "./cotizaciones/cotización_TEST.pptm"

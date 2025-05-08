@@ -58,7 +58,7 @@ async def get_description(page: Page, ref: str) -> Tuple[str, list[str]]:
     return title, description
 
 
-async def not_found(ref: str, msg: str, context) -> TaskResult:
+async def not_found(original_ref: str, ref: str, msg: str, context) -> TaskResult:
     logger.error(f"{ref} {msg}")
     await context.close()
     data: ProductData = {
@@ -68,19 +68,20 @@ async def not_found(ref: str, msg: str, context) -> TaskResult:
         "description": [],
         "color_inventory": [],
     }
-    return data, ref
+    return data, original_ref
 
 
-async def extract_data(page: Page, context: Any, ref: str) -> TaskResult:
+async def extract_data(page: Page, context: Any, original_ref: str) -> TaskResult:
+    ref = original_ref.upper().split("CP", 1)[1]
     print(f"Processing: {ref}")
 
     product_containers = await search_product(page, ref, retries=5)
     if not product_containers:
-        return await not_found(ref, "not found", context)
+        return await not_found(original_ref, ref, "not found", context)
 
     product_link = await search_product_link(product_containers, ref)
     if not product_link:
-        return await not_found(ref, "link not found", context)
+        return await not_found(original_ref, ref, "link not found", context)
 
     await product_link.click()
     product_image_url = await get_image_url(page, "#img_01", ref)

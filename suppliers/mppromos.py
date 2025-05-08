@@ -57,7 +57,8 @@ async def get_description(page: Page, ref: str) -> Tuple[str, str, list[str]]:
     return title, subtitle, description
 
 
-async def extract_data(page: Page, context, ref: str) -> TaskResult:
+async def extract_data(page: Page, context, original_ref: str) -> TaskResult:
+    ref = original_ref.upper().split("MP", 1)[1]
     print(f"Processing: {ref}")
 
     found: bool = await search_product(page, ref, delay=2, retries=5)
@@ -69,7 +70,7 @@ async def extract_data(page: Page, context, ref: str) -> TaskResult:
             "image": None,
             "description": [],
             "color_inventory": [],
-        }, ref
+        }, original_ref
 
     selector = "//a[@class='col-md-3 text-decoration-none text-dark ng-star-inserted']"
     try:

@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from app import App
 from log import flagged_logger
 from presentation import Presentation
-from scraper import scrape
+from scraper import run_scraper_task, scrape
 
 
 async def main():
@@ -46,27 +46,15 @@ async def main():
                     )
 
     else:
-        task_result = await scrape(references, app.args.headless)
-        not_found_refs = []
-        if task_result:
-            for idx, [ref_data, not_found] in enumerate(task_result):
-                if not_found:
-                    not_found_refs.append(not_found)
-                    continue
-
-                presentation.create_title(
-                    ref_data["title"], idx, count=idx + 1, ref=ref_data["ref"]
-                )
-                if "subtitle" in ref_data:
-                    presentation.create_subtitle(ref_data["subtitle"], idx)
-
-                presentation.create_description(ref_data["description"], idx)
-                presentation.create_img(ref_data["image"], idx)
-                presentation.create_quantity_table(idx)
-                presentation.create_inventory_table(ref_data["color_inventory"], idx)
+        not_found_refs = await run_scraper_task(app, presentation, references)
 
     if not app.args.load_test:
-        print(f"not found {not_found_refs}")
+        if len(not_found_refs) > 0:
+            retry = app.prompt_not_found(not_found_refs)
+            while retry:
+                not_found_refs = await run_scraper_task(app, presentation, references)
+                retry = app.prompt_not_found(not_found_refs)
+
         path = app.get_saving_path()
         presentation.save(path)
         app.create_new_consecutive()

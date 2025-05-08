@@ -17,7 +17,8 @@ def get_api_data(url):
     return json.loads(content)
 
 
-async def extract_data(page: Page, context: Any, ref: str) -> TaskResult:
+async def extract_data(page: Page, context: Any, original_ref: str) -> TaskResult:
+    ref = original_ref.upper().split("CD", 1)[1]
     print(f"Processing: {ref}")
 
     auth_token = os.environ.get("API_TOKEN")

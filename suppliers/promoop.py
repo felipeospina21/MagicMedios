@@ -84,7 +84,8 @@ async def get_colors_map(page: Page, ref: str) -> Dict[str, str]:
     return colors
 
 
-async def extract_data(page: Page, context: Any, ref: str) -> TaskResult:
+async def extract_data(page: Page, context: Any, original_ref: str) -> TaskResult:
+    ref = original_ref.upper().split("PO", 1)[1]
     print(f"Processing: {ref}")
 
     await login(page, ref)
@@ -99,7 +100,7 @@ async def extract_data(page: Page, context: Any, ref: str) -> TaskResult:
             "title": "",
             "description": [],
             "color_inventory": [],
-        }, ref
+        }, original_ref
 
     await page.click("//a[@class='img-responsive ']")
 
