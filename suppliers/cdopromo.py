@@ -1,7 +1,6 @@
 import json
 import os
 from io import BytesIO
-from typing import Any
 
 import requests
 from playwright.async_api import Page
@@ -17,7 +16,7 @@ def get_api_data(url):
     return json.loads(content)
 
 
-async def extract_data(page: Page, context: Any, original_ref: str) -> TaskResult:
+async def extract_data(page: Page, original_ref: str) -> TaskResult:
     ref = original_ref.upper().split("CD", 1)[1]
     print(f"Processing: {ref}")
 
@@ -47,7 +46,6 @@ async def extract_data(page: Page, context: Any, original_ref: str) -> TaskResul
         )
 
     if not product_image_url:
-        await context.close()
         return {
             "ref": ref,
             "title": title,
@@ -60,7 +58,6 @@ async def extract_data(page: Page, context: Any, original_ref: str) -> TaskResul
     response = requests.get(product_image_url)
     image_data = BytesIO(response.content)
 
-    await context.close()
     return {
         "ref": ref,
         "title": title,

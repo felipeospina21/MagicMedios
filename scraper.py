@@ -16,14 +16,14 @@ from log import logger
 from presentation import Presentation
 from suppliers import catalogospromo, cdopromo, mppromos, nwpromo, promoop
 
-MAX_CONCURRENT_TASKS = 2  # Configurable
+MAX_CONCURRENT_TASKS = 3  # Configurable
 
 semaphore = asyncio.Semaphore(MAX_CONCURRENT_TASKS)
 
 type Data = Dict[str, str | BytesIO]
 
 type Task = Callable[
-    [Page, Any, str],
+    [Page, str],
     Coroutine[Any, Any, TaskResult],
 ]
 
@@ -67,17 +67,17 @@ def get_ref_and_url(ref: str) -> Tuple[str, str, Task]:
     )
 
 
-async def scrape_product(context: BrowserContext, ref: str) -> TaskResult | None:
+async def scrape_product(
+    page: Page, context: BrowserContext, ref: str
+) -> TaskResult | None:
     ref, url, task = get_ref_and_url(ref.upper().strip())
 
     async with semaphore:  # Limit concurrency
         if url == "api":
-            data, not_found = await task(None, context, ref)
-            await context.close()
+            data, not_found = await task(page, ref)
             return data, not_found
 
         else:
-            page = await context.new_page()
             for attempt in range(3):
                 try:
                     await page.goto(url, wait_until="domcontentloaded")
@@ -92,7 +92,7 @@ async def scrape_product(context: BrowserContext, ref: str) -> TaskResult | None
                         return
 
             await asyncio.sleep(random.uniform(0.5, 1.2))
-            data = await task(page, context, ref)
+            data = await task(page, ref)
             return data
 
 
@@ -118,23 +118,26 @@ async def run_with_concurrency(
 async def scrape_all(
     browser: Browser, product_codes: list[str], concurrency: int
 ) -> list[TaskResult]:
-    contexts = [await browser.new_context() for _ in range(concurrency)]
-    context_queue: asyncio.Queue[BrowserContext] = asyncio.Queue()
-    for ctx in contexts:
-        context_queue.put_nowait(ctx)
+    context = await browser.new_context()
+    effective_concurrency = min(concurrency, len(product_codes))
+    page_queue: asyncio.Queue[Page] = asyncio.Queue()
+    pages: list[Page] = [await context.new_page() for _ in range(effective_concurrency)]
+    for p in pages:
+        page_queue.put_nowait(p)
 
     async def task_factory(code: str) -> Optional[TaskResult]:
-        ctx = await context_queue.get()
+        page = await page_queue.get()
         try:
-            return await scrape_product(ctx, code)
+            result = await scrape_product(page, context, code)
+            return result
         finally:
-            await context_queue.put(ctx)
+            page_queue.put_nowait(page)
 
-    results = await run_with_concurrency(concurrency, product_codes, task_factory)
+    results = await run_with_concurrency(
+        effective_concurrency, product_codes, task_factory
+    )
 
-    for ctx in contexts:
-        await ctx.close()
-
+    await context.close()
     return results
 
 

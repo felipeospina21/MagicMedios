@@ -1,6 +1,6 @@
 import asyncio
 from io import BytesIO
-from typing import Any, Tuple
+from typing import Tuple
 
 import requests
 from playwright.async_api import Locator, Page
@@ -34,7 +34,7 @@ async def get_description(page: Page, ref: str) -> Tuple[str, list[str]]:
     return title, description
 
 
-async def not_found(original_ref: str, ref: str, msg: str, context) -> TaskResult:
+async def not_found(original_ref: str, ref: str, msg: str) -> TaskResult:
     logger.error(f"{ref} {msg}")
     data: ProductData = {
         "ref": ref,
@@ -46,24 +46,21 @@ async def not_found(original_ref: str, ref: str, msg: str, context) -> TaskResul
     return data, original_ref
 
 
-async def extract_data(page: Page, context: Any, original_ref: str) -> TaskResult:
+async def extract_data(page: Page, original_ref: str) -> TaskResult:
     ref = original_ref.upper().split("CP", 1)[1]
     print(f"Processing: {ref}")
 
-    count = 1
-    while count < 3:
+    for _ in range(3):
         await search_product(page, ref, selector="#productos", timeout=10000, retries=5)
 
         product_containers = await get_all_selectors_with_retry(
             page, ".itemProducto-", ref, timeout=10000, retries=5, delay=1
         )
         if not product_containers:
-            count += 1
             continue
 
         product_link = await search_product_link(product_containers, ref)
         if not product_link:
-            count += 1
             continue
 
         await asyncio.sleep(2)
@@ -72,7 +69,7 @@ async def extract_data(page: Page, context: Any, original_ref: str) -> TaskResul
 
     title, description = await get_description(page, ref)
     if not title:
-        await not_found(original_ref, ref, "title not found", context)
+        await not_found(original_ref, ref, "title not found")
 
     xpath = "//tr[@class='titlesRow']/following-sibling::tr[not(@class='hideInfo')]"
     color_inventory = await get_inventory(

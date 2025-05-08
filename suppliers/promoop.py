@@ -1,7 +1,7 @@
 import asyncio
 import os
 from io import BytesIO
-from typing import Any, Dict, Tuple
+from typing import Dict, Tuple
 
 import requests
 from dotenv import load_dotenv
@@ -84,7 +84,7 @@ async def get_colors_map(page: Page, ref: str) -> Dict[str, str]:
     return colors
 
 
-async def extract_data(page: Page, context: Any, original_ref: str) -> TaskResult:
+async def extract_data(page: Page, original_ref: str) -> TaskResult:
     ref = original_ref.upper().split("PO", 1)[1]
     print(f"Processing: {ref}")
 
@@ -93,7 +93,6 @@ async def extract_data(page: Page, context: Any, original_ref: str) -> TaskResul
 
     found: bool = await search_product(page, ref, delay=0)
     if not found:
-        await context.close()
         return {
             "ref": ref,
             "image": None,
@@ -123,7 +122,6 @@ async def extract_data(page: Page, context: Any, original_ref: str) -> TaskResul
             item["color"] = colors_map[ref]
 
     if not product_image_url:
-        await context.close()
         return {
             "ref": ref,
             "title": title,
@@ -136,7 +134,6 @@ async def extract_data(page: Page, context: Any, original_ref: str) -> TaskResul
     response = requests.get(product_image_url)
     image_data = BytesIO(response.content)
 
-    await context.close()
     return {
         "ref": ref,
         "title": title,

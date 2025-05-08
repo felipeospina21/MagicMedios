@@ -57,13 +57,12 @@ async def get_description(page: Page, ref: str) -> Tuple[str, str, list[str]]:
     return title, subtitle, description
 
 
-async def extract_data(page: Page, context, original_ref: str) -> TaskResult:
+async def extract_data(page: Page, original_ref: str) -> TaskResult:
     ref = original_ref.upper().split("MP", 1)[1]
     print(f"Processing: {ref}")
 
     found: bool = await search_product(page, ref, delay=2, retries=5)
     if not found:
-        await context.close()
         return {
             "ref": ref,
             "title": "",
@@ -87,7 +86,6 @@ async def extract_data(page: Page, context, original_ref: str) -> TaskResult:
     )
 
     if not product_image_url:
-        await context.close()
         return {
             "ref": ref,
             "image": None,
@@ -100,7 +98,6 @@ async def extract_data(page: Page, context, original_ref: str) -> TaskResult:
     response = requests.get(product_image_url)
     image_data = BytesIO(response.content)
 
-    await context.close()
     return {
         "ref": ref,
         "title": title,

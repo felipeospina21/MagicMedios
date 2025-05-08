@@ -59,10 +59,11 @@ async def main():
 
     if not app.args.load_test:
         if len(not_found_refs) > 0:
-            retry = app.prompt_not_found(not_found_refs)
-            while retry:
-                not_found_refs = await run_scraper_task(app, presentation, references)
-                retry = app.prompt_not_found(not_found_refs)
+            print(f"no se pudieron encontrar las siguientes refs {not_found_refs}")
+            # retry = app.prompt_not_found(not_found_refs)
+            # while retry:
+            #     not_found_refs = await run_scraper_task(app, presentation, sorted_refs)
+            #     retry = app.prompt_not_found(not_found_refs)
 
         path = app.get_saving_path()
         presentation.save(path)
