@@ -7,6 +7,25 @@ from entities.entities import Color_Inventory
 from log import logger
 
 
+async def search_product(
+    page: Page,
+    product_code: str,
+    selector: str,
+    timeout: int = 5000,
+    retries: int = 3,
+    delay: int = 2,
+) -> None:
+    """Attempts to search for a product, retrying if necessary."""
+    input: bool = await wait_for_selector_with_retry(
+        page, selector, product_code, timeout, retries, delay
+    )
+    if input:
+        await page.locator(selector).fill(product_code)
+        await asyncio.sleep(2)
+        await page.locator(selector).press("Enter")
+        await asyncio.sleep(5)
+
+
 async def wait_for_selector_with_retry(
     page: Page,
     selector: str,
@@ -20,12 +39,13 @@ async def wait_for_selector_with_retry(
         try:
             logger.info(f"{ref}: wating for selector {selector}, {attempt}/{retries}")
             element = page.locator(selector)
-            await element.wait_for(timeout=timeout)
+            await element.wait_for(timeout=timeout, state="visible")
             return True
         except:
             if attempt < retries - 1:
                 await asyncio.sleep(delay)
             else:
+                logger.error(f"{ref}: {selector}")
                 return False
     return False
 
@@ -49,6 +69,7 @@ async def get_selector_with_retry(
             if attempt < retries - 1:
                 await asyncio.sleep(delay)
             else:
+                logger.error(f"{ref}: {selector}")
                 return None
 
 
@@ -66,12 +87,13 @@ async def get_all_selectors_with_retry(
             logger.info(f"{ref}: wating for selectors {selector}, {attempt}/{retries}")
             elements = await page.locator(selector).all()
             for element in elements:
-                await element.wait_for(timeout=timeout)
+                await element.wait_for(timeout=timeout, state="visible")
             return elements
         except Exception:
             if attempt < retries - 1:
                 await asyncio.sleep(delay)
             else:
+                logger.error(f"{ref}: {selector}")
                 return None
 
 

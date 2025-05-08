@@ -8,7 +8,7 @@ from playwright.async_api import Locator, Page
 from entities.entities import ProductData, TaskResult
 from log import logger
 from utils import (get_all_selectors_with_retry, get_image_url, get_inventory,
-                   get_selector_with_retry, wait_for_selector_with_retry)
+                   get_selector_with_retry, search_product)
 
 
 async def search_product_link(
@@ -18,30 +18,6 @@ async def search_product_link(
         title = await product.locator(".ref.textoColor").inner_text()
         if title.lower() == ref.lower():
             return product.locator(".img-producto")
-
-
-async def search_product(
-    page: Page, product_code: str, retries: int = 3, delay: int = 2
-) -> list[Locator] | None:
-    """Attempts to search for a product, retrying if necessary."""
-    for _ in range(retries):
-        input: bool = await wait_for_selector_with_retry(
-            page, "#productos", product_code, retries=3, delay=0
-        )
-        if input:
-            await asyncio.sleep(2)
-            await page.locator("#productos").fill(product_code)
-            await page.locator("#productos").press("Enter")
-
-        product_containers = await get_all_selectors_with_retry(
-            page, ".itemProducto-", product_code, retries=3, delay=0
-        )
-        if product_containers:
-            return product_containers
-
-        await asyncio.sleep(delay)
-
-    return None
 
 
 async def get_description(page: Page, ref: str) -> Tuple[str, list[str]]:
@@ -75,22 +51,36 @@ async def extract_data(page: Page, context: Any, original_ref: str) -> TaskResul
     ref = original_ref.upper().split("CP", 1)[1]
     print(f"Processing: {ref}")
 
-    product_containers = await search_product(page, ref, retries=5)
-    if not product_containers:
-        return await not_found(original_ref, ref, "not found", context)
+    count = 1
+    while count < 3:
+        await search_product(page, ref, selector="#productos", timeout=10000, retries=5)
 
-    product_link = await search_product_link(product_containers, ref)
-    if not product_link:
-        return await not_found(original_ref, ref, "link not found", context)
+        product_containers = await get_all_selectors_with_retry(
+            page, ".itemProducto-", ref, timeout=10000, retries=5, delay=1
+        )
+        if not product_containers:
+            count += 1
+            continue
 
-    await product_link.click()
-    product_image_url = await get_image_url(page, "#img_01", ref)
+        product_link = await search_product_link(product_containers, ref)
+        if not product_link:
+            count += 1
+            continue
+
+        await asyncio.sleep(2)
+        await product_link.click()
+        break
+
     title, description = await get_description(page, ref)
+    if not title:
+        await not_found(original_ref, ref, "title not found", context)
+
     xpath = "//tr[@class='titlesRow']/following-sibling::tr[not(@class='hideInfo')]"
     color_inventory = await get_inventory(
         page, xpath, ref, color_cell_index=0, inventory_cell_index=3
     )
 
+    product_image_url = await get_image_url(page, "#img_01", ref)
     if not product_image_url:
         await context.close()
         return {

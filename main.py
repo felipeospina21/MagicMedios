@@ -5,7 +5,7 @@ import time
 from dotenv import load_dotenv
 
 from app import App
-from log import flagged_logger
+from log import flagged_logger, logger
 from presentation import Presentation
 from scraper import run_scraper_task, scrape
 
@@ -41,9 +41,12 @@ async def main():
             if task_result:
                 for [ref_data, not_found] in task_result:
                     has_data = "not found" if not_found else "ok"
-                    flagged_logger.info(
-                        f"load_test-{test_idx+1}: {ref_data['ref']}-{has_data}"
+                    msg = f"load_test-{test_idx+1}: {ref_data['ref']}-{has_data}"
+                    logger.info(
+                        f"load_test-{test_idx+1}: {ref_data['ref']}-{ref_data['title']}"
                     )
+                    flagged_logger.info(msg)
+                    print(f"\t{msg}")
 
     else:
         not_found_refs = await run_scraper_task(app, presentation, references)

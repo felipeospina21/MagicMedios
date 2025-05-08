@@ -1,4 +1,5 @@
 import asyncio
+import random
 import re
 import subprocess
 from io import BytesIO
@@ -10,6 +11,7 @@ from playwright.async_api import Browser, Page, async_playwright
 from app import App
 from constants import urls
 from entities.entities import TaskResult
+from log import logger
 from presentation import Presentation
 from suppliers import catalogospromo, cdopromo, mppromos, nwpromo, promoop
 
@@ -64,8 +66,8 @@ def get_ref_and_url(ref: str) -> Tuple[str, str, Task]:
     )
 
 
-async def scrape_product(browser: Browser, ref: str) -> TaskResult:
-    ref, url, task = get_ref_and_url(ref.upper())
+async def scrape_product(browser: Browser, ref: str) -> TaskResult | None:
+    ref, url, task = get_ref_and_url(ref.upper().strip())
 
     async with semaphore:  # Limit concurrency
         context = await browser.new_context()
@@ -76,8 +78,20 @@ async def scrape_product(browser: Browser, ref: str) -> TaskResult:
 
         else:
             page = await context.new_page()
-            await page.goto(url)
+            for attempt in range(3):
+                try:
+                    await page.goto(url, wait_until="domcontentloaded")
+                    break
+                except Exception as e:
+                    if "ERR_HTTP2_PROTOCOL_ERROR" in str(e):
+                        logger.error(f"Encountered HTTP2 error, retrying {attempt+1}")
+                        await asyncio.sleep(2)
+                    else:
+                        logger.error(f"{ref}: {Exception}")
+                        await context.close()
+                        return
 
+            await asyncio.sleep(random.uniform(0.5, 1.2))
             data = await task(page, context, ref)
             await context.close()
             return data
@@ -91,8 +105,11 @@ async def scrape(ref_list: list[str], headless_flag=True) -> list[TaskResult] | 
                 browser = await p.chromium.launch(headless=headless_flag)
                 tasks = [scrape_product(browser, ref) for ref in ref_list]
                 results = await asyncio.gather(*tasks)
+                valid_results = [
+                    r for r in results if r
+                ]  # Filter out None (failed tasks)
                 await browser.close()
-                return results
+                return valid_results
 
             except PlaywrightError as e:
                 if "Executable doesn't exist" in str(e):
