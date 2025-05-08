@@ -1,6 +1,7 @@
 import asyncio
 import locale
 import time
+from argparse import Namespace
 
 from dotenv import load_dotenv
 
@@ -8,6 +9,23 @@ from app import App
 from log import flagged_logger, logger
 from presentation import Presentation
 from scraper import run_scraper_task, scrape
+
+
+# FIX: Move to other place
+async def load_test(app_args: Namespace, references: list[str]):
+    # iterates to scrape data and log
+    for test_idx in range(app_args.load_test):
+        print(f"Loop {test_idx+1}/{app_args.load_test}")
+        task_result = await scrape(references, app_args.headless)
+        if task_result:
+            for [ref_data, not_found] in task_result:
+                has_data = "not found" if not_found else "ok"
+                msg = f"load_test-{test_idx+1}: {ref_data['ref']}-{has_data}"
+                logger.info(
+                    f"load_test-{test_idx+1}: {ref_data['ref']}-{ref_data['title']}"
+                )
+                flagged_logger.info(msg)
+                print(f"\t{msg}")
 
 
 async def main():
@@ -34,19 +52,7 @@ async def main():
     presentation.add_commercial_policy_slide()
 
     if app.args.load_test:
-        # iterates to scrape data and log
-        for test_idx in range(app.args.load_test):
-            print(f"Loop {test_idx+1}/{app.args.load_test}")
-            task_result = await scrape(references, app.args.headless)
-            if task_result:
-                for [ref_data, not_found] in task_result:
-                    has_data = "not found" if not_found else "ok"
-                    msg = f"load_test-{test_idx+1}: {ref_data['ref']}-{has_data}"
-                    logger.info(
-                        f"load_test-{test_idx+1}: {ref_data['ref']}-{ref_data['title']}"
-                    )
-                    flagged_logger.info(msg)
-                    print(f"\t{msg}")
+        await load_test(app.args, references)
 
     else:
         not_found_refs = await run_scraper_task(app, presentation, references)

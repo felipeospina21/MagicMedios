@@ -36,7 +36,6 @@ async def get_description(page: Page, ref: str) -> Tuple[str, list[str]]:
 
 async def not_found(original_ref: str, ref: str, msg: str, context) -> TaskResult:
     logger.error(f"{ref} {msg}")
-    await context.close()
     data: ProductData = {
         "ref": ref,
         "image": None,
@@ -82,7 +81,6 @@ async def extract_data(page: Page, context: Any, original_ref: str) -> TaskResul
 
     product_image_url = await get_image_url(page, "#img_01", ref)
     if not product_image_url:
-        await context.close()
         return {
             "ref": ref,
             "title": title,
@@ -94,7 +92,6 @@ async def extract_data(page: Page, context: Any, original_ref: str) -> TaskResul
     response = requests.get(product_image_url)
     image_data = BytesIO(response.content)
 
-    await context.close()
     return {
         "ref": ref,
         "title": title,

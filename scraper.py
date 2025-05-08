@@ -3,10 +3,11 @@ import random
 import re
 import subprocess
 from io import BytesIO
-from typing import Any, Callable, Coroutine, Dict, Tuple
+from typing import Any, Awaitable, Callable, Coroutine, Dict, Optional, Tuple
 
 from playwright._impl._errors import Error as PlaywrightError
-from playwright.async_api import Browser, Page, async_playwright
+from playwright.async_api import (Browser, BrowserContext, Page,
+                                  async_playwright)
 
 from app import App
 from constants import urls
@@ -66,11 +67,10 @@ def get_ref_and_url(ref: str) -> Tuple[str, str, Task]:
     )
 
 
-async def scrape_product(browser: Browser, ref: str) -> TaskResult | None:
+async def scrape_product(context: BrowserContext, ref: str) -> TaskResult | None:
     ref, url, task = get_ref_and_url(ref.upper().strip())
 
     async with semaphore:  # Limit concurrency
-        context = await browser.new_context()
         if url == "api":
             data, not_found = await task(None, context, ref)
             await context.close()
@@ -93,8 +93,49 @@ async def scrape_product(browser: Browser, ref: str) -> TaskResult | None:
 
             await asyncio.sleep(random.uniform(0.5, 1.2))
             data = await task(page, context, ref)
-            await context.close()
             return data
+
+
+async def run_with_concurrency(
+    limit: int,
+    items: list[str],
+    task_factory: Callable[[str], Awaitable[Optional[TaskResult]]],
+) -> list[TaskResult]:
+    results: list[TaskResult] = []
+    semaphore = asyncio.Semaphore(limit)
+
+    async def sem_task(item: str):
+        async with semaphore:
+            return await task_factory(item)
+
+    for coro in asyncio.as_completed([sem_task(item) for item in items]):
+        result = await coro
+        if result:
+            results.append(result)
+    return results
+
+
+async def scrape_all(
+    browser: Browser, product_codes: list[str], concurrency: int
+) -> list[TaskResult]:
+    contexts = [await browser.new_context() for _ in range(concurrency)]
+    context_queue: asyncio.Queue[BrowserContext] = asyncio.Queue()
+    for ctx in contexts:
+        context_queue.put_nowait(ctx)
+
+    async def task_factory(code: str) -> Optional[TaskResult]:
+        ctx = await context_queue.get()
+        try:
+            return await scrape_product(ctx, code)
+        finally:
+            await context_queue.put(ctx)
+
+    results = await run_with_concurrency(concurrency, product_codes, task_factory)
+
+    for ctx in contexts:
+        await ctx.close()
+
+    return results
 
 
 async def scrape(ref_list: list[str], headless_flag=True) -> list[TaskResult] | None:
@@ -103,13 +144,9 @@ async def scrape(ref_list: list[str], headless_flag=True) -> list[TaskResult] | 
         for _ in range(2):
             try:
                 browser = await p.chromium.launch(headless=headless_flag)
-                tasks = [scrape_product(browser, ref) for ref in ref_list]
-                results = await asyncio.gather(*tasks)
-                valid_results = [
-                    r for r in results if r
-                ]  # Filter out None (failed tasks)
+                results = await scrape_all(browser, ref_list, MAX_CONCURRENT_TASKS)
                 await browser.close()
-                return valid_results
+                return results
 
             except PlaywrightError as e:
                 if "Executable doesn't exist" in str(e):
