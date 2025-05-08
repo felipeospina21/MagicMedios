@@ -21,9 +21,9 @@ async def search_product(
     )
     if input:
         await page.locator(selector).fill(product_code)
-        await asyncio.sleep(2)
+        await asyncio.sleep(delay)
         await page.locator(selector).press("Enter")
-        await asyncio.sleep(5)
+        await asyncio.sleep(delay)
 
 
 async def wait_for_selector_with_retry(

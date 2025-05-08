@@ -1,4 +1,3 @@
-import asyncio
 from io import BytesIO
 from typing import Tuple
 
@@ -8,29 +7,7 @@ from playwright.async_api import Page
 from entities.entities import TaskResult
 from log import logger
 from utils import (get_all_selectors_with_retry, get_image_url, get_inventory,
-                   wait_for_selector_with_retry)
-
-
-async def search_product(
-    page: Page, product_code: str, retries: int = 3, delay: int = 2
-) -> bool:
-    """Attempts to search for a product, retrying if necessary."""
-    for _ in range(retries):
-        input: bool = await wait_for_selector_with_retry(
-            page, "#input-buscar-menu", product_code, retries=3, delay=0
-        )
-        if input:
-            await asyncio.sleep(2)
-            await page.locator("#input-buscar-menu").fill(product_code)
-            await page.locator("#input-buscar-menu").press("Enter")
-
-        links = await page.locator("a").all()
-        if len(links) > 0:
-            return True
-
-        await asyncio.sleep(delay)
-
-    return False
+                   search_product)
 
 
 async def get_description(page: Page, ref: str) -> Tuple[str, str, list[str]]:
@@ -61,16 +38,7 @@ async def extract_data(page: Page, original_ref: str) -> TaskResult:
     ref = original_ref.upper().split("MP", 1)[1]
     print(f"Processing: {ref}")
 
-    found: bool = await search_product(page, ref, delay=2, retries=5)
-    if not found:
-        return {
-            "ref": ref,
-            "title": "",
-            "image": None,
-            "description": [],
-            "color_inventory": [],
-        }, original_ref
-
+    await search_product(page, ref, selector="#input-buscar-menu", delay=2, retries=5)
     selector = "//a[@class='col-md-3 text-decoration-none text-dark ng-star-inserted']"
     try:
         await page.wait_for_selector(selector)

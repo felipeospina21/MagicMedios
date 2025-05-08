@@ -51,7 +51,9 @@ async def extract_data(page: Page, original_ref: str) -> TaskResult:
     print(f"Processing: {ref}")
 
     for _ in range(3):
-        await search_product(page, ref, selector="#productos", timeout=10000, retries=5)
+        await search_product(
+            page, ref, selector="#productos", timeout=10000, retries=5, delay=3
+        )
 
         product_containers = await get_all_selectors_with_retry(
             page, ".itemProducto-", ref, timeout=10000, retries=5, delay=1
