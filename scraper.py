@@ -27,6 +27,11 @@ type Task = Callable[
     Coroutine[Any, Any, TaskResult],
 ]
 
+type ApiTask = Callable[
+    [None, str],
+    Coroutine[Any, Any, TaskResult],
+]
+
 type EmptyTask = Callable[[], None]
 
 
