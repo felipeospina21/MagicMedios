@@ -86,11 +86,15 @@ async def get_all_selectors_with_retry(
         try:
             logger.info(f"{ref}: wating for selectors {selector}, {attempt}/{retries}")
             elements = await page.locator(selector).all()
+            if len(elements) == 0:
+                raise
+
             for element in elements:
                 await element.wait_for(timeout=timeout, state="visible")
             return elements
+
         except Exception:
-            if attempt < retries - 1:
+            if attempt < retries:
                 await asyncio.sleep(delay)
             else:
                 logger.error(f"{ref}: {selector}")
