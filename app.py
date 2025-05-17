@@ -63,7 +63,7 @@ class App:
     def prompt_not_found(self, not_found: list[str]) -> bool:
         retry = (
             input(
-                f"Las siguientes referencias no pudieron ser extraidas {not_found}\nDesea intentar extraerlas nuevament? [S/N]: "
+                f"Las siguientes referencias no pudieron ser extraidas {not_found}\nDesea intentar extraerlas nuevamente? [S/N]: "
             )
             .strip()
             .lower()

@@ -6,8 +6,12 @@ from playwright.async_api import Page
 
 from entities.entities import TaskResult
 from log import logger
-from utils import (get_all_selectors_with_retry, get_image_url, get_inventory,
-                   search_product)
+from utils import (
+    get_all_selectors_with_retry,
+    get_image_url,
+    get_inventory,
+    search_product,
+)
 
 
 async def get_description(page: Page, ref: str) -> Tuple[str, str, list[str]]:
@@ -36,7 +40,7 @@ async def get_description(page: Page, ref: str) -> Tuple[str, str, list[str]]:
 
 async def extract_data(page: Page, original_ref: str) -> TaskResult:
     ref = original_ref.upper().split("MP", 1)[1]
-    print(f"Processing: {ref}")
+    print(f"Procesando ref: {ref}")
 
     await search_product(page, ref, selector="#input-buscar-menu", delay=2, retries=5)
     selector = "//a[@class='col-md-3 text-decoration-none text-dark ng-star-inserted']"

@@ -6,8 +6,13 @@ import requests
 from playwright.async_api import Page
 
 from entities.entities import TaskResult
-from utils import (get_all_selectors_with_retry, get_image_url, get_inventory,
-                   get_selector_with_retry, wait_for_selector_with_retry)
+from utils import (
+    get_all_selectors_with_retry,
+    get_image_url,
+    get_inventory,
+    get_selector_with_retry,
+    wait_for_selector_with_retry,
+)
 
 # def get_nw_promo_data(suppliers_dict, prs, references):
 #     data = Get_Data("nw_promo", prs, references, measures)
@@ -104,7 +109,7 @@ async def search_product(
 
 
 async def extract_data(page: Page, ref: str) -> TaskResult:
-    print(f"Processing: {ref}")
+    print(f"Procesando ref: {ref}")
 
     found: bool = await search_product(page, ref, delay=0)
     if not found:

@@ -21,7 +21,7 @@ def get_api_data(url: str, ref: str) -> Product | None:
 
 async def extract_data(_: None, original_ref: str) -> TaskResult:
     ref = original_ref.upper().split("CD", 1)[1]
-    print(f"Processing: {ref}")
+    print(f"Procesando ref: {ref}")
 
     auth_token = os.environ.get("API_TOKEN")
     if auth_token == "":

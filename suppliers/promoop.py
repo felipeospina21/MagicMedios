@@ -9,9 +9,15 @@ from playwright.async_api import Page
 
 from constants import urls
 from entities.entities import TaskResult
-from utils import (get_all_selectors_with_retry, get_image_url, get_inventory,
-                   get_selector_with_retry, humanize_text, remove_prefix,
-                   wait_for_selector_with_retry)
+from utils import (
+    get_all_selectors_with_retry,
+    get_image_url,
+    get_inventory,
+    get_selector_with_retry,
+    humanize_text,
+    remove_prefix,
+    wait_for_selector_with_retry,
+)
 
 
 async def login(page: Page, ref: str):
@@ -86,7 +92,7 @@ async def get_colors_map(page: Page, ref: str) -> Dict[str, str]:
 
 async def extract_data(page: Page, original_ref: str) -> TaskResult:
     ref = original_ref.upper().split("PO", 1)[1]
-    print(f"Processing: {ref}")
+    print(f"Procesando ref: {ref}")
 
     await login(page, ref)
     await asyncio.sleep(3)

@@ -53,9 +53,9 @@ async def not_found(original_ref: str, ref: str, msg: str) -> TaskResult:
 
 async def extract_data(page: Page, original_ref: str) -> TaskResult:
     ref = original_ref.upper().split("CP", 1)[1]
-    print(f"Processing: {ref}")
+    print(f"Procesando ref: {ref}")
 
-    for _ in range(4):
+    for _ in range(1):
         await search_product(
             page, ref, selector="#productos", timeout=10000, retries=5, delay=3
         )
