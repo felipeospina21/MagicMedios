@@ -6,6 +6,7 @@ from argparse import Namespace
 from dotenv import load_dotenv
 
 from app import App
+from entities.entities import ProductData
 from log import flagged_logger, logger
 from presentation import Presentation
 from scraper import run_scraper_task, scrape
@@ -38,6 +39,8 @@ async def main():
 
     app = App()
     app.prompt()
+    saving_path = app.get_saving_path()
+    refs_to_quote: list[ProductData] = []
 
     contact = app.get_footer()
     representative = app.get_contact_info()
@@ -55,18 +58,22 @@ async def main():
         await load_test(app.args, references)
 
     else:
-        not_found_refs = await run_scraper_task(app, presentation, references)
+        found_refs, not_found_refs = await run_scraper_task(app, references)
+        refs_to_quote.extend(found_refs)
 
     if not app.args.load_test:
         if len(not_found_refs) > 0:
-            print(f"no se pudieron encontrar las siguientes refs {not_found_refs}")
-            # retry = app.prompt_not_found(not_found_refs)
-            # while retry:
-            #     not_found_refs = await run_scraper_task(app, presentation, sorted_refs)
-            #     retry = app.prompt_not_found(not_found_refs)
+            retry = app.prompt_not_found(not_found_refs)
+            while retry:
+                found_refs, not_found_refs = await run_scraper_task(app, not_found_refs)
+                refs_to_quote.extend(found_refs)
+                if len(not_found_refs) == 0:
+                    break
 
-        path = app.get_saving_path()
-        presentation.save(path)
+                retry = app.prompt_not_found(not_found_refs)
+
+        presentation.create_pptx(refs_to_quote)
+        presentation.save(saving_path)
         app.create_new_consecutive()
 
     total_time = "{:.2f}".format((time.time() - start_time) / 60)

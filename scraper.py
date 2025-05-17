@@ -6,17 +6,15 @@ from io import BytesIO
 from typing import Any, Awaitable, Callable, Coroutine, Dict, Optional, Tuple
 
 from playwright._impl._errors import Error as PlaywrightError
-from playwright.async_api import (Browser, BrowserContext, Page,
-                                  async_playwright)
+from playwright.async_api import Browser, Page, async_playwright
 
 from app import App
 from constants import urls
-from entities.entities import TaskResult
+from entities.entities import ProductData, TaskResult
 from log import logger
-from presentation import Presentation
 from suppliers import catalogospromo, cdopromo, mppromos, nwpromo, promoop
 
-MAX_CONCURRENT_TASKS = 3  # Configurable
+MAX_CONCURRENT_TASKS = 2  # Configurable
 
 semaphore = asyncio.Semaphore(MAX_CONCURRENT_TASKS)
 
@@ -72,9 +70,7 @@ def get_ref_and_url(ref: str) -> Tuple[str, str, Task]:
     )
 
 
-async def scrape_product(
-    page: Page, context: BrowserContext, ref: str
-) -> TaskResult | None:
+async def scrape_product(page: Page, ref: str) -> TaskResult | None:
     ref, url, task = get_ref_and_url(ref.upper().strip())
 
     async with semaphore:  # Limit concurrency
@@ -93,7 +89,7 @@ async def scrape_product(
                         await asyncio.sleep(2)
                     else:
                         logger.error(f"{ref}: {Exception}")
-                        await context.close()
+                        await page.close()
                         return
 
             await asyncio.sleep(random.uniform(0.5, 1.2))
@@ -133,7 +129,7 @@ async def scrape_all(
     async def task_factory(code: str) -> Optional[TaskResult]:
         page = await page_queue.get()
         try:
-            result = await scrape_product(page, context, code)
+            result = await scrape_product(page, code)
             return result
         finally:
             page_queue.put_nowait(page)
@@ -168,26 +164,16 @@ async def scrape(ref_list: list[str], headless_flag=True) -> list[TaskResult] | 
 
 
 async def run_scraper_task(
-    app: App, presentation: Presentation, references: list[str]
-) -> list[str]:
+    app: App, references: list[str]
+) -> tuple[list[ProductData], list[str]]:
     task_result = await scrape(references, app.args.headless)
+    found_refs = []
     not_found_refs = []
     if task_result:
         for idx, [ref_data, not_found] in enumerate(task_result):
             if not_found:
                 not_found_refs.append(not_found)
-                continue
+            else:
+                found_refs.append(ref_data)
 
-            # FIX: append retry references instead of overwrite
-            presentation.create_title(
-                ref_data["title"], idx, count=idx + 1, ref=ref_data["ref"]
-            )
-            if "subtitle" in ref_data:
-                presentation.create_subtitle(ref_data["subtitle"], idx)
-
-            presentation.create_description(ref_data["description"], idx)
-            presentation.create_img(ref_data["image"], idx)
-            presentation.create_quantity_table(idx)
-            presentation.create_inventory_table(ref_data["color_inventory"], idx)
-
-    return not_found_refs
+    return found_refs, not_found_refs

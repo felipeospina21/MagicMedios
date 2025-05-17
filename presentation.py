@@ -1,13 +1,20 @@
 from datetime import datetime
-from pptx.enum.text import PP_ALIGN
-from PIL import Image
 from io import BytesIO
+
+from PIL import Image
 from pptx import Presentation as PPTX
 from pptx.dml.color import RGBColor
+from pptx.enum.text import PP_ALIGN
 from pptx.util import Cm, Pt
-from constants import measures
 
-from entities.entities import Color_Inventory, Contact, Representative, Client
+from constants import measures
+from entities.entities import (
+    Client,
+    Color_Inventory,
+    Contact,
+    ProductData,
+    Representative,
+)
 
 
 class Presentation:
@@ -85,7 +92,7 @@ class Presentation:
             height=Cm(16.66),
         )
 
-    def create_title(self, title_text, idx, count, ref):
+    def create_title(self, title_text: str, idx: int, ref: str):
         try:
             title = title_text
             if idx > 0:
@@ -100,7 +107,7 @@ class Presentation:
                 height=Cm(measures["h_1"]),
             )
             tf_titulo = titulo.text_frame
-            self.text_frame_paragraph(tf_titulo, f"{count}. {title} {ref}", 12, True)
+            self.text_frame_paragraph(tf_titulo, f"{idx+1}. {title} {ref}", 12, True)
 
         except Exception as e:
             raise SystemExit("Error: ", e)
@@ -299,6 +306,17 @@ class Presentation:
             table.columns[1].width = Cm(2.2)
         except Exception as e:
             raise SystemExit("Error: ", e)
+
+    def create_pptx(self, ref_list: list[ProductData]):
+        for idx, ref_data in enumerate(ref_list):
+            self.create_title(ref_data["title"], idx, ref=ref_data["ref"])
+            if "subtitle" in ref_data:
+                self.create_subtitle(ref_data["subtitle"], idx)
+
+            self.create_description(ref_data["description"], idx)
+            self.create_img(ref_data["image"], idx)
+            self.create_quantity_table(idx)
+            self.create_inventory_table(ref_data["color_inventory"], idx)
 
     def save(self, path: str):
         self.prs.save(path)

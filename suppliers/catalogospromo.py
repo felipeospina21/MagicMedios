@@ -7,8 +7,13 @@ from playwright.async_api import Locator, Page
 
 from entities.entities import ProductData, TaskResult
 from log import logger
-from utils import (get_all_selectors_with_retry, get_image_url, get_inventory,
-                   get_selector_with_retry, search_product)
+from utils import (
+    get_all_selectors_with_retry,
+    get_image_url,
+    get_inventory,
+    get_selector_with_retry,
+    search_product,
+)
 
 
 async def search_product_link(
@@ -50,7 +55,7 @@ async def extract_data(page: Page, original_ref: str) -> TaskResult:
     ref = original_ref.upper().split("CP", 1)[1]
     print(f"Processing: {ref}")
 
-    for _ in range(3):
+    for _ in range(4):
         await search_product(
             page, ref, selector="#productos", timeout=10000, retries=5, delay=3
         )
@@ -70,8 +75,8 @@ async def extract_data(page: Page, original_ref: str) -> TaskResult:
         break
 
     title, description = await get_description(page, ref)
-    if not title:
-        await not_found(original_ref, ref, "title not found")
+    if not title or len(title) == 0:
+        return await not_found(original_ref, ref, "title not found")
 
     xpath = "//tr[@class='titlesRow']/following-sibling::tr[not(@class='hideInfo')]"
     color_inventory = await get_inventory(

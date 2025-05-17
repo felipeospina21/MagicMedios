@@ -1,4 +1,4 @@
-# MagicMedios
+#MagicMedios
 
 Automatización cotizador
 
@@ -43,7 +43,7 @@ Automatización cotizador
 cp => catalogos Promocionales (cpMU-12-2, cpVA-1153, cpVA-509)  
 mp => Mp Promocionales (mpGO0020, mpTE0677)  
 po => Promo Opción (poTMPS 234, poBBQ 002)  
-cd => CDO Promocionales (cdk8, cdt591, cdt602, cdt578)  
+cd => CDO Promocionales (cdk8, cdt591, cdt602, cdt578, cd732)  
 sin prefijo => NW Promocionales (no es necesario ya que todos sus códigos comienzan con NW)
 
 test => (cpMU-12-2, cpVA-1153, cpVA-509,mpGO0020, mpTE0677,cdk8, cdt591, poTMPS 234, poBBQ 002)
