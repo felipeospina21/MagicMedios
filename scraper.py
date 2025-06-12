@@ -14,7 +14,7 @@ from entities.entities import ProductData, TaskResult
 from log import logger
 from suppliers import catalogospromo, cdopromo, mppromos, nwpromo, promoop
 
-MAX_CONCURRENT_TASKS = 2  # Configurable
+MAX_CONCURRENT_TASKS = 1  # Configurable
 
 semaphore = asyncio.Semaphore(MAX_CONCURRENT_TASKS)
 
@@ -92,7 +92,7 @@ async def scrape_product(page: Page, ref: str) -> TaskResult | None:
                         await page.close()
                         return
 
-            await asyncio.sleep(random.uniform(0.5, 1.2))
+            await asyncio.sleep(random.uniform(5, 6))
             data = await task(page, ref)
             return data
 
@@ -142,13 +142,30 @@ async def scrape_all(
     return results
 
 
+async def scrape_all_sequential(
+    browser: Browser, product_codes: list[str]
+) -> list[TaskResult]:
+    context = await browser.new_context()
+    page = await context.new_page()
+    results: list[TaskResult] = []
+
+    for code in product_codes:
+        result = await scrape_product(page, code)
+        if result:
+            results.append(result)
+
+    await context.close()
+    return results
+
+
 async def scrape(ref_list: list[str], headless_flag=True) -> list[TaskResult] | None:
     async with async_playwright() as p:
         # loop to install browser and try again if not found
         for _ in range(2):
             try:
                 browser = await p.chromium.launch(headless=headless_flag)
-                results = await scrape_all(browser, ref_list, MAX_CONCURRENT_TASKS)
+                # results = await scrape_all(browser, ref_list, MAX_CONCURRENT_TASKS)
+                results = await scrape_all_sequential(browser, ref_list)
                 await browser.close()
                 return results
 
