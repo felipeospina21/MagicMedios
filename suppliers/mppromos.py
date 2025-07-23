@@ -2,7 +2,7 @@ from io import BytesIO
 from typing import Tuple
 
 import requests
-from playwright.async_api import Page
+from playwright.async_api import Locator, Page
 
 from entities.entities import TaskResult
 from log import logger
@@ -38,9 +38,23 @@ async def get_description(page: Page, ref: str) -> Tuple[str, str, list[str]]:
     return title, subtitle, description
 
 
+async def close_modal(page: Page) -> None:
+    page.set_default_timeout(10000)
+    try:
+        modal: Locator = page.locator("#modalPromoNovedades")
+        if modal:
+            btn: Locator = modal.get_by_label("Close")
+            if btn:
+                await btn.click()
+    except:
+        logger.error("No modal in MP page")
+
+
 async def extract_data(page: Page, original_ref: str) -> TaskResult:
     ref = original_ref.upper().split("MP", 1)[1]
     print(f"Procesando ref: {ref}")
+
+    await close_modal(page)
 
     await search_product(page, ref, selector="#input-buscar-menu", delay=2, retries=5)
     selector = "//a[@class='col-md-3 text-decoration-none text-dark ng-star-inserted']"
