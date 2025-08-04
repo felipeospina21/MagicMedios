@@ -1,10 +1,14 @@
 import argparse
 import os
+import time
 
 from app_utils import str2bool
 from entities.entities import Client, Contact, Representative
 from lock_file import lock_file, unlock_file
 from log import logger
+
+MAX_RETRIES = 20
+DELAY_SECONDS = 1
 
 
 class App:
@@ -39,6 +43,8 @@ class App:
             self.consecutive_path = f"{self.path}/data/consecutivo.txt"
         else:
             self.consecutive_path = f"{self.path}/Z consecutivo.txt"
+
+        self.lock_path = f"{self.consecutive_path}.lock"
 
     def prompt(self):
         if self.args.debug or self.args.test:
@@ -125,25 +131,57 @@ class App:
         }
 
     def get_consecutive(self) -> int:
-        file = open(self.consecutive_path, "r")
-        consecutive = file.readline().strip()
-        file.close()
-        return int(consecutive)
+        wait_attempts = 20
+        delay = 0.5
 
-    def create_new_consecutive(self):
-        if not self.args.test:
+        for i in range(wait_attempts):
+            if not os.path.exists(self.lock_path):
+                break
+            print(f"⏳ Leyendo consecutivo... ({i + 1}/{wait_attempts})")
+            time.sleep(delay)
+        else:
+            raise TimeoutError("Could not read: lock held too long")
+
+        if not os.path.exists(self.consecutive_path):
+            return 0
+
+        with open(self.consecutive_path, "r") as f:
+            return int(f.read().strip() or 0)
+
+    def acquire_drive_lock(self, lock_path):
+        for attempt in range(MAX_RETRIES):
+            try:
+                fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+                os.close(fd)
+                return True
+            except FileExistsError:
+                print(f"⚠️ Guardando consecutivo ({attempt + 1}/{MAX_RETRIES})")
+                time.sleep(DELAY_SECONDS)
+        return False
+
+    def release_drive_lock(self, lock_path):
+        if os.path.exists(lock_path):
+            os.remove(lock_path)
+
+    def increment_consecutive(self):
+        if not self.acquire_drive_lock(self.lock_path):
+            raise TimeoutError("Could not acquire lock after several retries.")
+
+        try:
             if not os.path.exists(self.consecutive_path):
                 with open(self.consecutive_path, "w") as f:
                     f.write("0\n")
 
             with open(self.consecutive_path, "r+") as f:
-                lock_file(f)
+                lock_file(f)  # cross-platform file lock (in-process safety)
                 try:
-                    content = f.read().strip()
-                    curr = int(content) if content else 0
+                    current = int(f.read().strip() or 0)
+                    next_val = current + 1
                     f.seek(0)
                     f.truncate()
-                    f.write(f"{curr + 1}\n")
+                    f.write(f"{next_val}\n")
                     f.flush()
                 finally:
                     unlock_file(f)
+        finally:
+            self.release_drive_lock(self.lock_path)

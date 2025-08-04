@@ -74,7 +74,7 @@ async def main():
 
         presentation.create_pptx(refs_to_quote)
         presentation.save(saving_path)
-        app.create_new_consecutive()
+        app.increment_consecutive()
 
     total_time = "{:.2f}".format((time.time() - start_time) / 60)
     print(f"\n-------- Proceso Finalizado en {total_time} minutos --------")
