@@ -8,7 +8,7 @@ Automatización cotizador
 2. Instalar git desde el link https://git-scm.com/download/win
 3. cd C:// && mkdir Robot && cd Robot && git clone https://github.com/felipeospina21/MagicMedios.git && cd MagicMedios
 4. Instalar paquetes de python **pip install -r requirements.txt**
-5. playwright install
+5. playwright install or python -m playwright install
 6. Agregar archivo .env con variable de ruta y api_token
 7. Crear accesos directos en escritorio (enviar a) para actualizar.bat y robot.bat
 8. Abrir cotizacion.pptm y guardarlo como \*.ppam
