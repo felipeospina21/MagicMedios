@@ -9,8 +9,8 @@ from utils import (
     get_all_selectors_with_retry,
     get_image_url,
     get_inventory,
-    search_product,
     request_with_retry,
+    search_product,
 )
 
 
@@ -56,7 +56,9 @@ async def extract_data(page: Page, original_ref: str) -> TaskResult:
 
     await close_modal(page)
 
-    await search_product(page, ref, selector="#input-buscar-menu", delay=2, retries=5)
+    await search_product(
+        page, ref, selector="#input-buscar-menu", delay=2, retries=5, timeout=90000
+    )
     selector = "//a[@class='col-md-3 text-decoration-none text-dark ng-star-inserted']"
     try:
         await page.wait_for_selector(selector)

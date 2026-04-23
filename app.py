@@ -10,6 +10,22 @@ from log import logger
 MAX_RETRIES = 20
 DELAY_SECONDS = 1
 
+DEBUG_CLIENT = "test"
+DEBUG_COMPANY = "test"
+DEBUG_USER = "dev"
+DEBUG_REPRESENTATIVE: Representative = {
+    "name": "xxx\n",
+    "phone": "xxx\n",
+    "email": "xxx\n",
+}
+DEBUG_CONTACT: Contact = {
+    "address": "1\n",
+    "web": "xx\n",
+    "phone": DEBUG_REPRESENTATIVE["phone"],
+    "email": DEBUG_REPRESENTATIVE["email"],
+}
+DEBUG_CONSECUTIVE_START = 10
+
 
 class App:
     def __init__(self) -> None:
@@ -41,6 +57,7 @@ class App:
         if self.args.debug:
             print("Debug Mode ON\n")
             self.consecutive_path = f"{self.path}/data/consecutivo.txt"
+            self.debug_consecutive = DEBUG_CONSECUTIVE_START
         else:
             self.consecutive_path = f"{self.path}/Z consecutivo.txt"
 
@@ -48,9 +65,9 @@ class App:
 
     def prompt(self):
         if self.args.debug or self.args.test:
-            self.client = "test"
-            self.company = "test"
-            self.user = "sergio"
+            self.client = DEBUG_CLIENT
+            self.company = DEBUG_COMPANY
+            self.user = DEBUG_USER
         else:
             self.users = self.get_users()
             self.client = input("Ingrese nombre cliente: ").title()
@@ -81,13 +98,19 @@ class App:
             return False
 
     def get_saving_path(self):
+        def ensure_parent_dir(path: str) -> str:
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            return path
+
         if self.args.debug:
-            return "./cotizaciones/cotización_TEST.pptm"
+            return ensure_parent_dir("./cotizaciones/cotización_TEST.pptm")
 
         if self.args.test:
-            return f"{self.path}/z-test-borrar.pptm"
+            return ensure_parent_dir(f"{self.path}/z-test-borrar.pptm")
 
-        return f"{self.path}/Cotización N°{self.get_consecutive()} - {self.company} - Magic Medios SAS.pptm"
+        return ensure_parent_dir(
+            f"{self.path}/Cotización N°{self.get_consecutive()} - {self.company} - Magic Medios SAS.pptm"
+        )
 
     def get_references(self):
         return [ref.strip() for ref in self.references]
@@ -107,6 +130,9 @@ class App:
         return users
 
     def get_contact_info(self) -> Representative:
+        if self.args.debug:
+            return DEBUG_REPRESENTATIVE
+
         file = open(f"{self.user_path}/{self.user}.txt", "r")
         rep_name = file.readline()
         phone = file.readline()
@@ -116,6 +142,9 @@ class App:
         return {"name": rep_name, "phone": phone, "email": email}
 
     def get_footer(self) -> Contact:
+        if self.args.debug:
+            return DEBUG_CONTACT
+
         file = open(self.footer_path, "r")
         address = file.readline()
         web = file.readline()
@@ -131,6 +160,9 @@ class App:
         }
 
     def get_consecutive(self) -> int:
+        if self.args.debug:
+            return self.debug_consecutive
+
         wait_attempts = 20
         delay = 0.5
 
@@ -164,6 +196,10 @@ class App:
             os.remove(lock_path)
 
     def increment_consecutive(self):
+        if self.args.debug:
+            self.debug_consecutive += 1
+            return
+
         if not self.acquire_drive_lock(self.lock_path):
             raise TimeoutError("Could not acquire lock after several retries.")
 

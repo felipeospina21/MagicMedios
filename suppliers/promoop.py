@@ -24,7 +24,7 @@ async def login(page: Page, ref: str):
     load_dotenv()
     password = os.environ.get("PROMO_OP_PASSWORD")
     if not password:
-        print(f"promo opcion password not found")
+        print("promo opcion password not found")
         return
 
     input = await get_selector_with_retry(page, "#psw", ref)
