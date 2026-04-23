@@ -2,7 +2,6 @@ import asyncio
 from io import BytesIO
 from typing import Tuple
 
-import requests
 from playwright.async_api import Locator, Page
 
 from entities.entities import ProductData, TaskResult
@@ -13,6 +12,7 @@ from utils import (
     get_inventory,
     get_selector_with_retry,
     search_product,
+    request_with_retry,
 )
 
 
@@ -93,7 +93,15 @@ async def extract_data(page: Page, original_ref: str) -> TaskResult:
             "color_inventory": color_inventory,
         }, None
 
-    response = requests.get(product_image_url)
+    response = await request_with_retry(product_image_url, ref, "image download")
+    if not response:
+        return {
+            "ref": ref,
+            "title": title,
+            "description": description,
+            "image": None,
+            "color_inventory": color_inventory,
+        }, None
     image_data = BytesIO(response.content)
 
     return {

@@ -3,7 +3,6 @@ import os
 from io import BytesIO
 from typing import Dict, Tuple
 
-import requests
 from dotenv import load_dotenv
 from playwright.async_api import Page
 
@@ -16,6 +15,7 @@ from utils import (
     get_selector_with_retry,
     humanize_text,
     remove_prefix,
+    request_with_retry,
     wait_for_selector_with_retry,
 )
 
@@ -137,7 +137,16 @@ async def extract_data(page: Page, original_ref: str) -> TaskResult:
             "color_inventory": color_inventory,
         }, None
 
-    response = requests.get(product_image_url)
+    response = await request_with_retry(product_image_url, ref, "image download")
+    if not response:
+        return {
+            "ref": ref,
+            "title": title,
+            "subtitle": subtitle,
+            "description": description,
+            "image": None,
+            "color_inventory": color_inventory,
+        }, None
     image_data = BytesIO(response.content)
 
     return {

@@ -1,6 +1,8 @@
 import asyncio
+from functools import partial
 from typing import Optional
 
+import requests
 from playwright.async_api import Locator, Page
 
 from entities.entities import Color_Inventory
@@ -142,3 +144,27 @@ def humanize_text(text: str) -> str:
 
 def remove_prefix(text: str, prefix: str) -> str:
     return text[len(prefix) :] if text.startswith(prefix) else text
+
+
+async def request_with_retry(
+    url: str,
+    ref: str,
+    label: str = "request",
+    timeout: tuple[int, int] = (5, 30),
+    retries: int = 3,
+    delay: int = 2,
+) -> requests.Response | None:
+    for attempt in range(1, retries + 1):
+        try:
+            logger.info(f"{ref}: {label} attempt {attempt}/{retries}")
+            response = await asyncio.to_thread(
+                partial(requests.get, url, timeout=timeout)
+            )
+            response.raise_for_status()
+            return response
+        except requests.RequestException as exc:
+            logger.error(f"{ref}: {label} failed on attempt {attempt}/{retries}: {exc}")
+            if attempt < retries:
+                await asyncio.sleep(delay)
+            else:
+                return None

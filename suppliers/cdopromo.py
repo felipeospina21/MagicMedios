@@ -2,16 +2,17 @@ import json
 import os
 from io import BytesIO
 
-import requests
-
 from entities.entities import Color_Inventory, TaskResult
 from entities.variant import Product, Variant
 from log import logger
+from utils import request_with_retry
 
 
-def get_api_data(url: str, ref: str) -> Product | None:
+async def get_api_data(url: str, ref: str) -> Product | None:
     try:
-        response = requests.get(url)
+        response = await request_with_retry(url, ref, "api request")
+        if not response:
+            return None
         content = response.content
         return json.loads(content)
     except Exception:
@@ -29,7 +30,7 @@ async def extract_data(_: None, original_ref: str) -> TaskResult:
         print("No se encontro token para la api de CDO")
 
     url = f"http://api.colombia.cdopromocionales.com/v2/products/{ref}?auth_token={auth_token}"
-    result = get_api_data(url, ref)
+    result = await get_api_data(url, ref)
     if not result:
         return {
             "ref": ref,
@@ -81,7 +82,16 @@ async def extract_data(_: None, original_ref: str) -> TaskResult:
             "color_inventory": color_inventory,
         }, None
 
-    response = requests.get(product_image_url)
+    response = await request_with_retry(product_image_url, ref, "image download")
+    if not response:
+        return {
+            "ref": ref,
+            "title": title,
+            "subtitle": subtitle,
+            "description": description,
+            "image": None,
+            "color_inventory": color_inventory,
+        }, None
     image_data = BytesIO(response.content)
 
     return {
