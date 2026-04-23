@@ -43,8 +43,19 @@ async def extract_data(_: None, original_ref: str) -> TaskResult:
     title = result["name"]
     subtitle = result["description"]
     variants: list[Variant] = result["variants"]
-    icons = result["icons"]
     description = []
+    if not variants:
+        logger.error(f"{ref}: api returned no variants")
+        return {
+            "ref": ref,
+            "title": title,
+            "subtitle": subtitle,
+            "description": description,
+            "image": None,
+            "color_inventory": [],
+        }, None
+
+    icons = result["icons"]
     for icon in icons:
         description.append(icon["label"])
 
