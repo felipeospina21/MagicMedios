@@ -104,7 +104,7 @@ async def get_all_selectors_with_retry(
 
 
 async def get_image_url(page: Page, locator: str, ref: str) -> Optional[str]:
-    img = await get_selector_with_retry(page, locator, ref, 1000)
+    img = await get_selector_with_retry(page, locator, ref, timeout=10000)
     product_image_url: Optional[str]
     if img:
         product_image_url = await page.locator(locator).first.get_attribute("src")

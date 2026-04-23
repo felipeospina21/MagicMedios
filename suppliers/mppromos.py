@@ -20,7 +20,7 @@ async def get_description(page: Page, ref: str) -> Tuple[str, str, list[str]]:
     description = []
 
     sections = await get_all_selectors_with_retry(
-        page, "//div[@class='card-body']", ref
+        page, "//div[@class='card-body']", ref, timeout=30000
     )
     if sections and len(sections) > 1:
         content_section = sections[1]
@@ -46,7 +46,7 @@ async def close_modal(page: Page) -> None:
             btn: Locator = modal.get_by_label("Close")
             if btn:
                 await btn.click()
-    except:
+    except Exception:
         logger.error("No modal in MP page")
 
 
@@ -61,9 +61,12 @@ async def extract_data(page: Page, original_ref: str) -> TaskResult:
     )
     selector = "//a[@class='col-md-3 text-decoration-none text-dark ng-star-inserted']"
     try:
-        await page.wait_for_selector(selector)
+        link = page.locator(selector)
+        await link.wait_for(state="visible", timeout=60000)
+        await link.scroll_into_view_if_needed()
+        await link.click(timeout=60000)
         await page.click(selector)
-    except:
+    except Exception:
         logger.error(f"{ref}: {selector} couldn't be clicked")
 
     product_image_url = await get_image_url(page, "#imagen-material-0", ref)
