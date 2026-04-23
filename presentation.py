@@ -1,7 +1,7 @@
 from datetime import datetime
 from io import BytesIO
 
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 from pptx import Presentation as PPTX
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
@@ -160,9 +160,21 @@ class Presentation:
                 top = Cm(measures["t_6"] - 1)
             else:
                 top = Cm(measures["t_6"])
-            image = Image.open(image_data)
+
+            # Some suppliers return a stream that has already been consumed or
+            # a non-image payload (for example, an HTML error page). Normalize
+            # the stream and skip the picture if Pillow cannot identify it.
+            try:
+                image_data.seek(0)
+                image = Image.open(image_data)
+                image.load()
+            except (AttributeError, UnidentifiedImageError, OSError) as exc:
+                print(f"Warning: skipping invalid image for reference {idx + 1}: {exc}")
+                return
+
             image_bytes = BytesIO()
             image.save(image_bytes, format="PNG")
+            image_bytes.seek(0)
             self.prs.slides[idx].shapes.add_picture(
                 image_bytes,
                 left=Cm(measures["lf_2"]),

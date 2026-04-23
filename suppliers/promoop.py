@@ -112,7 +112,7 @@ async def extract_data(page: Page, original_ref: str) -> TaskResult:
     partial_image_url = await get_image_url(
         page, "//div[@id='img-list-1']/div[1]/img[1]", ref
     )
-    product_image_url = f"{urls["po"]}/{partial_image_url}"
+    product_image_url = f"{urls['po']}{partial_image_url}"
     header_xpath = "//table[@class='table table-hover table-responsive']/tbody[1]"
     title, subtitle, description = await get_description(page, header_xpath, ref)
     xpath = "//table[@class='table table-striped']/tbody[1]/child::tr"
