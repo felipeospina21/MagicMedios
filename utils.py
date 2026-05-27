@@ -128,10 +128,14 @@ async def get_inventory(
             if await element.is_visible():
                 cells = await element.locator("td").all()
                 if len(cells) > 0:
-                    cell_texts = [await cell.inner_text() for cell in cells]
-                    color = cell_texts[color_cell_index]
-                    inventory = cell_texts[inventory_cell_index]
-                    color_inventory.append({"color": color, "inventory": inventory})
+                    try:
+                        cell_texts = [await cell.inner_text() for cell in cells]
+                        color = cell_texts[color_cell_index]
+                        inventory = cell_texts[inventory_cell_index]
+                        color_inventory.append({"color": color, "inventory": inventory})
+                    except Exception as exc:
+                        logger.exception(f"{ref}: failed to parse inventory row: {exc}")
+                        print("no se pudo obtener el inventario")
             else:
                 logger.info(f"{element} not visible")
 
