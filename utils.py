@@ -135,7 +135,9 @@ async def get_inventory(
                         color_inventory.append({"color": color, "inventory": inventory})
                     except Exception as exc:
                         logger.exception(f"{ref}: failed to parse inventory row: {exc}")
-                        print("no se pudo obtener el inventario")
+                        print(
+                            f"{ref}: no se pudo obtener el inventario del color {color}"
+                        )
             else:
                 logger.info(f"{element} not visible")
 

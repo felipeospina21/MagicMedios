@@ -1,3 +1,6 @@
+import asyncio
+import os
+from dotenv import load_dotenv
 from io import BytesIO
 from typing import Tuple
 
@@ -11,7 +14,42 @@ from utils import (
     get_inventory,
     request_with_retry,
     search_product,
+    get_selector_with_retry,
 )
+
+
+async def login(page: Page, ref: str):
+    load_dotenv()
+    username = os.environ.get("MP_USERNAME")
+    password = os.environ.get("MP_PASSWORD")
+    if not password or not username:
+        print("mp user/password not found")
+        return
+
+    login_btn = await get_selector_with_retry(page, 'button:has-text("Login")', ref)
+    if login_btn:
+        await login_btn.click()
+
+    user_input = page.get_by_label("Nombre de Usuario")
+
+    if user_input:
+        await user_input.fill(username)
+    else:
+        print("no user input")
+
+    password_input = await get_selector_with_retry(page, "#floatingPassword", ref)
+    if password_input:
+        await password_input.fill(password)
+    else:
+        print("no password input")
+
+    accept_btn = await get_selector_with_retry(page, 'button:has-text("Ingresar")', ref)
+    if accept_btn:
+        await accept_btn.click()
+    else:
+        print("no ingresar button")
+
+    await asyncio.sleep(3)
 
 
 async def get_description(page: Page, ref: str) -> Tuple[str, str, list[str]]:
@@ -55,6 +93,7 @@ async def extract_data(page: Page, original_ref: str) -> TaskResult:
     print(f"Procesando ref: {ref}")
 
     await close_modal(page)
+    await login(page, ref)
 
     await search_product(
         page, ref, selector="#input-buscar-menu", delay=2, retries=5, timeout=90000
@@ -73,7 +112,7 @@ async def extract_data(page: Page, original_ref: str) -> TaskResult:
     title, subtitle, description = await get_description(page, ref)
     xpath = "//tbody[@class='text-center text-pequeno-x1 align-middle']/child::tr"
     color_inventory = await get_inventory(
-        page, xpath, ref, color_cell_index=2, inventory_cell_index=5
+        page, xpath, ref, color_cell_index=4, inventory_cell_index=7
     )
 
     if not product_image_url:
