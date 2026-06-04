@@ -1,12 +1,15 @@
 import asyncio
+import json
 import random
 import re
 import subprocess
+import tempfile
+from pathlib import Path
 from io import BytesIO
 from typing import Any, Awaitable, Callable, Coroutine, Dict, Optional, Tuple
 
 from playwright._impl._errors import Error as PlaywrightError
-from playwright.async_api import Browser, Page, async_playwright
+from playwright.async_api import BrowserContext, Page, async_playwright
 
 from app import App
 from constants import urls
@@ -15,6 +18,8 @@ from log import logger
 from suppliers import catalogospromo, cdopromo, mppromos, nwpromo, promoop
 
 MAX_CONCURRENT_TASKS = 1  # Configurable
+DEFAULT_BROWSER_LOCALE = "es-CO"
+CHROMIUM_ARGS = ["--disable-features=Translate"]
 
 semaphore = asyncio.Semaphore(MAX_CONCURRENT_TASKS)
 
@@ -31,6 +36,42 @@ type ApiTask = Callable[
 ]
 
 type EmptyTask = Callable[[], None]
+
+
+def disable_translate_in_profile(user_data_dir: Path) -> None:
+    preferences_path = user_data_dir / "Default" / "Preferences"
+    preferences_path.parent.mkdir(parents=True, exist_ok=True)
+
+    preferences: dict[str, Any] = {}
+    if preferences_path.exists():
+        try:
+            preferences = json.loads(preferences_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            preferences = {}
+
+    translate_preferences = preferences.get("translate")
+    if not isinstance(translate_preferences, dict):
+        translate_preferences = {}
+
+    translate_preferences["enabled"] = False
+    preferences["translate"] = translate_preferences
+    preferences_path.write_text(
+        json.dumps(preferences, ensure_ascii=True, indent=2),
+        encoding="utf-8",
+    )
+
+
+async def create_persistent_context(
+    playwright, headless_flag: bool
+) -> BrowserContext:
+    user_data_dir = Path(tempfile.mkdtemp(prefix="magicmedios-chrome-"))
+    disable_translate_in_profile(user_data_dir)
+    return await playwright.chromium.launch_persistent_context(
+        str(user_data_dir),
+        headless=headless_flag,
+        locale=DEFAULT_BROWSER_LOCALE,
+        args=CHROMIUM_ARGS,
+    )
 
 
 def get_ref_and_url(ref: str) -> Tuple[str, str, Task]:
@@ -117,9 +158,8 @@ async def run_with_concurrency(
 
 
 async def scrape_all(
-    browser: Browser, product_codes: list[str], concurrency: int
+    context: BrowserContext, product_codes: list[str], concurrency: int
 ) -> list[TaskResult]:
-    context = await browser.new_context()
     effective_concurrency = min(concurrency, len(product_codes))
     page_queue: asyncio.Queue[Page] = asyncio.Queue()
     pages: list[Page] = [await context.new_page() for _ in range(effective_concurrency)]
@@ -137,15 +177,12 @@ async def scrape_all(
     results = await run_with_concurrency(
         effective_concurrency, product_codes, task_factory
     )
-
-    await context.close()
     return results
 
 
 async def scrape_all_sequential(
-    browser: Browser, product_codes: list[str]
+    context: BrowserContext, product_codes: list[str]
 ) -> list[TaskResult]:
-    context = await browser.new_context()
     page = await context.new_page()
     results: list[TaskResult] = []
 
@@ -153,8 +190,6 @@ async def scrape_all_sequential(
         result = await scrape_product(page, code)
         if result:
             results.append(result)
-
-    await context.close()
     return results
 
 
@@ -163,10 +198,10 @@ async def scrape(ref_list: list[str], headless_flag=True) -> list[TaskResult] | 
         # loop to install browser and try again if not found
         for _ in range(2):
             try:
-                browser = await p.chromium.launch(headless=headless_flag)
-                # results = await scrape_all(browser, ref_list, MAX_CONCURRENT_TASKS)
-                results = await scrape_all_sequential(browser, ref_list)
-                await browser.close()
+                context = await create_persistent_context(p, headless_flag)
+                # results = await scrape_all(context, ref_list, MAX_CONCURRENT_TASKS)
+                results = await scrape_all_sequential(context, ref_list)
+                await context.close()
                 return results
 
             except PlaywrightError as e:

@@ -13,7 +13,6 @@ Automatización cotizador
 7. Crear accesos directos en escritorio (enviar a) para actualizar.bat y robot.bat
 8. Abrir cotizacion.pptm y guardarlo como \*.ppam
    7.1 Agregar a complementos de PowerPoint
-
    - click en Mas comandos
    - click en Complementos
    - click en administrar (abajo) seleccionar complementos de Powerpoint
@@ -41,7 +40,7 @@ Automatización cotizador
 ## Prefijos Proveedores:
 
 cp => catalogos Promocionales (cpMU-12-2, cpVA-1153, cpVA-509)  
-mp => Mp Promocionales (mpGO0020, mpTE0677)  
+mp => Mp Promocionales (mpGO0020, mpTE0677, mpBE0412)  
 po => Promo Opción (poTMPS 234, poBBQ 002)  
 cd => CDO Promocionales (cdk8, cdt591, cdt602, cdt578, cd732)  
 sin prefijo => NW Promocionales (no es necesario ya que todos sus códigos comienzan con NW)

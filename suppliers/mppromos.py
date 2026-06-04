@@ -17,6 +17,8 @@ from utils import (
     get_selector_with_retry,
 )
 
+_logged_in_pages: set[int] = set()
+
 
 async def login(page: Page, ref: str):
     load_dotenv()
@@ -92,8 +94,11 @@ async def extract_data(page: Page, original_ref: str) -> TaskResult:
     ref = original_ref.upper().split("MP", 1)[1]
     print(f"Procesando ref: {ref}")
 
-    await close_modal(page)
-    await login(page, ref)
+    page_key = id(page)
+    if page_key not in _logged_in_pages:
+        await close_modal(page)
+        await login(page, ref)
+        _logged_in_pages.add(page_key)
 
     await search_product(
         page, ref, selector="#input-buscar-menu", delay=2, retries=5, timeout=90000
