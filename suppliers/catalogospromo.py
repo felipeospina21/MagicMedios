@@ -20,23 +20,29 @@ async def search_product_link(
     product_containers: list[Locator], ref: str
 ) -> Locator | None:
     for product in product_containers:
-        title = await product.locator(".ref.textoColor").inner_text()
+        title = await product.locator(
+            "//div[@class='product-card__body']/span[@class='product-card__sku']"
+        ).inner_text()
+        title = title.removeprefix("SKU: ").strip()
+
         if title.lower() == ref.lower():
-            return product.locator(".img-producto")
+            return product.locator(".product-card__image")
 
 
 async def get_description(page: Page, ref: str) -> Tuple[str, list[str]]:
     title = ""
-    description = []
+    descTexts = []
+    titleElement = await get_selector_with_retry(page, ".product-info__title", ref)
+    descriptionElement = await get_selector_with_retry(
+        page, ".product-description-content", ref
+    )
 
-    section = await get_selector_with_retry(page, ".hola", ref)
-    if section:
-        product_name = await section.inner_text()
-        info_text_arr = product_name.split("\n\n")
-        title = info_text_arr[0]
-        description = info_text_arr[2:]
+    if titleElement and descriptionElement:
+        title = await titleElement.inner_text()
+        description = await descriptionElement.inner_text()
+        descTexts = description.split("\n")
 
-    return title, description
+    return title, descTexts
 
 
 async def not_found(original_ref: str, ref: str, msg: str) -> TaskResult:
@@ -57,11 +63,16 @@ async def extract_data(page: Page, original_ref: str) -> TaskResult:
 
     for _ in range(1):
         await search_product(
-            page, ref, selector="#productos", timeout=10000, retries=5, delay=3
+            page,
+            ref,
+            selector="input[placeholder='Buscar productos...']",
+            timeout=10000,
+            retries=5,
+            delay=3,
         )
 
         product_containers = await get_all_selectors_with_retry(
-            page, ".itemProducto-", ref, timeout=10000, retries=5, delay=1
+            page, ".product-card", ref, timeout=10000, retries=5, delay=1
         )
         if not product_containers:
             continue
@@ -75,15 +86,18 @@ async def extract_data(page: Page, original_ref: str) -> TaskResult:
         break
 
     title, description = await get_description(page, ref)
+    description.pop()
     if not title or len(title) == 0:
         return await not_found(original_ref, ref, "title not found")
 
-    xpath = "//tr[@class='titlesRow']/following-sibling::tr[not(@class='hideInfo')]"
+    xpath = "//tr[@class=' ']"
     color_inventory = await get_inventory(
-        page, xpath, ref, color_cell_index=0, inventory_cell_index=3
+        page, xpath, ref, color_cell_index=0, inventory_cell_index=5
     )
 
-    product_image_url = await get_image_url(page, "#img_01", ref)
+    product_image_url = await get_image_url(
+        page, "//div[@class='product-gallery__image']/img[1]", ref
+    )
     if not product_image_url:
         return {
             "ref": ref,

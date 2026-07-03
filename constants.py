@@ -1,6 +1,5 @@
 from typing import TypedDict
 
-
 measures: dict[str, float] = {
     "lf_1": 0.8,
     "lf_2": 8.5,
@@ -41,7 +40,7 @@ class URLS(TypedDict):
 
 
 urls: URLS = {
-    "cp": "https://www.catalogospromocionales.com/",
+    "cp": "https://catalogo.magicmedios.com/",
     "mp": "https://www.marpicopromocionales.com/",
     "po": "https://www.promoopcioncolombia.co/",
     "cd": "api",
