@@ -64,13 +64,12 @@ async def extract_data(_: None, original_ref: str) -> TaskResult:
     color_inventory: list[Color_Inventory] = []
 
     for variant in variants:
-        for color in variant.get("colors", []):
-            color_inventory.append(
-                {
-                    "color": color["name"],
-                    "inventory": str(variant.get("stock_existent", 0)),
-                }
-            )
+        color_inventory.append(
+            {
+                "color": variant.get("color", {}).get("name"),
+                "inventory": str(variant.get("stock_existent", 0)),
+            }
+        )
 
     if not product_image_url:
         return {

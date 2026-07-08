@@ -86,7 +86,9 @@ async def extract_data(page: Page, original_ref: str) -> TaskResult:
         break
 
     title, description = await get_description(page, ref)
-    description.pop()
+    if len(description) > 1:
+        description.pop()
+
     if not title or len(title) == 0:
         return await not_found(original_ref, ref, "title not found")
 
