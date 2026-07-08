@@ -70,7 +70,10 @@ async def get_description(page: Page, ref: str) -> Tuple[str, str, list[str]]:
             split_text = text.splitlines()
             title = split_text[0]
             subtitle = split_text[2]
-            description = split_text[4:-2]
+
+            description = split_text[4:]
+            index = next(i for i, s in enumerate(description) if "INVENTARIO:" in s)
+            description = description[:index]
 
     else:
         logger.error(f"{ref}: description not found")
@@ -115,6 +118,7 @@ async def extract_data(page: Page, original_ref: str) -> TaskResult:
 
     product_image_url = await get_image_url(page, "#imagen-material-0", ref)
     title, subtitle, description = await get_description(page, ref)
+
     xpath = "//tbody[@class='text-center text-pequeno-x1 align-middle']/child::tr"
     color_inventory = await get_inventory(
         page, xpath, ref, color_cell_index=4, inventory_cell_index=7
