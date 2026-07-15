@@ -39,7 +39,7 @@ Automatización cotizador
 
 ## Prefijos Proveedores:
 
-cp => catalogos Promocionales (cpMU-12-2, cpVA-1153, cpVA-509)  
+cp => catalogos Promocionales (cpMU-12-2, cpVA-1153, cpVA-509, cpva-1054, cpva-359-2)  
 mp => Mp Promocionales (mpGO0020, mpTE0677, mpBE0412)  
 po => Promo Opción (poTMPS 234, poBBQ 002)  
 cd => CDO Promocionales (cdk8, cdt591, cdt602, cdt578, cd732)  

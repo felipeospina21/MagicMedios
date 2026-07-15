@@ -92,7 +92,7 @@ async def extract_data(page: Page, original_ref: str) -> TaskResult:
     if not title or len(title) == 0:
         return await not_found(original_ref, ref, "title not found")
 
-    xpath = "//tr[@class=' ']"
+    xpath = "//table[contains(@class, 'inventory-table')]//tbody/tr"
     color_inventory = await get_inventory(
         page, xpath, ref, color_cell_index=0, inventory_cell_index=5
     )
