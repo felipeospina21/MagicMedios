@@ -16,14 +16,14 @@ from scraper import run_scraper_task, scrape
 async def load_test(app_args: Namespace, references: list[str]):
     # iterates to scrape data and log
     for test_idx in range(app_args.load_test):
-        print(f"Loop {test_idx+1}/{app_args.load_test}")
+        print(f"Loop {test_idx + 1}/{app_args.load_test}")
         task_result = await scrape(references, app_args.headless)
         if task_result:
             for [ref_data, not_found] in task_result:
                 has_data = "not found" if not_found else "ok"
-                msg = f"load_test-{test_idx+1}: {ref_data['ref']}-{has_data}"
+                msg = f"load_test-{test_idx + 1}: {ref_data['ref']}-{has_data}"
                 logger.info(
-                    f"load_test-{test_idx+1}: {ref_data['ref']}-{ref_data['title']}"
+                    f"load_test-{test_idx + 1}: {ref_data['ref']}-{ref_data['title']}"
                 )
                 flagged_logger.info(msg)
                 print(f"\t{msg}")

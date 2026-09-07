@@ -11,7 +11,6 @@ from utils import (
     get_image_url,
     get_inventory,
     get_selector_with_retry,
-    search_product,
     request_with_retry,
 )
 
@@ -58,23 +57,15 @@ async def not_found(original_ref: str, ref: str, msg: str) -> TaskResult:
 
 
 async def extract_data(page: Page, original_ref: str) -> TaskResult:
-    ref = original_ref.upper().split("CP", 1)[1]
+    ref = original_ref
     print(f"Procesando ref: {ref}")
 
     for _ in range(1):
-        await search_product(
-            page,
-            ref,
-            selector="input[placeholder='Buscar productos...']",
-            timeout=10000,
-            retries=5,
-            delay=3,
-        )
-
         product_containers = await get_all_selectors_with_retry(
             page, ".product-card", ref, timeout=10000, retries=5, delay=1
         )
         if not product_containers:
+            print(f"La ref: {ref} no se encontro o no existe")
             continue
 
         product_link = await search_product_link(product_containers, ref)

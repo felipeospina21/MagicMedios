@@ -1,21 +1,19 @@
 import asyncio
 import json
 import random
-import re
 import subprocess
 import tempfile
 from pathlib import Path
 from io import BytesIO
-from typing import Any, Awaitable, Callable, Coroutine, Dict, Optional, Tuple
+from typing import Any, Callable, Coroutine, Dict
 
 from playwright._impl._errors import Error as PlaywrightError
 from playwright.async_api import BrowserContext, Page, async_playwright
 
 from app import App
-from constants import urls
 from entities.entities import ProductData, TaskResult
 from log import logger
-from suppliers import catalogospromo, cdopromo, mppromos, nwpromo, promoop
+from suppliers import magicmedios
 
 MAX_CONCURRENT_TASKS = 1  # Configurable
 DEFAULT_BROWSER_LOCALE = "es-CO"
@@ -61,123 +59,25 @@ def disable_translate_in_profile(user_data_dir: Path) -> None:
     )
 
 
-async def create_persistent_context(
-    playwright, headless_flag: bool
-) -> BrowserContext:
-    user_data_dir = Path(tempfile.mkdtemp(prefix="magicmedios-chrome-"))
-    disable_translate_in_profile(user_data_dir)
-    return await playwright.chromium.launch_persistent_context(
-        str(user_data_dir),
-        headless=headless_flag,
-        locale=DEFAULT_BROWSER_LOCALE,
-        args=CHROMIUM_ARGS,
-    )
-
-
-def get_ref_and_url(ref: str) -> Tuple[str, str, Task]:
-    if re.search("^CP|^cp]", ref):
-        return (
-            ref,
-            urls["cp"],
-            catalogospromo.extract_data,
-        )
-
-    elif re.search("^MP|^mp]", ref):
-        return (
-            ref,
-            urls["mp"],
-            mppromos.extract_data,
-        )
-    elif re.search("^PO|^po]", ref):
-        return (
-            ref,
-            urls["po"],
-            promoop.extract_data,
-        )
-    elif re.search("^CD|^cd", ref):
-        return (
-            ref,
-            urls["cd"],
-            cdopromo.extract_data,
-        )
-    elif re.search("^NW|^nw", ref):
-        return (
-            ref,
-            urls["nw"],
-            nwpromo.extract_data,
-        )
-    raise Exception(
-        f"Error: {ref} no pudo ser asociada a ningun proveedor, verificar prefijo"
-    )
-
-
 async def scrape_product(page: Page, ref: str) -> TaskResult | None:
-    ref, url, task = get_ref_and_url(ref.upper().strip())
-
+    URL = f"https://catalogo.magicmedios.com/catalogo?search={ref}"
     async with semaphore:  # Limit concurrency
-        if url == "api":
-            data, not_found = await task(page, ref)
-            return data, not_found
+        for attempt in range(3):
+            try:
+                await page.goto(URL, wait_until="domcontentloaded")
+                break
+            except Exception as e:
+                if "ERR_HTTP2_PROTOCOL_ERROR" in str(e):
+                    logger.error(f"Encountered HTTP2 error, retrying {attempt + 1}")
+                    await asyncio.sleep(2)
+                else:
+                    logger.error(f"{ref}: {Exception}")
+                    await page.close()
+                    return
 
-        else:
-            for attempt in range(3):
-                try:
-                    await page.goto(url, wait_until="domcontentloaded")
-                    break
-                except Exception as e:
-                    if "ERR_HTTP2_PROTOCOL_ERROR" in str(e):
-                        logger.error(f"Encountered HTTP2 error, retrying {attempt+1}")
-                        await asyncio.sleep(2)
-                    else:
-                        logger.error(f"{ref}: {Exception}")
-                        await page.close()
-                        return
-
-            await asyncio.sleep(random.uniform(5, 6))
-            data = await task(page, ref)
-            return data
-
-
-async def run_with_concurrency(
-    limit: int,
-    items: list[str],
-    task_factory: Callable[[str], Awaitable[Optional[TaskResult]]],
-) -> list[TaskResult]:
-    results: list[TaskResult] = []
-    semaphore = asyncio.Semaphore(limit)
-
-    async def sem_task(item: str):
-        async with semaphore:
-            return await task_factory(item)
-
-    for coro in asyncio.as_completed([sem_task(item) for item in items]):
-        result = await coro
-        if result:
-            results.append(result)
-    return results
-
-
-async def scrape_all(
-    context: BrowserContext, product_codes: list[str], concurrency: int
-) -> list[TaskResult]:
-    effective_concurrency = min(concurrency, len(product_codes))
-    page_queue: asyncio.Queue[Page] = asyncio.Queue()
-    pages: list[Page] = [await context.new_page() for _ in range(effective_concurrency)]
-    for p in pages:
-        page_queue.put_nowait(p)
-
-    async def task_factory(code: str) -> Optional[TaskResult]:
-        page = await page_queue.get()
-        try:
-            result = await scrape_product(page, code)
-            return result
-        finally:
-            page_queue.put_nowait(page)
-
-    results = await run_with_concurrency(
-        effective_concurrency, product_codes, task_factory
-    )
-    return results
+        await asyncio.sleep(random.uniform(5, 6))
+        data = await magicmedios.extract_data(page, ref)
+        return data
 
 
 async def scrape_all_sequential(
@@ -193,13 +93,23 @@ async def scrape_all_sequential(
     return results
 
 
+async def create_persistent_context(playwright, headless_flag: bool) -> BrowserContext:
+    user_data_dir = Path(tempfile.mkdtemp(prefix="magicmedios-chrome-"))
+    disable_translate_in_profile(user_data_dir)
+    return await playwright.chromium.launch_persistent_context(
+        str(user_data_dir),
+        headless=headless_flag,
+        locale=DEFAULT_BROWSER_LOCALE,
+        args=CHROMIUM_ARGS,
+    )
+
+
 async def scrape(ref_list: list[str], headless_flag=True) -> list[TaskResult] | None:
     async with async_playwright() as p:
         # loop to install browser and try again if not found
         for _ in range(2):
             try:
                 context = await create_persistent_context(p, headless_flag)
-                # results = await scrape_all(context, ref_list, MAX_CONCURRENT_TASKS)
                 results = await scrape_all_sequential(context, ref_list)
                 await context.close()
                 return results
@@ -222,7 +132,7 @@ async def run_scraper_task(
     found_refs = []
     not_found_refs = []
     if task_result:
-        for idx, [ref_data, not_found] in enumerate(task_result):
+        for _, [ref_data, not_found] in enumerate(task_result):
             if not_found:
                 not_found_refs.append(not_found)
             else:
