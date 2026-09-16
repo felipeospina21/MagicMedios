@@ -73,7 +73,7 @@ async def extract_data(page: Page, original_ref: str) -> TaskResult:
             continue
 
         await asyncio.sleep(2)
-        await product_link.click()
+        await product_link.click(force=True)
         break
 
     title, description = await get_description(page, ref)
