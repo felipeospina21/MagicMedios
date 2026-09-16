@@ -1,7 +1,9 @@
 import asyncio
 import locale
+import subprocess
 import time
 from argparse import Namespace
+from pathlib import Path
 
 from dotenv import load_dotenv
 
@@ -10,6 +12,18 @@ from entities.entities import ProductData
 from log import flagged_logger, logger
 from presentation import Presentation
 from scraper import run_scraper_task, scrape
+
+
+def get_app_version() -> str:
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "--short", "HEAD"],
+            cwd=Path(__file__).resolve().parent,
+            stderr=subprocess.DEVNULL,
+            text=True,
+        ).strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return "unknown"
 
 
 # FIX: Move to other place
@@ -36,6 +50,7 @@ async def main():
     locale.setlocale(locale.LC_TIME, "")
 
     print("-------------****-------------- ")
+    print(f"Version: {get_app_version()}")
 
     app = App()
     app.prompt()
@@ -80,4 +95,5 @@ async def main():
     print(f"\n-------- Proceso Finalizado en {total_time} minutos --------")
 
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())
