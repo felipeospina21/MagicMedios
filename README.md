@@ -54,3 +54,22 @@ test => (cpMU-12-2,mpGO0020, cpVA-1153,mpTE0677,cdk8)
 1. Automatizar envio de app.log
 2. Compilar a .bat https://cx-freeze.readthedocs.io
 3. Mejorar manejo de errores
+
+## playwright browser issue
+
+```powershell
+Invoke-WebRequest -Uri "https://cdn.playwright.dev/builds/cft/153.0.8010.12/win64/chrome-win64.zip" -OutFile "$env:TEMP\chrome-test.zip"
+
+# 1. Create Playwright's required folder for build 1243
+New-Item -ItemType Directory -Force -Path "$env:LOCALAPPDATA\ms-playwright\chromium-1243"
+
+# 2. Extract the downloaded zip file into that folder
+Expand-Archive -Path "$env:TEMP\chrome-test.zip" -DestinationPath "$env:LOCALAPPDATA\ms-playwright\chromium-1243" -Force
+
+# 3. Clean up the temp zip file
+Remove-Item "$env:TEMP\chrome-test.zip"
+
+# 4. Test if True
+Test-Path "$env:LOCALAPPDATA\ms-playwright\chromium-1243\chrome-win64\chrome.exe"
+
+```
