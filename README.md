@@ -58,22 +58,25 @@ test => (cpMU-12-2,mpGO0020, cpVA-1153,mpTE0677,cdk8)
 ## playwright browser issue
 
 ```powershell
-Invoke-WebRequest -Uri "https://cdn.playwright.dev/builds/cft/153.0.8010.12/win64/chrome-win64.zip" -OutFile "$env:TEMP\chrome-test.zip"
+# 1. Create a permanent directory on your C drive
+New-Item -ItemType Directory -Force -Path "C:\PlaywrightBrowsers"
 
-# 1. Create Playwright's required folder for build 1243
-New-Item -ItemType Directory -Force -Path "$env:LOCALAPPDATA\ms-playwright\chromium-1243"
+# 2. Tell Playwright to use this custom location
+[System.Environment]::SetEnvironmentVariable("PLAYWRIGHT_BROWSERS_PATH", "C:\PlaywrightBrowsers", "User")
+$env:PLAYWRIGHT_BROWSERS_PATH="C:\PlaywrightBrowsers"
 
-# 2. Extract the downloaded zip file into that folder
-Expand-Archive -Path "$env:TEMP\chrome-test.zip" -DestinationPath "$env:LOCALAPPDATA\ms-playwright\chromium-1243" -Force
+# 3. Download the Chromium zip to C:\PlaywrightBrowsers
+Invoke-WebRequest -Uri "https://cdn.playwright.dev/builds/cft/153.0.8010.12/win64/chrome-win64.zip" -OutFile "C:\PlaywrightBrowsers\chrome-1243.zip"
 
-# 3. Clean up the temp zip file
-Remove-Item "$env:TEMP\chrome-test.zip"
+# 4. Create the exact version folder Playwright requires
+New-Item -ItemType Directory -Force -Path "C:\PlaywrightBrowsers\chromium-1243"
 
-# 4. Test if True
-Test-Path "$env:LOCALAPPDATA\ms-playwright\chromium-1243\chrome-win64\chrome.exe"
+# 5. Extract the contents
+Expand-Archive -Path "C:\PlaywrightBrowsers\chrome-1243.zip" -DestinationPath "C:\PlaywrightBrowsers\chromium-1243" -Force
 
-# 5. After validation run this to persist changes
-New-Item -ItemType File -Force -Path "$env:LOCALAPPDATA\ms-playwright\chromium-1243\INSTALLATION_COMPLETE"
-New-Item -ItemType File -Force -Path "$env:LOCALAPPDATA\ms-playwright\chromium-1243\DEPENDENCIES_VALIDATED"
+# 6. Test if true
+Test-Path "C:\PlaywrightBrowsers\chromium-1243\chrome-win64\chrome.exe"
 
+# 7. Clean up the zip file
+Remove-Item "C:\PlaywrightBrowsers\chrome-1243.zip"
 ```
