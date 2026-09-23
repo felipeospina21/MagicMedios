@@ -72,4 +72,8 @@ Remove-Item "$env:TEMP\chrome-test.zip"
 # 4. Test if True
 Test-Path "$env:LOCALAPPDATA\ms-playwright\chromium-1243\chrome-win64\chrome.exe"
 
+# 5. After validation run this to persist changes
+New-Item -ItemType File -Force -Path "$env:LOCALAPPDATA\ms-playwright\chromium-1243\INSTALLATION_COMPLETE"
+New-Item -ItemType File -Force -Path "$env:LOCALAPPDATA\ms-playwright\chromium-1243\DEPENDENCIES_VALIDATED"
+
 ```
