@@ -101,6 +101,7 @@ async def create_persistent_context(playwright, headless_flag: bool) -> BrowserC
         headless=headless_flag,
         locale=DEFAULT_BROWSER_LOCALE,
         args=CHROMIUM_ARGS,
+        channel="chrome",
     )
 
 
