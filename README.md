@@ -1,6 +1,66 @@
-#MagicMedios
+# MagicMedios
 
-Automatización cotizador
+Automatización del proceso de cotización para una empresa de publicidad y merchandising (Magic Medios).
+
+Dado un cliente y una lista de códigos de producto, el robot consulta los portales de varios proveedores con [Playwright](https://playwright.dev/python/), extrae título, descripción, precios e imágenes de cada referencia, y genera una presentación de PowerPoint (`.pptx`) con la cotización lista para enviar. Lleva un consecutivo de cotizaciones y registra un log de la ejecución.
+
+## Cómo funciona
+
+1. Pide el nombre del cliente, la empresa y el listado de códigos (con prefijo de proveedor).
+2. Busca cada código en el portal del proveedor correspondiente (`suppliers/`).
+3. Si algún código no se encuentra, permite reintentar solo con esos códigos.
+4. Arma la presentación a partir de la plantilla `plantillas/cotizacion.pptm` (encabezado, datos del cliente, una diapositiva por referencia y política comercial).
+5. Guarda el archivo e incrementa el consecutivo.
+
+## Stack
+
+- Python 3.12 o superior (el código usa la sintaxis `type`; los pasos de instalación de abajo mencionan 3.9.6 y están desactualizados)
+- Playwright (scraping asíncrono) y `requests`
+- `python-pptx` (generación de la cotización)
+- `python-dotenv`
+- Ruff (lint) y Makefile con atajos de ejecución
+
+## Variables de entorno
+
+Archivo `.env` en la raíz (solo se listan los nombres):
+
+```
+COTIZACIONES_PATH=
+API_TOKEN=
+MP_USERNAME=
+MP_PASSWORD=
+PROMO_OP_PASSWORD=
+```
+
+## Ejecución
+
+```bash
+python main.py                 # modo normal (pide cliente, empresa y usuario)
+make start                     # idem, vía Makefile
+make debug h=false             # modo debug (archivo de prueba, sin prompts)
+make test                      # modo test
+make load l=3                  # prueba de carga del scraper (sin generar PPTX)
+make lint                      # ruff check
+```
+
+Opciones de línea de comandos: `--debug`, `--test`, `--load_test N`, `--concurrent_tasks N` y `--headless true|false`.
+
+## Estructura
+
+```
+main.py            # Flujo principal
+app.py             # Argumentos, prompts y consecutivo
+scraper.py         # Orquestación de Playwright
+suppliers/         # Un módulo por proveedor (cdopromo, mppromos, nwpromo, promoop, magicmedios)
+presentation.py    # Generación del PowerPoint
+entities/          # Tipos de datos
+plantillas/        # Plantilla de cotización
+*.bat              # Scripts para instalar/actualizar y correr en Windows
+```
+
+> Proyecto personal hecho para un caso de uso concreto. No es una herramienta de uso general.
+
+---
 
 # Instalación:
 
